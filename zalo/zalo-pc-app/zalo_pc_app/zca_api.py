@@ -94,6 +94,56 @@ def _coerce(value, typ):
     return value
 
 
+def _split_top(text):
+    """Tach `a: T = 1, b: Record<string, number>` theo dau phay o MUC NGOAI CUNG (bo qua phay trong <>, (), [], {} va chuoi)."""
+    parts, depth, cur, quote = [], 0, [], ""
+    for ch in text:
+        if quote:
+            cur.append(ch)
+            if ch == quote:
+                quote = ""
+            continue
+        if ch in "\"'":
+            quote = ch
+        elif ch in "<([{":
+            depth += 1
+        elif ch in ">)]}":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            parts.append("".join(cur))
+            cur = []
+            continue
+        cur.append(ch)
+    if "".join(cur).strip():
+        parts.append("".join(cur))
+    return parts
+
+
+_LITERAL_NUM = re.compile(r"^-?\d+(?:\.\d+)?$")
+
+
+def signature_defaults(signature):
+    """Gia tri mac dinh don gian (so, true/false, chuoi) trong chu ky ham cua zca-js, vi du
+    `api.friend.getAliasListV2(page: number = 1, count: number = 100)` -> {"page": 1, "count": 100}.
+    zca-js tu ap cac mac dinh nay truoc khi gui; bo goi chung PHAI ap giong vay, khong thi tham so bo trong khong duoc gui va Zalo tra
+    114 / 111 «tham so khong hop le / thieu» (do that 14/11/2026: getAliasList, getPhonebookV2, getDefaultGuggyGifs…). Mac dinh phuc tap
+    (doi tuong `= {}`, bieu thuc) bo qua."""
+    m = re.search(r"\((.*)\)\s*$", signature or "", re.S)
+    out = {}
+    for part in _split_top(m.group(1) if m else ""):
+        m2 = re.match(r"\s*(\w+)\??\s*:\s*.+?=\s*(.+?)\s*$", part, re.S)
+        if not m2:
+            continue
+        name, lit = m2.group(1), m2.group(2)
+        if _LITERAL_NUM.match(lit):
+            out[name] = float(lit) if "." in lit else int(lit)
+        elif lit in ("true", "false"):
+            out[name] = lit == "true"
+        elif len(lit) >= 2 and lit[0] == lit[-1] and lit[0] in "\"'":
+            out[name] = lit[1:-1]
+    return out
+
+
 def _eval(expr, inputs, args, ctx):
     kind = expr[0]
     if kind == "lit":
@@ -109,7 +159,9 @@ def _eval(expr, inputs, args, ctx):
     typ = (args.get(name) or {}).get("type", "")
     if kind == "arg":
         if val is None:
-            return expr[2] if len(expr) > 2 else None
+            if len(expr) > 2:
+                return expr[2]
+            return (args.get(name) or {}).get("sig_default")       # mac dinh trong chu ky zca-js (xem signature_defaults)
         return _coerce(val, typ)
     if val is None:
         return None
@@ -171,7 +223,10 @@ _RAW_BUILDERS = {"translateMessage": _translate_params, "translateMessageSuggest
 
 def build_params(entry, inputs, ctx):
     """Dung params gui di. `params` (neu co) la JSON nguyen khoi, THANG THE."""
-    args = {a["name"]: a for a in entry.get("args", [])}
+    args = {a["name"]: dict(a) for a in entry.get("args", [])}
+    for _n, _v in signature_defaults(entry.get("signature")).items():
+        if _n in args:
+            args[_n]["sig_default"] = _v
     raw = inputs.get("params")
     if isinstance(raw, str) and raw.strip():
         try:

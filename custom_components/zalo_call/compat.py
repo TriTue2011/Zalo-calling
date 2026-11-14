@@ -1,7 +1,7 @@
 """Tương thích tên trường với zalo_bot cũ (13/11/2026).
 
 Automation viết cho `zalo_bot` dùng tên trường khác (`image_path`, `video_path_or_url`, `thumbnail_url`, `group_id`, `thread_ids`, `uid_from`…).
-Đổi tên TRƯỚC khi kiểm trường bắt buộc, để dời automation chỉ cần đổi tên miền dịch vụ. Khoá nào dịch vụ không có thì vẫn bị bỏ qua, nhưng
+Đổi tên TRƯỚC khi kiểm trường bắt buộc, và `type` nhận cả 0/1 lẫn user/group (normalize_thread_type), để dời automation chỉ cần đổi tên miền dịch vụ. Khoá nào dịch vụ không có thì vẫn bị bỏ qua, nhưng
 nay có cảnh báo (trước đây bị bỏ lặng lẽ: `ttl`, `quote`, `thumbnail_url` biến mất không dấu vết). Module thuần, không nhập homeassistant.
 """
 from __future__ import annotations
@@ -21,6 +21,16 @@ PER_SERVICE = {
 }
 # zalo_bot chọn tài khoản bằng các khoá này; ở đây mỗi tích hợp là một tài khoản (chọn bằng entry_id) nên bỏ qua, không cảnh báo.
 IGNORED = frozenset({"account_selection", "own_id"})
+
+
+def normalize_thread_type(value: Any) -> str:
+    """Loại hội thoại như zalo_bot: nhận 0/1 lẫn user/group (không phân biệt hoa thường) và trả "user" hoặc "group". Giá trị lạ: ValueError."""
+    v = str(value).strip().lower()
+    if v in ("0", "user"):
+        return "user"
+    if v in ("1", "group"):
+        return "group"
+    raise ValueError('type phải là user hoặc group (hay 0 / 1 như zalo_bot), nhận được %r' % (value,))
 
 
 def rename_aliases(service: str, data: Any, fields: Collection[str] = ()) -> Any:

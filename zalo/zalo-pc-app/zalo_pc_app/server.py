@@ -73,6 +73,7 @@ session cookie — never the post-login zpw_ver/zpw_type params.
 
 import io
 import json
+import mimetypes
 import os
 import re
 import http.client
@@ -1106,6 +1107,30 @@ def _normalize_call_id(value):
     response, and the UI reuses it for /api/call/end — so one call
     keeps one id across 11300, 11301, cancel/endcall/answerack."""
     return _next_call_id()
+
+
+def parse_byte_range(header, size):
+    """Doc header `Range` cho tep `size` byte. -> None (khong co / khong hieu / nhieu khoang: tra ca tep) | (dau, cuoi) bao gom hai dau |
+    False (khong thoa: 416). Hai dang pho bien cua trinh duyet: `bytes=a-b`, `bytes=a-`, `bytes=-n` (n byte cuoi)."""
+    if not header or size <= 0:
+        return None
+    h = str(header).strip().lower()
+    if not h.startswith("bytes=") or "," in h:
+        return None
+    first, _, last = h[6:].strip().partition("-")
+    try:
+        if first == "":                              # bytes=-n: n byte cuoi
+            n = int(last)
+            if n <= 0:
+                return False
+            return (max(0, size - n), size - 1)
+        start = int(first)
+        end = size - 1 if last == "" else min(int(last), size - 1)
+    except ValueError:
+        return None
+    if start < 0 or start >= size or end < start:
+        return False
+    return (start, end)
 
 
 def _save_sent_video_copy_async(thread_type, thread_id, msg_id, video_url):
@@ -3183,19 +3208,37 @@ class Handler(media_ctl_calls.MediaControl, voice_calls.VoiceHandler, video_call
         self.end_headers()
         self.wfile.write(body)
 
-    def _send_bytes(self, data, filename, mime="application/octet-stream",
-                    status=200):
-        """Tra ve bytes file (tai file den ve — xem /api/file/
-        download): Content-Disposition attachment voi ten goc
-        (RFC 5987 filename* UTF-8 + filename ASCII du phong)."""
+    def _send_bytes(self, data, filename, mime=None, status=200):
+        """Tra ve bytes file (tai file den ve — xem /api/file/download): Content-Disposition attachment voi ten goc
+        (RFC 5987 filename* UTF-8 + filename ASCII du phong).
+
+        Ho tro `Range: bytes=…` (206 + Content-Range) va luon bao `Accept-Ranges: bytes` (14/11/2026): trinh duyet doc video MP4 phan manh
+        (camera HA) theo tung doan; khong co Range thi Chrome chi doc khuc dau tep, thoi luong sai va WebUI hien 0:00. `mime` bo trong = doan
+        theo duoi tep (video/mp4…) de the <video> nhan dung loai."""
         safe = "".join(ch if ch.isalnum() or ch in "._- "
                        else "_" for ch in (filename or "file"))
         safe = safe.strip() or "file"
         quoted = urllib.parse.quote(filename or "file", safe="")
         disp = ("attachment; filename=\"%s\"; filename*=UTF-8''%s"
                 % (safe, quoted))
-        self.send_response(status)
+        mime = mime or mimetypes.guess_type(filename or "")[0] or "application/octet-stream"
+        size = len(data)
+        rng = parse_byte_range(self.headers.get("Range") if status == 200 else None, size)
+        if rng is False:
+            self.send_response(416)
+            self.send_header("Content-Range", "bytes */%d" % size)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        if rng is not None:
+            start, end = rng
+            self.send_response(206)
+            self.send_header("Content-Range", "bytes %d-%d/%d" % (start, end, size))
+            data = data[start:end + 1]
+        else:
+            self.send_response(status)
         self.send_header("Content-Type", mime)
+        self.send_header("Accept-Ranges", "bytes")
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Content-Disposition", disp)
         self.end_headers()
@@ -4043,6 +4086,9 @@ class Handler(media_ctl_calls.MediaControl, voice_calls.VoiceHandler, video_call
                         # Tệp VIDEO: gửi thành tin video (có chú thích, ảnh bìa, thời lượng) như Zalo PC; lỗi tải lên thì quay về gửi tệp thường.
                         caption_text = str(fields.get("desc") or "").strip()[:4000]
                         probe = video_probe_mod.probe_video_bytes(data_bytes, filename)
+                        thumb_part = files.get("thumb")                  # ảnh bìa do người gọi đưa (HA `thumbnail`): chỉ nhận JPEG thật, không thì dùng khung hình đầu
+                        if thumb_part and chat_mod.detect_image_format(thumb_part[2]) == "jpg":
+                            probe["thumb"] = thumb_part[2]
                         try:
                             res = chat.send_video_file(thread_type, thread_id, filename, data_bytes, caption=caption_text,
                                                        width=probe.get("width", 0), height=probe.get("height", 0), duration_ms=probe.get("duration_ms", 0),

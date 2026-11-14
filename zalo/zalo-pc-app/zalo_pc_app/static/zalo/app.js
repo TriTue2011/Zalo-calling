@@ -1394,9 +1394,15 @@ async function setCalls() {
   const txt = (id, label, val, ph) => h("div", { class: "field" }, h("label", { for: id }, label), h("input", { type: "text", id, value: val || "", placeholder: ph || "", spellcheck: "false", autocomplete: "off" }));
   const num = (id, label, val, min, max, step) => h("div", { class: "field" }, h("label", { for: id }, label), h("input", { type: "number", id, value: String(val), min, max, step }));
   const chk = (id, label, val) => h("label", { class: "chk" }, h("input", { type: "checkbox", id, checked: !!val }), label);
+  const gainDb = (pct) => { const p = +pct || 0; return p <= 0 ? "giữ nguyên (0 dB)" : (20 * Math.log10(p / 100) >= 0 ? "+" : "") + (20 * Math.log10(p / 100)).toFixed(1).replace(".", ",") + " dB"; };
+  const gainField = (id, label, val) => { const inp = h("input", { type: "number", id, value: String(val), min: 0, max: 300, step: 5 }), out = h("span", { class: "inote", "aria-live": "polite" }, gainDb(val));
+    inp.addEventListener("input", () => { out.textContent = gainDb(inp.value); });
+    return h("div", { class: "field" }, h("label", { for: id }, label + " (%, 0 = giữ nguyên · tối đa 300)"), h("div", { style: "display:flex;gap:.5rem;align-items:center" }, inp, out)); };
   const fmt = h("select", { id: "dev-mic-format" }, h("option", { value: "auto", selected: (d.mic_format || "auto") === "auto" }, "Tự nhận (rtsp, http, tệp)"), h("option", { value: "s16le16k", selected: d.mic_format === "s16le16k" }, "PCM16 mono 16 kHz thô (mic loa R1)"));
   const save = async () => {
     const g = (id) => $(id), body = { mic_url: g("dev-mic-url").value.trim(), mic_format: g("dev-mic-format").value, auto_mic: g("dev-auto-mic").checked, speaker_url: g("dev-speaker-url").value.trim(), echo_guard: g("dev-echo-guard").checked,
+      mic_gain: +g("dev-mic-gain").value || 0, speaker_gain: +g("dev-speaker-gain").value || 0,
+      echo_delay_min_ms: g("dev-echo-min").value.trim(), echo_delay_max_ms: g("dev-echo-max").value.trim(), echo_ratio: g("dev-echo-ratio").value.trim(),
       camera_url: g("dev-camera-url").value.trim(), auto_video_on_request: g("dev-auto-video").checked, auto_video_delay: +g("dev-auto-delay").value || 0,
       video: { width: +g("dev-width").value, height: +g("dev-height").value, fps: +g("dev-fps").value, bitrate_kbps: +g("dev-bitrate").value } };
     const res = await api("/api/settings/devices", "POST", body);
@@ -1407,6 +1413,13 @@ async function setCalls() {
       txt("dev-mic-url", "Nguồn mic (URL)", d.mic_url, "rtsp://… (camera/go2rtc) · http://HA:8123/api/r1_speaker/mic/…?k=… (loa R1) · test"),
       h("div", { class: "field" }, h("label", { for: "dev-mic-format" }, "Định dạng"), fmt),
       chk("dev-auto-mic", "Tự phát mic khi cuộc gọi được nghe máy", d.auto_mic)),
+    section("set-audio", "Độ to phần mềm và chống vọng",
+      h("p", { class: "inote" }, "Cài đặt mặc định cho mọi cuộc gọi, đặt độc lập với cài đặt của loa R1. Quy tắc/automation và nút −/+ trong cuộc gọi ghi đè khi cần. Home Assistant đổi được cùng các giá trị này (dịch vụ zalo_call.set_app_settings, mục devices) nên hai bên luôn khớp."),
+      gainField("dev-mic-gain", "Độ to mic gửi sang bên kia", d.mic_gain || 0),
+      gainField("dev-speaker-gain", "Độ to tiếng bên kia ra loa", d.speaker_gain || 0),
+      h("div", { class: "grid4" }, num("dev-echo-min", "Vọng trễ từ (ms)", d.echo_delay_min_ms == null ? "" : d.echo_delay_min_ms, 0, 3000, 10), num("dev-echo-max", "đến (ms)", d.echo_delay_max_ms == null ? "" : d.echo_delay_max_ms, 0, 3000, 10),
+        num("dev-echo-ratio", "Ngưỡng vọng (×)", d.echo_ratio == null ? "" : d.echo_ratio, 0.5, 10, 0.1)),
+      h("p", { class: "inote" }, "Vọng trễ: để trống cả ba ô = theo mặc định của máy chủ (300–750 ms, ngưỡng 2,0); hai ô trễ cùng 0 = tắt. Mic nhỏ hơn «ngưỡng × tiếng loa» trong khoảng trễ bị coi là vọng và không gửi; to hơn (người nhà nói chen) thì cho qua. Loa R1 song công đo được trễ 450–550 ms.")),
     section("set-speaker", "Loa (tiếng bên kia phát ra)",
       txt("dev-speaker-url", "URL bộ đàm (http/https, nhận A-law 8 kHz bằng POST)", d.speaker_url, "http://HA:8123/api/r1_speaker/intercom/…?k=… (loa R1)"),
       chk("dev-echo-guard", "Chống vọng: tạm ngừng gửi mic khi loa đang phát tiếng bên kia (dùng khi mic và loa là cùng một thiết bị)", d.echo_guard),

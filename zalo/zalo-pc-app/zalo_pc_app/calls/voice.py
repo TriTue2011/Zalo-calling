@@ -75,17 +75,28 @@ def _stop_speaker(call_id):
     return sink
 
 
+def echo_params(dev):
+    """(cửa sổ trễ giây hoặc None, tỉ lệ hoặc None) từ cài đặt thiết bị; None = theo biến môi trường ZALO_PC_ECHO_* / mặc định. WebUI, dịch vụ HA và
+    biến môi trường cùng một nguồn: devices.json thắng, bỏ trống thì biến môi trường."""
+    lo, hi = dev.get("echo_delay_min_ms"), dev.get("echo_delay_max_ms")
+    delay = (lo / 1000.0, hi / 1000.0) if isinstance(lo, (int, float)) and isinstance(hi, (int, float)) else None
+    ratio = dev.get("echo_ratio")
+    return delay, (float(ratio) if isinstance(ratio, (int, float)) else None)
+
+
 def _guard_for_call(call_id):
     """EchoGuard cua cuoc goi (tao khi cai dat bat chong vong), dung chung cho mic va loa."""
     key = str(call_id)
     if key in ECHO_GUARDS:
         return ECHO_GUARDS[key]
     dev = srv()._devices_for_call(call_id)
+    delay, ratio = echo_params(dev)
+    window = delay if delay is not None else audio_rx_mod._delay_window()
     if dev.get("echo_guard"):
-        ECHO_GUARDS[key] = audio_rx_mod.EchoGuard()                       # nửa song công + vọng trễ
+        ECHO_GUARDS[key] = audio_rx_mod.EchoGuard(delay=delay, ratio=ratio)          # nửa song công + vọng trễ
         return ECHO_GUARDS[key]
-    if audio_rx_mod.is_duplex_url(dev.get("speaker_url")) and audio_rx_mod._delay_window()[1] > 0:
-        ECHO_GUARDS[key] = audio_rx_mod.EchoGuard(classic=False)          # song công (R1 tự khử vọng): mic luôn mở, chỉ chặn VỌNG TRỄ còn sót
+    if audio_rx_mod.is_duplex_url(dev.get("speaker_url")) and window[1] > 0:
+        ECHO_GUARDS[key] = audio_rx_mod.EchoGuard(classic=False, delay=delay, ratio=ratio)   # song công (R1 tự khử vọng): mic luôn mở, chỉ chặn VỌNG TRỄ còn sót
         return ECHO_GUARDS[key]
     return None
 

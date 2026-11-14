@@ -145,7 +145,7 @@ Thay vì gõ mã Zalo, hãy **chọn người và nhóm từ danh bạ**: *Cài 
 | Thuộc tính của thực thể | Ý nghĩa |
 |---|---|
 | `thread_id` | Mã Zalo của người hoặc nhóm, truyền thẳng vào `send_message`, `make_call`, `alert_call` |
-| `type` | `user` (người) hoặc `group` (nhóm). **Chỉ `user` gọi điện được** |
+| `type` | `user` (người) hoặc `group` (nhóm). **Chỉ `user` gọi điện được.** Mọi dịch vụ gửi/quản lý còn nhận `0` / `1` như zalo_bot cũ (không phân biệt hoa thường: `"Group"`, `1` đều thành `group`), nên dời automation từ `zalo_bot` chỉ cần đổi tên miền dịch vụ |
 | `loai` | «người» hoặc «nhóm» (để hiển thị) |
 
 ```yaml
@@ -588,19 +588,25 @@ data:
 <a id="set_default_devices"></a>
 #### Đặt thiết bị mặc định — `zalo_call.set_default_devices`
 
-Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng). Loa, mic, camera KHÔNG còn mặc định - do quy tắc/automation chọn cho từng cuộc gọi. Trường nào bỏ trống thì giữ nguyên.
+Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng) và độ to phần mềm của mic/loa, tham số chống vọng trễ. Loa, mic, camera KHÔNG còn mặc định - do quy tắc/automation chọn cho từng cuộc gọi. Trường nào bỏ trống thì giữ nguyên.
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
 ```yaml
 action: zalo_call.set_default_devices
 data:
-  auto_mic: false       # tuỳ chọn - Tự phát mic khi nghe máy
-  auto_video: false     # tuỳ chọn - Tự đồng ý khi bên kia xin gọi video (mọi người)
-  video_consent: false  # tuỳ chọn - Cho phép đồng ý chuyển sang video (công tắc tổng)
-  echo_guard: "auto"    # tuỳ chọn - Chống vọng
-  auto_video_delay: 0   # tuỳ chọn - Chờ trước khi tự đồng ý (giây)
-  call_volume: 0        # tuỳ chọn - Âm lượng cuộc gọi mặc định
+  auto_mic: false          # tuỳ chọn - Tự phát mic khi nghe máy
+  auto_video: false        # tuỳ chọn - Tự đồng ý khi bên kia xin gọi video (mọi người)
+  video_consent: false     # tuỳ chọn - Cho phép đồng ý chuyển sang video (công tắc tổng)
+  echo_guard: "auto"       # tuỳ chọn - Chống vọng
+  auto_video_delay: 0      # tuỳ chọn - Chờ trước khi tự đồng ý (giây)
+  call_volume: 0           # tuỳ chọn - Âm lượng cuộc gọi mặc định
+  mic_gain: 0              # tuỳ chọn - Độ to mic gửi sang bên kia (phần mềm, %)
+  speaker_gain: 0          # tuỳ chọn - Độ to tiếng bên kia ra loa (phần mềm, %)
+  echo_delay_min_ms: 0     # tuỳ chọn - Chống vọng — trễ loa→mic thấp nhất (ms)
+  echo_delay_max_ms: 0     # tuỳ chọn - Chống vọng — trễ loa→mic cao nhất (ms)
+  echo_ratio: 0.5          # tuỳ chọn - Chống vọng — ngưỡng (×)
+  echo_use_default: false  # tuỳ chọn - Chống vọng — trở về mặc định của máy chủ
 ```
 
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
@@ -611,6 +617,12 @@ data:
 | `echo_guard` | Chống vọng | không | auto = chỉ chặn mic khi mic và loa là cùng một thiết bị (ví dụ R1); on = luôn chặn mic khi loa đang phát tiếng bên kia; duplex = song công, nói chen được (loa R1 dùng khử vọng của nó); off = tắt. |
 | `auto_video_delay` | Chờ trước khi tự đồng ý (giây) | không | Số giây chờ rồi mới tự đồng ý lời xin chuyển sang video (0 = đồng ý ngay; chỉ áp dụng khi cuộc gọi còn đang nói). |
 | `call_volume` | Âm lượng cuộc gọi mặc định | không | 1-100 % — âm lượng loa đặt khi nghe máy rồi trả lại khi cuộc gọi kết thúc; 0 = giữ nguyên âm lượng loa. |
+| `mic_gain` | Độ to mic gửi sang bên kia (phần mềm, %) | không | Độ to PHẦN MỀM của tiếng mic gửi đi, độc lập với cài đặt của loa R1. 100 % = 0 dB (giữ nguyên), 200 % = +6 dB, 50 % = −6 dB; 0 = giữ nguyên. Là mặc định cho mọi cuộc gọi; quy tắc (set_rule), make_call/answer_call và nút −/+ trên WebUI ghi đè. Ghi thẳng vào app nên WebUI hiện đúng giá trị này. |
+| `speaker_gain` | Độ to tiếng bên kia ra loa (phần mềm, %) | không | Độ to PHẦN MỀM của tiếng bên kia phát ra loa. 100 % = 0 dB, 0 = giữ nguyên. Mặc định cho mọi cuộc gọi; quy tắc và nút −/+ ghi đè. |
+| `echo_delay_min_ms` | Chống vọng — trễ loa→mic thấp nhất (ms) | không | Cửa sổ trễ để nhận ra VỌNG TRỄ của loa song công (loa R1 đo được 450–550 ms). Phải đi cùng «trễ cao nhất» và nhỏ hơn nó; cùng 0 = tắt bù trễ. Mặc định máy chủ 300–750. |
+| `echo_delay_max_ms` | Chống vọng — trễ loa→mic cao nhất (ms) | không | Xem «trễ thấp nhất». Mic nhỏ hơn «ngưỡng × tiếng loa» trong cửa sổ trễ này bị coi là vọng và không gửi; to hơn (người nhà nói chen) thì cho qua. |
+| `echo_ratio` | Chống vọng — ngưỡng (×) | không | Mic bị coi là vọng khi to < ngưỡng × đỉnh tiếng loa trong cửa sổ trễ. Mặc định 2,0; tăng nếu vẫn lọt vọng, giảm nếu người nhà nói chen bị cắt. |
+| `echo_use_default` | Chống vọng — trở về mặc định của máy chủ | không | Bật để xóa cả ba giá trị chống vọng trễ ở trên và theo mặc định / biến môi trường ZALO_PC_ECHO_* của máy chủ. |
 
 **Các lựa chọn:**
 
@@ -624,7 +636,7 @@ data:
 <a id="get_default_devices"></a>
 #### Xem mic/loa/camera mặc định — `zalo_call.get_default_devices`
 
-Trả về cài đặt thiết bị mặc định hiện tại (đặt bằng set_default_devices).
+Trả về cài đặt thiết bị mặc định hiện tại, gồm độ to mic/loa và chống vọng đọc từ app (đặt bằng set_default_devices, WebUI hoặc thực thể số).
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -882,6 +894,7 @@ Quy tắc chọn theo **ai gọi**: một người hoặc nhóm cụ thể (ưu 
 |---|---|---|
 | Gửi chữ | `send_message` | `message: "Xin chào"` (định dạng/màu/emoji: mục dưới) |
 | Gửi ảnh / tệp / video | `send_image` · `send_file` · `send_video` | `file: /config/www/anh.jpg` (đường dẫn trong thư mục cho phép, hoặc URL) |
+| Gửi **video** có chú thích | `send_video` | `file: /media/snapshots/cua_video.mp4`, `message: "🔔 Có người"`. HA đọc nội dung video rồi **app tải lên Zalo** (như zalo_bot cũ): xem được lâu dài, không cần HA có địa chỉ ngoài, tên tệp camera bị ghi đè lần sau cũng không sao. **Ảnh bìa là khung hình đầu của chính video** (không còn tự lấy tệp `…_thumb.jpg` nằm cạnh); muốn ảnh bìa riêng thì đưa `thumbnail` (JPEG). Chú thích nằm TRONG video, không cần gửi thêm tin chữ |
 | Gửi **tin thoại** | `send_voice` | `file: /config/www/loi-chao.mp3` (mp3/m4a/wav, tự đổi sang AAC); phản hồi có `voice_url` |
 | Gửi liên kết có xem trước | `send_link` | `link: https://...`, `message: "xem nè"` |
 | Sticker theo từ khoá | `send_sticker` | `keyword: "cảm ơn"`, `pick: random` |
@@ -995,6 +1008,30 @@ Sticker: `zalo_call.send_sticker` với `keyword: "cảm ơn"` (và `pick: rando
 
 **Trả lời của AI tự trả lời:** dùng cùng cài đặt mặc định ở trên, cộng thêm ô *AI: định dạng chữ trả lời* (mặc định `markdown`, để dấu `**` của AI thành chữ đậm thật), và *AI: tự nhấn mạnh số…*. Công tắc *Chữ: tự thêm emoji* cũng áp cho trả lời của AI.
 
+### Độ to mic/loa và chống vọng: một nguồn cho WebUI, dịch vụ, thực thể và blueprint
+
+Độ to PHẦN MỀM của mic gửi đi và của tiếng bên kia ra loa (`mic_gain`, `speaker_gain`, tính theo %: 100 % = 0 dB, 200 % = +6 dB, 50 % = −6 dB, 0 = giữ nguyên) và các tham số chống vọng trễ (`echo_delay_min_ms`, `echo_delay_max_ms`, `echo_ratio`) **độc lập với cài đặt của loa R1**. Giá trị nằm trong app (`devices.json`) nên mọi nơi đổi đều khớp nhau:
+
+| Nơi đổi | Cách |
+|---|---|
+| WebUI | **Cài đặt → Cuộc gọi → «Độ to phần mềm và chống vọng»** (hiện luôn số dB tương ứng) |
+| Dịch vụ | `zalo_call.set_default_devices` (đọc lại bằng `get_default_devices`) hoặc `zalo_call.set_app_settings` mục `devices` |
+| Thực thể | Năm thực thể `number` trên thiết bị Zalo Call (đổi trong giao diện HA hoặc bằng automation) |
+| Blueprint | `zalo_call_cai_dat_am_thanh`: đặt các giá trị này lúc HA khởi động hoặc khi nhấn nút |
+
+Thứ tự ưu tiên của độ to: nút −/+ trong cuộc gọi > quy tắc (`set_rule`) hoặc ô của `make_call` / `answer_call` / `alert_call` > mặc định ở trên > 100 %. Chống vọng trễ để trống thì theo biến môi trường `ZALO_PC_ECHO_DELAY_MS` / `ZALO_PC_ECHO_RATIO` (mặc định 300–750 ms, ngưỡng 2,0).
+
+### Tham số dịch vụ theo mã PC hay mã web
+
+App nói chuyện với Zalo theo kiểu Zalo PC, nhưng nguồn của tham số từng nhóm dịch vụ khác nhau (xem ghi chú trong mô tả dịch vụ):
+
+| Nhóm | Nguồn tham số | Mức tin cậy |
+|---|---|---|
+| Gửi tin, ảnh, tệp, thoại, video (`send_*`) | Bản Zalo PC thật (riêng video: cấu trúc khớp bản PC) | Đã dùng thật |
+| Thao tác nhóm, bạn bè, ghim, nhắc hẹn, bình chọn, reaction, ảnh đại diện (≈80 dịch vụ) | Kiểm toán bản Zalo PC 26.11.10; bảng reaction đã đối chiếu từng mục | Đã lần theo bundle; riêng `delete_chat` chưa lần hết |
+| Dịch vụ còn lại (≈240, gồm tag *«[Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]»*) | Thư viện web zca-js; đường API đều có trong bản PC | **Chưa đối chiếu với PC**; bỏ trống tham số thì app áp giá trị mặc định trong chữ ký hàm của zca-js |
+| Gọi điện | Kiểu khai báo theo `ZALO_PC_CALL_CLIENT` (mặc định `pc`) | Đã dùng thật |
+
 ## 8. WebUI và bình chọn nhóm
 
 ### Trong cuộc gọi: mic và loa của máy đang mở WebUI, khác với thiết bị trong nhà
@@ -1062,8 +1099,8 @@ Toàn bộ **363 dịch vụ** (tin nhắn, bạn bè, nhóm, hồ sơ, nhắc h
 | [Tắt hình trong cuộc gọi](docs/DICH-VU.md#stop_call_video) | `zalo_call.stop_call_video` | Dừng phát hình camera lên cuộc gọi đang diễn ra. |
 | [Bật mic trong cuộc gọi](docs/DICH-VU.md#start_call_mic) | `zalo_call.start_call_mic` | Phát tiếng từ camera, vệ tinh Assist (camera Imou/Dahua, loa R1) hoặc URL lên cuộc gọi đang diễn ra. |
 | [Tắt mic trong cuộc gọi](docs/DICH-VU.md#stop_call_mic) | `zalo_call.stop_call_mic` | Dừng phát tiếng lên cuộc gọi đang diễn ra. |
-| [Đặt thiết bị mặc định](docs/DICH-VU.md#set_default_devices) | `zalo_call.set_default_devices` | Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng). Loa, mic, camera KHÔNG... |
-| [Xem mic/loa/camera mặc định](docs/DICH-VU.md#get_default_devices) | `zalo_call.get_default_devices` | Trả về cài đặt thiết bị mặc định hiện tại (đặt bằng set_default_devices). |
+| [Đặt thiết bị mặc định](docs/DICH-VU.md#set_default_devices) | `zalo_call.set_default_devices` | Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng) và độ to phần mềm của... |
+| [Xem mic/loa/camera mặc định](docs/DICH-VU.md#get_default_devices) | `zalo_call.get_default_devices` | Trả về cài đặt thiết bị mặc định hiện tại, gồm độ to mic/loa và chống vọng đọc từ app (đặt bằng... |
 | **Quy tắc cho cuộc gọi đến và tin nhắn** | | |
 | [Đặt quy tắc cho cuộc gọi đến và tin nhắn](docs/DICH-VU.md#set_rule) | `zalo_call.set_rule` | Quy định hệ thống làm gì khi có người gọi hoặc nhắn đến. Chưa có quy tắc cho người đó thì hệ thống KHÔNG làm... |
 | [Xoá quy tắc](docs/DICH-VU.md#remove_rule) | `zalo_call.remove_rule` | Xoá quy tắc của một người/nhóm cụ thể hoặc của một nhóm đối tượng. Từ đó hệ thống quay về «không làm gì» với... |
@@ -1183,124 +1220,124 @@ Toàn bộ **363 dịch vụ** (tin nhắn, bạn bè, nhóm, hồ sơ, nhắc h
 | [Gắn nhãn cho hội thoại](docs/DICH-VU.md#update_label) | `zalo_call.update_label` | Gắn nhãn cho hội thoại |
 | **Phiên và xác thực (nâng cao)** | | |
 | [decryptGids](docs/DICH-VU.md#decrypt_gids) | `zalo_call.decrypt_gids` | decryptGids — Giải mã danh sách Global ID (g_...) ẩn danh thành User ID thật (tương ứng hàm... |
-| [encryptGids](docs/DICH-VU.md#encrypt_gids) | `zalo_call.encrypt_gids` | encryptGids — Mã hóa danh sách UID thật sang định danh ẩn danh Global Noise ID (OTDAKO...) (command 12053) |
+| [encryptGids](docs/DICH-VU.md#encrypt_gids) | `zalo_call.encrypt_gids` | encryptGids — Mã hóa danh sách UID thật sang định danh ẩn danh Global Noise ID (OTDAKO...) (command 12053)... |
 | [exportSession](docs/DICH-VU.md#export_session) | `zalo_call.export_session` | exportSession — Xuất toàn bộ thông tin phiên đăng nhập hiện tại (uid, imei, userAgent, language, cookie) dưới... |
 | [getContext](docs/DICH-VU.md#get_context) | `zalo_call.get_context` | getContext — API getContext thuộc phân hệ auth. (chưa tự động: khong dung dich vu Zalo qua serviceMap (xu ly... |
 | [getCookie](docs/DICH-VU.md#get_cookie) | `zalo_call.get_cookie` | getCookie — Get the current cookie string (chưa tự động: khong dung dich vu Zalo qua serviceMap (xu ly cuc... |
-| [getListDevice](docs/DICH-VU.md#get_list_device) | `zalo_call.get_list_device` | getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại. |
+| [getListDevice](docs/DICH-VU.md#get_list_device) | `zalo_call.get_list_device` | getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại. [Tham số theo zca-js... |
 | [getNoisedIds](docs/DICH-VU.md#get_noised_ids) | `zalo_call.get_noised_ids` | getNoisedIds — Chuyển đổi danh sách UID cá nhân (fids) và GID nhóm (gids) dạng số thuần (từ SQLite ZDB4.0... |
 | [getOwnId](docs/DICH-VU.md#get_own_id) | `zalo_call.get_own_id` | getOwnId — API getOwnId thuộc phân hệ auth. (chưa tự động: khong dung dich vu Zalo qua serviceMap (xu ly cuc... |
-| [getQR](docs/DICH-VU.md#get_q_r) | `zalo_call.get_q_r` | getQR — Lấy mã QR của danh sách người dùng theo UID. |
-| [lostFocus](docs/DICH-VU.md#lost_focus) | `zalo_call.lost_focus` | lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background). |
-| [scanURL](docs/DICH-VU.md#scan_u_r_l) | `zalo_call.scan_u_r_l` | scanURL — Quét và kiểm tra độ an toàn của đường dẫn URL thông qua bộ lọc bảo mật Zalo. |
+| [getQR](docs/DICH-VU.md#get_q_r) | `zalo_call.get_q_r` | getQR — Lấy mã QR của danh sách người dùng theo UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] |
+| [lostFocus](docs/DICH-VU.md#lost_focus) | `zalo_call.lost_focus` | lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background). [Tham số theo zca-js... |
+| [scanURL](docs/DICH-VU.md#scan_u_r_l) | `zalo_call.scan_u_r_l` | scanURL — Quét và kiểm tra độ an toàn của đường dẫn URL thông qua bộ lọc bảo mật Zalo. [Tham số theo zca-js... |
 | [updateActiveStatus](docs/DICH-VU.md#update_active_status) | `zalo_call.update_active_status` | updateActiveStatus — Cập nhật trạng thái hoạt động (Online / Offline / Ping) của tài khoản. (chưa tự động:... |
-| [updateLang](docs/DICH-VU.md#update_lang) | `zalo_call.update_lang` | updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo. |
+| [updateLang](docs/DICH-VU.md#update_lang) | `zalo_call.update_lang` | updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo. [Tham số theo zca-js (web), chưa đối chiếu... |
 | **Chat (nâng cao)** | | |
 | [getBlockSharingConversations](docs/DICH-VU.md#get_block_sharing_conversations) | `zalo_call.get_block_sharing_conversations` | getBlockSharingConversations — Lấy danh sách hội thoại đang bật chế độ chặn chia sẻ / chuyển tiếp tin nhắn... |
-| [getConvOfflineMessages](docs/DICH-VU.md#get_conv_offline_messages) | `zalo_call.get_conv_offline_messages` | getConvOfflineMessages — Lấy danh sách hội thoại nhóm có tin nhắn ngoại tuyến mới (command 12300) |
+| [getConvOfflineMessages](docs/DICH-VU.md#get_conv_offline_messages) | `zalo_call.get_conv_offline_messages` | getConvOfflineMessages — Lấy danh sách hội thoại nhóm có tin nhắn ngoại tuyến mới (command 12300) [Tham số... |
 | [getDirectMessageStatus](docs/DICH-VU.md#get_direct_message_status) | `zalo_call.get_direct_message_status` | getDirectMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn trong các hội thoại... |
-| [getLastSeen](docs/DICH-VU.md#get_last_seen) | `zalo_call.get_last_seen` | getLastSeen — Lấy thông tin trạng thái đã xem cuối cùng của danh sách nhóm và cá nhân (command 12009) |
+| [getLastSeen](docs/DICH-VU.md#get_last_seen) | `zalo_call.get_last_seen` | getLastSeen — Lấy thông tin trạng thái đã xem cuối cùng của danh sách nhóm và cá nhân (command 12009) [Tham... |
 | [getLastSeenReaction](docs/DICH-VU.md#get_last_seen_reaction) | `zalo_call.get_last_seen_reaction` | getLastSeenReaction — Lấy trạng thái đã xem cảm xúc (Reaction) cuối cùng của danh sách nhóm và cá nhân... |
-| [getRecentSearchList](docs/DICH-VU.md#get_recent_search_list) | `zalo_call.get_recent_search_list` | getRecentSearchList — Lấy danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12125) |
-| [getSuggestedConversations](docs/DICH-VU.md#get_suggested_conversations) | `zalo_call.get_suggested_conversations` | getSuggestedConversations — Lấy danh sách các cuộc hội thoại được gợi ý (command 11233) |
-| [getTranslateSetting](docs/DICH-VU.md#get_translate_setting) | `zalo_call.get_translate_setting` | getTranslateSetting — Lấy cấu hình tính năng dịch tin nhắn tự động bằng Zalo AI (command 13395) |
-| [markSubTabSeen](docs/DICH-VU.md#mark_sub_tab_seen) | `zalo_call.mark_sub_tab_seen` | markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214) |
+| [getRecentSearchList](docs/DICH-VU.md#get_recent_search_list) | `zalo_call.get_recent_search_list` | getRecentSearchList — Lấy danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12125) [Tham số theo zca-js... |
+| [getSuggestedConversations](docs/DICH-VU.md#get_suggested_conversations) | `zalo_call.get_suggested_conversations` | getSuggestedConversations — Lấy danh sách các cuộc hội thoại được gợi ý (command 11233) [Tham số theo zca-js... |
+| [getTranslateSetting](docs/DICH-VU.md#get_translate_setting) | `zalo_call.get_translate_setting` | getTranslateSetting — Lấy cấu hình tính năng dịch tin nhắn tự động bằng Zalo AI (command 13395) [Tham số theo... |
+| [markSubTabSeen](docs/DICH-VU.md#mark_sub_tab_seen) | `zalo_call.mark_sub_tab_seen` | markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214) [Tham số theo zca-js... |
 | [preloadConversations](docs/DICH-VU.md#preload_conversations) | `zalo_call.preload_conversations` | preloadConversations — Tải trước tin nhắn cuối cùng và trạng thái đã đọc của các hội thoại đang hoạt động... |
 | [renewMessageLink](docs/DICH-VU.md#renew_message_link) | `zalo_call.renew_message_link` | renewMessageLink — Gia hạn đường dẫn tải tệp đính kèm / đa phương tiện đã hết hạn trong tin nhắn (command... |
-| [sendBankCard](docs/DICH-VU.md#send_bank_card) | `zalo_call.send_bank_card` | sendBankCard — Gửi danh thiếp thông tin tài khoản ngân hàng (Bank Card) vào cuộc trò chuyện. (không hoàn tác... |
+| [sendBankCard](docs/DICH-VU.md#send_bank_card) | `zalo_call.send_bank_card` | sendBankCard — Gửi danh thiếp thông tin tài khoản ngân hàng (Bank Card) vào cuộc trò chuyện. [Tham số theo... |
 | [sendDeliveredEvent](docs/DICH-VU.md#send_delivered_event) | `zalo_call.send_delivered_event` | sendDeliveredEvent — Gửi tín hiệu xác nhận Đã nhận (Delivered) cho một hoặc nhiều tin nhắn. (chưa tự động:... |
 | [sendReport](docs/DICH-VU.md#send_report) | `zalo_call.send_report` | sendReport — Gửi báo cáo vi phạm (Report Abuse) đối với người dùng hoặc cuộc trò chuyện. (chưa tự động: khong... |
 | [sendSeenEvent](docs/DICH-VU.md#send_seen_event) | `zalo_call.send_seen_event` | sendSeenEvent — Gửi tín hiệu xác nhận Đã xem (Seen) cho các tin nhắn trong hội thoại. (chưa tự động: khong... |
-| [setPinnedConversations](docs/DICH-VU.md#set_pinned_conversations) | `zalo_call.set_pinned_conversations` | setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách. |
-| [translateMessage](docs/DICH-VU.md#translate_message) | `zalo_call.translate_message` | translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397) |
+| [setPinnedConversations](docs/DICH-VU.md#set_pinned_conversations) | `zalo_call.set_pinned_conversations` | setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách. [Tham số theo zca-js (web),... |
+| [translateMessage](docs/DICH-VU.md#translate_message) | `zalo_call.translate_message` | translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397) [Tham số theo zca-js... |
 | [translateMessageAuto](docs/DICH-VU.md#translate_message_auto) | `zalo_call.translate_message_auto` | translateMessageAuto — Gửi yêu cầu dịch tự động hàng loạt tin nhắn đến bằng Zalo AI (command 13398). Kết quả... |
 | [translateMessageSuggest](docs/DICH-VU.md#translate_message_suggest) | `zalo_call.translate_message_suggest` | translateMessageSuggest — Gửi yêu cầu dịch gợi ý tin nhắn đang soạn thảo bằng Zalo AI (command 13399). Kết... |
 | [undo](docs/DICH-VU.md#undo) | `zalo_call.undo` | undo — Thu hồi (Undo) một tin nhắn đã gửi với tất cả mọi người trong cuộc trò chuyện. (chưa tự động: khong... |
 | [undoMultiMessage](docs/DICH-VU.md#undo_multi_message) | `zalo_call.undo_multi_message` | undoMultiMessage — Thu hồi hàng loạt nhiều tin nhắn cùng lúc trong hội thoại cá nhân hoặc nhóm (command 12115... |
-| [updateArchivedChatList](docs/DICH-VU.md#update_archived_chat_list) | `zalo_call.update_archived_chat_list` | updateArchivedChatList — Đưa cuộc trò chuyện vào mục Lưu trữ (Archive) hoặc khôi phục ra ngoài. |
+| [updateArchivedChatList](docs/DICH-VU.md#update_archived_chat_list) | `zalo_call.update_archived_chat_list` | updateArchivedChatList — Đưa cuộc trò chuyện vào mục Lưu trữ (Archive) hoặc khôi phục ra ngoài. [Tham số theo... |
 | [updateBlockSharingConversation](docs/DICH-VU.md#update_block_sharing_conversation) | `zalo_call.update_block_sharing_conversation` | updateBlockSharingConversation — Bật hoặc tắt chế độ chặn chia sẻ / chuyển tiếp tin nhắn trong một hội thoại... |
 | [updatePinConversations](docs/DICH-VU.md#update_pin_conversations) | `zalo_call.update_pin_conversations` | updatePinConversations — Cập nhật danh sách hội thoại ghim qua /api/pinconvers/update (command 12121) hoặc... |
-| [updateRecentSearch](docs/DICH-VU.md#update_recent_search) | `zalo_call.update_recent_search` | updateRecentSearch — Cập nhật danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12126) |
+| [updateRecentSearch](docs/DICH-VU.md#update_recent_search) | `zalo_call.update_recent_search` | updateRecentSearch — Cập nhật danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12126) [Tham số theo... |
 | [updateTranslateSetting](docs/DICH-VU.md#update_translate_setting) | `zalo_call.update_translate_setting` | updateTranslateSetting — Cập nhật cấu hình dịch tin nhắn Zalo AI cho một hội thoại (command 13396) (chưa tự... |
 | **Nhóm (nâng cao)** | | |
-| [addGroupBlockedMember](docs/DICH-VU.md#add_group_blocked_member) | `zalo_call.add_group_blocked_member` | addGroupBlockedMember — Chặn một hoặc nhiều thành viên khỏi nhóm (không cho tham gia lại). (không hoàn tác... |
-| [analyseGroup](docs/DICH-VU.md#analyse_group) | `zalo_call.analyse_group` | analyseGroup — Lấy dữ liệu phân tích/thống kê của nhóm qua /api/group/analyse (command 12407) |
+| [addGroupBlockedMember](docs/DICH-VU.md#add_group_blocked_member) | `zalo_call.add_group_blocked_member` | addGroupBlockedMember — Chặn một hoặc nhiều thành viên khỏi nhóm (không cho tham gia lại). [Tham số theo... |
+| [analyseGroup](docs/DICH-VU.md#analyse_group) | `zalo_call.analyse_group` | analyseGroup — Lấy dữ liệu phân tích/thống kê của nhóm qua /api/group/analyse (command 12407) [Tham số theo... |
 | [checkQuotaCommunityMember](docs/DICH-VU.md#check_quota_community_member) | `zalo_call.check_quota_community_member` | checkQuotaCommunityMember — Kiểm tra điều kiện/hạn mức thành viên Cộng đồng đối với một thành viên cụ thể... |
-| [deleteGroupInviteBox](docs/DICH-VU.md#delete_group_invite_box) | `zalo_call.delete_group_invite_box` | deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm. (không hoàn tác được) |
-| [getE2eeGroupList](docs/DICH-VU.md#get_e2ee_group_list) | `zalo_call.get_e2ee_group_list` | getE2eeGroupList — Lấy danh sách các nhóm đang bật mã hóa đầu cuối E2EE (command 12146) |
-| [getExtraGroupInfo](docs/DICH-VU.md#get_extra_group_info) | `zalo_call.get_extra_group_info` | getExtraGroupInfo — Lấy ngữ cảnh và vai trò mở rộng của người dùng đối với nhiều nhóm (command 12607) |
-| [getGroupBlockedMember](docs/DICH-VU.md#get_group_blocked_member) | `zalo_call.get_group_blocked_member` | getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm. (không hoàn tác được) |
+| [deleteGroupInviteBox](docs/DICH-VU.md#delete_group_invite_box) | `zalo_call.delete_group_invite_box` | deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm. [Tham số theo zca-js (web), chưa... |
+| [getE2eeGroupList](docs/DICH-VU.md#get_e2ee_group_list) | `zalo_call.get_e2ee_group_list` | getE2eeGroupList — Lấy danh sách các nhóm đang bật mã hóa đầu cuối E2EE (command 12146) [Tham số theo zca-js... |
+| [getExtraGroupInfo](docs/DICH-VU.md#get_extra_group_info) | `zalo_call.get_extra_group_info` | getExtraGroupInfo — Lấy ngữ cảnh và vai trò mở rộng của người dùng đối với nhiều nhóm (command 12607) [Tham... |
+| [getGroupBlockedMember](docs/DICH-VU.md#get_group_blocked_member) | `zalo_call.get_group_blocked_member` | getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm. [Tham số theo zca-js (web), chưa... |
 | [getGroupCloudMessageJump](docs/DICH-VU.md#get_group_cloud_message_jump) | `zalo_call.get_group_cloud_message_jump` | getGroupCloudMessageJump — Nhảy tới vị trí một tin nhắn nhóm cụ thể trên Zalo Cloud Message và lấy ngữ cảnh... |
 | [getGroupCloudMessagePath](docs/DICH-VU.md#get_group_cloud_message_path) | `zalo_call.get_group_cloud_message_path` | getGroupCloudMessagePath — Lấy chuỗi tin nhắn nhóm theo đường dẫn nhảy tới một tin nhắn cụ thể (globalMsgId /... |
 | [getGroupInfoV2](docs/DICH-VU.md#get_group_info_v2) | `zalo_call.get_group_info_v2` | getGroupInfoV2 — Lấy thông tin nhóm và danh sách thành viên theo trang qua /api/group/getgi/v2 hoặc... |
-| [getGroupInviteBoxInfo](docs/DICH-VU.md#get_group_invite_box_info) | `zalo_call.get_group_invite_box_info` | getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể. |
-| [getGroupInviteBoxList](docs/DICH-VU.md#get_group_invite_box_list) | `zalo_call.get_group_invite_box_list` | getGroupInviteBoxList — Lấy danh sách tất cả lời mời tham gia nhóm đang chờ trong hộp thư. |
+| [getGroupInviteBoxInfo](docs/DICH-VU.md#get_group_invite_box_info) | `zalo_call.get_group_invite_box_info` | getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể. [Tham số theo zca-js (web),... |
+| [getGroupInviteBoxList](docs/DICH-VU.md#get_group_invite_box_list) | `zalo_call.get_group_invite_box_list` | getGroupInviteBoxList — Lấy danh sách tất cả lời mời tham gia nhóm đang chờ trong hộp thư. [Tham số theo... |
 | [getGroupLinkInfo](docs/DICH-VU.md#get_group_link_info) | `zalo_call.get_group_link_info` | getGroupLinkInfo — Tra cứu thông tin nhóm và danh sách thành viên theo trang từ đường dẫn nhóm công khai... |
 | [getGroupListV3](docs/DICH-VU.md#get_group_list_v3) | `zalo_call.get_group_list_v3` | getGroupListV3 — Lấy danh sách nhóm theo trang kèm thông tin thành viên đại diện (currentMems) và gợi ý nhóm... |
 | [getGroupMembersInfo](docs/DICH-VU.md#get_group_members_info) | `zalo_call.get_group_members_info` | getGroupMembersInfo — Giải mã hàng loạt thông tin hồ sơ thành viên (displayName, zaloName, avatar, globalId)... |
 | [getGroupMessageStatus](docs/DICH-VU.md#get_group_message_status) | `zalo_call.get_group_message_status` | getGroupMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn của danh sách thành... |
 | [getMultiGroupCloudMessages](docs/DICH-VU.md#get_multi_group_cloud_messages) | `zalo_call.get_multi_group_cloud_messages` | getMultiGroupCloudMessages — Đồng bộ nhanh tin nhắn Cloud của nhiều nhóm cùng lúc theo danh sách groupIds... |
-| [getPendingGroupMembers](docs/DICH-VU.md#get_pending_group_members) | `zalo_call.get_pending_group_members` | getPendingGroupMembers — Lấy danh sách các yêu cầu xin vào nhóm đang chờ Quản trị viên phê duyệt. |
-| [getQuotaCommunity](docs/DICH-VU.md#get_quota_community) | `zalo_call.get_quota_community` | getQuotaCommunity — Kiểm tra hạn mức nâng cấp nhóm lên Cộng đồng của tài khoản (command 12181) |
+| [getPendingGroupMembers](docs/DICH-VU.md#get_pending_group_members) | `zalo_call.get_pending_group_members` | getPendingGroupMembers — Lấy danh sách các yêu cầu xin vào nhóm đang chờ Quản trị viên phê duyệt. [Tham số... |
+| [getQuotaCommunity](docs/DICH-VU.md#get_quota_community) | `zalo_call.get_quota_community` | getQuotaCommunity — Kiểm tra hạn mức nâng cấp nhóm lên Cộng đồng của tài khoản (command 12181) [Tham số theo... |
 | [getRelatedFriendGroup](docs/DICH-VU.md#get_related_friend_group) | `zalo_call.get_related_friend_group` | getRelatedFriendGroup — Kiểm tra danh sách các nhóm chung giữa tài khoản hiện tại và danh sách UID truyền vào... |
-| [inviteUserToGroups](docs/DICH-VU.md#invite_user_to_groups) | `zalo_call.invite_user_to_groups` | inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng. |
-| [joinGroupInviteBox](docs/DICH-VU.md#join_group_invite_box) | `zalo_call.join_group_invite_box` | joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời. |
-| [removeGroupBlockedMember](docs/DICH-VU.md#remove_group_blocked_member) | `zalo_call.remove_group_blocked_member` | removeGroupBlockedMember — Gỡ chặn (Unblock) cho người dùng khỏi danh sách chặn của nhóm. (không hoàn tác... |
-| [removeGroupTopic](docs/DICH-VU.md#remove_group_topic) | `zalo_call.remove_group_topic` | removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829) (không hoàn tác được) |
-| [removeUserFromGroups](docs/DICH-VU.md#remove_user_from_groups) | `zalo_call.remove_user_from_groups` | removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606) (không hoàn tác được) |
-| [reviewPendingMemberRequest](docs/DICH-VU.md#review_pending_member_request) | `zalo_call.review_pending_member_request` | reviewPendingMemberRequest — Phê duyệt (Chấp nhận hoặc Từ chối) yêu cầu xin tham gia nhóm của thành viên mới. |
+| [inviteUserToGroups](docs/DICH-VU.md#invite_user_to_groups) | `zalo_call.invite_user_to_groups` | inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng. [Tham số theo zca-js (web),... |
+| [joinGroupInviteBox](docs/DICH-VU.md#join_group_invite_box) | `zalo_call.join_group_invite_box` | joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời. [Tham số theo zca-js (web), chưa đối... |
+| [removeGroupBlockedMember](docs/DICH-VU.md#remove_group_blocked_member) | `zalo_call.remove_group_blocked_member` | removeGroupBlockedMember — Gỡ chặn (Unblock) cho người dùng khỏi danh sách chặn của nhóm. [Tham số theo... |
+| [removeGroupTopic](docs/DICH-VU.md#remove_group_topic) | `zalo_call.remove_group_topic` | removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829) [Tham số theo zca-js (web), chưa đối... |
+| [removeUserFromGroups](docs/DICH-VU.md#remove_user_from_groups) | `zalo_call.remove_user_from_groups` | removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606) [Tham số theo zca-js... |
+| [reviewPendingMemberRequest](docs/DICH-VU.md#review_pending_member_request) | `zalo_call.review_pending_member_request` | reviewPendingMemberRequest — Phê duyệt (Chấp nhận hoặc Từ chối) yêu cầu xin tham gia nhóm của thành viên mới.... |
 | [updateGroupSettings](docs/DICH-VU.md#update_group_settings) | `zalo_call.update_group_settings` | updateGroupSettings — Cập nhật các thiết lập quyền hạn của nhóm (ẩn thành viên lockViewMember, duyệt thành... |
-| [upgradeGroupToCommunity](docs/DICH-VU.md#upgrade_group_to_community) | `zalo_call.upgrade_group_to_community` | upgradeGroupToCommunity — Nâng cấp nhóm thường lên Cộng đồng (Community - tối đa 1000 thành viên). |
+| [upgradeGroupToCommunity](docs/DICH-VU.md#upgrade_group_to_community) | `zalo_call.upgrade_group_to_community` | upgradeGroupToCommunity — Nâng cấp nhóm thường lên Cộng đồng (Community - tối đa 1000 thành viên). [Tham số... |
 | **Bạn bè (nâng cao)** | | |
-| [clearUnreadFriendRequests](docs/DICH-VU.md#clear_unread_friend_requests) | `zalo_call.clear_unread_friend_requests` | clearUnreadFriendRequests — Đánh dấu đã xem danh sách lời mời kết bạn chưa đọc (command 12232) (không hoàn... |
-| [findUserByUsername](docs/DICH-VU.md#find_user_by_username) | `zalo_call.find_user_by_username` | findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username. |
-| [getAliasList](docs/DICH-VU.md#get_alias_list) | `zalo_call.get_alias_list` | getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè. |
-| [getAliasListV2](docs/DICH-VU.md#get_alias_list_v2) | `zalo_call.get_alias_list_v2` | getAliasListV2 — Lấy danh sách tên gợi nhớ (Alias) của bạn bè chuẩn V2 có hỗ trợ phân trang (command 12205) |
-| [getBlockFriends](docs/DICH-VU.md#get_block_friends) | `zalo_call.get_block_friends` | getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429) (không hoàn tác được) |
-| [getCloseFriends](docs/DICH-VU.md#get_close_friends) | `zalo_call.get_close_friends` | getCloseFriends — Lấy danh sách bạn thân (Close Friends). |
+| [clearUnreadFriendRequests](docs/DICH-VU.md#clear_unread_friend_requests) | `zalo_call.clear_unread_friend_requests` | clearUnreadFriendRequests — Đánh dấu đã xem danh sách lời mời kết bạn chưa đọc (command 12232) [Tham số theo... |
+| [findUserByUsername](docs/DICH-VU.md#find_user_by_username) | `zalo_call.find_user_by_username` | findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username. [Tham số theo zca-js (web), chưa... |
+| [getAliasList](docs/DICH-VU.md#get_alias_list) | `zalo_call.get_alias_list` | getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè. [Tham số theo zca-js (web), chưa... |
+| [getAliasListV2](docs/DICH-VU.md#get_alias_list_v2) | `zalo_call.get_alias_list_v2` | getAliasListV2 — Lấy danh sách tên gợi nhớ (Alias) của bạn bè chuẩn V2 có hỗ trợ phân trang (command 12205)... |
+| [getBlockFriends](docs/DICH-VU.md#get_block_friends) | `zalo_call.get_block_friends` | getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429) [Tham số theo zca-js (web),... |
+| [getCloseFriends](docs/DICH-VU.md#get_close_friends) | `zalo_call.get_close_friends` | getCloseFriends — Lấy danh sách bạn thân (Close Friends). [Tham số theo zca-js (web), chưa đối chiếu với Zalo... |
 | [getExtraFriendInfo](docs/DICH-VU.md#get_extra_friend_info) | `zalo_call.get_extra_friend_info` | getExtraFriendInfo — Lấy ngữ cảnh và vai trò mở rộng (ví dụ role: ["boss"]) của danh sách bạn bè (command... |
-| [getFriendBoardList](docs/DICH-VU.md#get_friend_board_list) | `zalo_call.get_friend_board_list` | getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn. |
-| [getFriendOnlines](docs/DICH-VU.md#get_friend_onlines) | `zalo_call.get_friend_onlines` | getFriendOnlines — Lấy danh sách bạn bè đang trực tuyến (Online) kèm trạng thái thiết bị. |
-| [getFriendRecommendations](docs/DICH-VU.md#get_friend_recommendations) | `zalo_call.get_friend_recommendations` | getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận. |
-| [getFriendRequestStatus](docs/DICH-VU.md#get_friend_request_status) | `zalo_call.get_friend_request_status` | getFriendRequestStatus — Kiểm tra trạng thái quan hệ bạn bè và lời mời kết bạn với một UID. |
+| [getFriendBoardList](docs/DICH-VU.md#get_friend_board_list) | `zalo_call.get_friend_board_list` | getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn. [Tham số theo zca-js (web), chưa đối... |
+| [getFriendOnlines](docs/DICH-VU.md#get_friend_onlines) | `zalo_call.get_friend_onlines` | getFriendOnlines — Lấy danh sách bạn bè đang trực tuyến (Online) kèm trạng thái thiết bị. [Tham số theo... |
+| [getFriendRecommendations](docs/DICH-VU.md#get_friend_recommendations) | `zalo_call.get_friend_recommendations` | getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận. [Tham số theo zca-js... |
+| [getFriendRequestStatus](docs/DICH-VU.md#get_friend_request_status) | `zalo_call.get_friend_request_status` | getFriendRequestStatus — Kiểm tra trạng thái quan hệ bạn bè và lời mời kết bạn với một UID. [Tham số theo... |
 | [getFriendsActivePCWeb](docs/DICH-VU.md#get_friends_active_p_c_web) | `zalo_call.get_friends_active_p_c_web` | getFriendsActivePCWeb — Lấy danh sách bạn bè đang hoạt động trên Zalo PC / Web qua... |
-| [getFriendsEmojiStatus](docs/DICH-VU.md#get_friends_emoji_status) | `zalo_call.get_friends_emoji_status` | getFriendsEmojiStatus — Lấy danh sách trạng thái Emoji (Emoji Status) hiện tại của bạn bè (command 16301) |
-| [getLastReadContactTab](docs/DICH-VU.md#get_last_read_contact_tab) | `zalo_call.get_last_read_contact_tab` | getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230) |
-| [getMultiUserQRCodes](docs/DICH-VU.md#get_multi_user_q_r_codes) | `zalo_call.get_multi_user_q_r_codes` | getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128) |
-| [getMultiUsersByPhones](docs/DICH-VU.md#get_multi_users_by_phones) | `zalo_call.get_multi_users_by_phones` | getMultiUsersByPhones — Tra cứu hàng loạt thông tin tài khoản Zalo từ danh sách nhiều số điện thoại cùng lúc. |
-| [getPhonebookV2](docs/DICH-VU.md#get_phonebook_v2) | `zalo_call.get_phonebook_v2` | getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428) |
-| [readContactTab](docs/DICH-VU.md#read_contact_tab) | `zalo_call.read_contact_tab` | readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231) |
-| [removeFriendRecommendation](docs/DICH-VU.md#remove_friend_recommendation) | `zalo_call.remove_friend_recommendation` | removeFriendRecommendation — Xóa một gợi ý kết bạn khỏi danh sách đề xuất (command 11432) (không hoàn tác... |
-| [removeFriendRecommendationV2](docs/DICH-VU.md#remove_friend_recommendation_v2) | `zalo_call.remove_friend_recommendation_v2` | removeFriendRecommendationV2 — Xóa một gợi ý kết bạn khỏi danh sách đề xuất V2 (command 11438) (không hoàn... |
-| [updateCloseFriend](docs/DICH-VU.md#update_close_friend) | `zalo_call.update_close_friend` | updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421) |
-| [verifyFriend](docs/DICH-VU.md#verify_friend) | `zalo_call.verify_friend` | verifyFriend — Kiểm tra và xác thực danh sách bạn bè qua /api/social/friend/verify (command 11138) |
+| [getFriendsEmojiStatus](docs/DICH-VU.md#get_friends_emoji_status) | `zalo_call.get_friends_emoji_status` | getFriendsEmojiStatus — Lấy danh sách trạng thái Emoji (Emoji Status) hiện tại của bạn bè (command 16301)... |
+| [getLastReadContactTab](docs/DICH-VU.md#get_last_read_contact_tab) | `zalo_call.get_last_read_contact_tab` | getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230) [Tham số theo zca-js... |
+| [getMultiUserQRCodes](docs/DICH-VU.md#get_multi_user_q_r_codes) | `zalo_call.get_multi_user_q_r_codes` | getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128) [Tham số theo zca-js... |
+| [getMultiUsersByPhones](docs/DICH-VU.md#get_multi_users_by_phones) | `zalo_call.get_multi_users_by_phones` | getMultiUsersByPhones — Tra cứu hàng loạt thông tin tài khoản Zalo từ danh sách nhiều số điện thoại cùng lúc.... |
+| [getPhonebookV2](docs/DICH-VU.md#get_phonebook_v2) | `zalo_call.get_phonebook_v2` | getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428) [Tham số theo zca-js... |
+| [readContactTab](docs/DICH-VU.md#read_contact_tab) | `zalo_call.read_contact_tab` | readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231) [Tham số theo zca-js (web), chưa đối chiếu với... |
+| [removeFriendRecommendation](docs/DICH-VU.md#remove_friend_recommendation) | `zalo_call.remove_friend_recommendation` | removeFriendRecommendation — Xóa một gợi ý kết bạn khỏi danh sách đề xuất (command 11432) [Tham số theo... |
+| [removeFriendRecommendationV2](docs/DICH-VU.md#remove_friend_recommendation_v2) | `zalo_call.remove_friend_recommendation_v2` | removeFriendRecommendationV2 — Xóa một gợi ý kết bạn khỏi danh sách đề xuất V2 (command 11438) [Tham số theo... |
+| [updateCloseFriend](docs/DICH-VU.md#update_close_friend) | `zalo_call.update_close_friend` | updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421) [Tham số theo zca-js... |
+| [verifyFriend](docs/DICH-VU.md#verify_friend) | `zalo_call.verify_friend` | verifyFriend — Kiểm tra và xác thực danh sách bạn bè qua /api/social/friend/verify (command 11138) [Tham số... |
 | **Hồ sơ (nâng cao)** | | |
-| [deleteAvatar](docs/DICH-VU.md#delete_avatar) | `zalo_call.delete_avatar` | deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện. (không hoàn tác được) |
+| [deleteAvatar](docs/DICH-VU.md#delete_avatar) | `zalo_call.delete_avatar` | deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện. [Tham số theo zca-js (web), chưa... |
 | [disableLimitSearchPhoneReminder](docs/DICH-VU.md#disable_limit_search_phone_reminder) | `zalo_call.disable_limit_search_phone_reminder` | disableLimitSearchPhoneReminder — Tắt thông báo nhắc nhở giới hạn tìm kiếm số điện thoại (command 12131)... |
-| [fetchAccountInfo](docs/DICH-VU.md#fetch_account_info) | `zalo_call.fetch_account_info` | fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile. |
-| [getAvatarUrlProfile](docs/DICH-VU.md#get_avatar_url_profile) | `zalo_call.get_avatar_url_profile` | getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng. |
-| [getEmojiStatusConfig](docs/DICH-VU.md#get_emoji_status_config) | `zalo_call.get_emoji_status_config` | getEmojiStatusConfig — Lấy cấu hình và danh sách bộ biểu tượng Trạng thái Emoji (Emoji Status - command 16300) |
+| [fetchAccountInfo](docs/DICH-VU.md#fetch_account_info) | `zalo_call.fetch_account_info` | fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile. [Tham số theo zca-js (web), chưa đối chiếu với... |
+| [getAvatarUrlProfile](docs/DICH-VU.md#get_avatar_url_profile) | `zalo_call.get_avatar_url_profile` | getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng. [Tham số theo zca-js (web),... |
+| [getEmojiStatusConfig](docs/DICH-VU.md#get_emoji_status_config) | `zalo_call.get_emoji_status_config` | getEmojiStatusConfig — Lấy cấu hình và danh sách bộ biểu tượng Trạng thái Emoji (Emoji Status - command... |
 | [getEnterpriseProfiles](docs/DICH-VU.md#get_enterprise_profiles) | `zalo_call.get_enterprise_profiles` | getEnterpriseProfiles — Lấy thông tin hồ sơ doanh nghiệp (Zalo Enterprise) của một hoặc nhiều tài khoản... |
-| [getFullAvatar](docs/DICH-VU.md#get_full_avatar) | `zalo_call.get_full_avatar` | getFullAvatar — Lấy ảnh đại diện kích thước gốc (Full HD) của một người dùng theo UID. |
+| [getFullAvatar](docs/DICH-VU.md#get_full_avatar) | `zalo_call.get_full_avatar` | getFullAvatar — Lấy ảnh đại diện kích thước gốc (Full HD) của một người dùng theo UID. [Tham số theo zca-js... |
 | [getMiniProfile](docs/DICH-VU.md#get_mini_profile) | `zalo_call.get_mini_profile` | getMiniProfile — Lấy nhanh thông tin hồ sơ rút gọn (Avatar, Global ID, gói Biz) của danh sách người dùng... |
-| [getProfileExtra](docs/DICH-VU.md#get_profile_extra) | `zalo_call.get_profile_extra` | getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864) |
-| [getProfileRank](docs/DICH-VU.md#get_profile_rank) | `zalo_call.get_profile_rank` | getProfileRank — Lấy hạng tài khoản Zalo của một người dùng (ví dụ "WHITE", "GOLD" - command 12012) |
+| [getProfileExtra](docs/DICH-VU.md#get_profile_extra) | `zalo_call.get_profile_extra` | getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864) [Tham số theo zca-js (web), chưa... |
+| [getProfileRank](docs/DICH-VU.md#get_profile_rank) | `zalo_call.get_profile_rank` | getProfileRank — Lấy hạng tài khoản Zalo của một người dùng (ví dụ "WHITE", "GOLD" - command 12012) [Tham số... |
 | [getProfileVerificationStatus](docs/DICH-VU.md#get_profile_verification_status) | `zalo_call.get_profile_verification_status` | getProfileVerificationStatus — Kiểm tra trạng thái xác thực định danh (eKYC) của tài khoản Zalo (command... |
 | [pushProfileVerificationMessage](docs/DICH-VU.md#push_profile_verification_message) | `zalo_call.push_profile_verification_message` | pushProfileVerificationMessage — Yêu cầu đẩy tin nhắn hướng dẫn xác thực tài khoản (eKYC) từ Official Account... |
-| [registerTrialBizAccount](docs/DICH-VU.md#register_trial_biz_account) | `zalo_call.register_trial_biz_account` | registerTrialBizAccount — Đăng ký dùng thử gói Zalo Business V2 cho tài khoản (command 12152) |
-| [reuseAvatar](docs/DICH-VU.md#reuse_avatar) | `zalo_call.reuse_avatar` | reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện. |
-| [updateProfileBio](docs/DICH-VU.md#update_profile_bio) | `zalo_call.update_profile_bio` | updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân. |
-| [updateProfileMode](docs/DICH-VU.md#update_profile_mode) | `zalo_call.update_profile_mode` | updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865) |
+| [registerTrialBizAccount](docs/DICH-VU.md#register_trial_biz_account) | `zalo_call.register_trial_biz_account` | registerTrialBizAccount — Đăng ký dùng thử gói Zalo Business V2 cho tài khoản (command 12152) [Tham số theo... |
+| [reuseAvatar](docs/DICH-VU.md#reuse_avatar) | `zalo_call.reuse_avatar` | reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện. [Tham số theo zca-js (web), chưa... |
+| [updateProfileBio](docs/DICH-VU.md#update_profile_bio) | `zalo_call.update_profile_bio` | updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân. [Tham số theo zca-js (web), chưa... |
+| [updateProfileMode](docs/DICH-VU.md#update_profile_mode) | `zalo_call.update_profile_mode` | updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865) [Tham số theo zca-js (web), chưa đối... |
 | **Đồng bộ (nâng cao)** | | |
 | [cancelPullMobile](docs/DICH-VU.md#cancel_pull_mobile) | `zalo_call.cancel_pull_mobile` | cancelPullMobile — Huỷ yêu cầu đồng bộ tin nhắn từ điện thoại đang chờ (cancel_pull_mobile_msg, command... |
 | [deleteMobileMsgSnapshot](docs/DICH-VU.md#delete_mobile_msg_snapshot) | `zalo_call.delete_mobile_msg_snapshot` | deleteMobileMsgSnapshot — Xóa bản chụp nhanh (snapshot) dữ liệu đồng bộ tin nhắn từ thiết bị di động sau khi... |
 | [downloadTransferSync](docs/DICH-VU.md#download_transfer_sync) | `zalo_call.download_transfer_sync` | downloadTransferSync — Tải khối dữ liệu snapshot đồng bộ tin nhắn từ máy chủ transfersync.zaloapp.com (chưa... |
-| [getBackupMsgInfo](docs/DICH-VU.md#get_backup_msg_info) | `zalo_call.get_backup_msg_info` | getBackupMsgInfo — Lấy thông tin bản sao lưu tin nhắn hiện có trên máy chủ (command 12096) |
+| [getBackupMsgInfo](docs/DICH-VU.md#get_backup_msg_info) | `zalo_call.get_backup_msg_info` | getBackupMsgInfo — Lấy thông tin bản sao lưu tin nhắn hiện có trên máy chủ (command 12096) [Tham số theo... |
 | [getCrossDbInfo](docs/DICH-VU.md#get_cross_db_info) | `zalo_call.get_cross_db_info` | getCrossDbInfo — Lấy thông tin cơ sở dữ liệu chéo (Cross-DB) phục vụ đồng bộ dữ liệu sang máy tính (command... |
 | [getSyncData](docs/DICH-VU.md#get_sync_data) | `zalo_call.get_sync_data` | getSyncData — Tải xuống file sao lưu tin nhắn từ sự kiện syncmsg_info (.db.crypt, định dạng ZDB4.0) và lưu ra... |
 | [pullMobile](docs/DICH-VU.md#pull_mobile) | `zalo_call.pull_mobile` | pullMobile — Yêu cầu thiết bị di động Zalo đóng gói và tải lên bản sao lưu tin nhắn (pull_mobile_msg, command... |
 | [requestSyncFromPhone](docs/DICH-VU.md#request_sync_from_phone) | `zalo_call.request_sync_from_phone` | requestSyncFromPhone — Phát tín hiệu yêu cầu đồng bộ tin nhắn từ ứng dụng Zalo trên điện thoại... |
-| [submitSyncMediaActions](docs/DICH-VU.md#submit_sync_media_actions) | `zalo_call.submit_sync_media_actions` | submitSyncMediaActions — Gửi danh sách hành động đồng bộ hóa tệp đa phương tiện lên máy chủ (command 16213) |
+| [submitSyncMediaActions](docs/DICH-VU.md#submit_sync_media_actions) | `zalo_call.submit_sync_media_actions` | submitSyncMediaActions — Gửi danh sách hành động đồng bộ hóa tệp đa phương tiện lên máy chủ (command 16213)... |
 | [uploadBackupChunk](docs/DICH-VU.md#upload_backup_chunk) | `zalo_call.upload_backup_chunk` | uploadBackupChunk — Tải lên gói dữ liệu phân mảnh (chunk) sao lưu tin nhắn từ máy tính sang điện thoại... |
 | **Zalo Cloud** | | |
 | [ackCloudOnboarding](docs/DICH-VU.md#ack_cloud_onboarding) | `zalo_call.ack_cloud_onboarding` | ackCloudOnboarding — Xác nhận hoàn tất bước khởi tạo (Onboarding ACK V1) trên ZCloud (command 12746) (chưa tự... |
@@ -1355,83 +1392,83 @@ Toàn bộ **363 dịch vụ** (tin nhắn, bạn bè, nhóm, hồ sơ, nhắc h
 | [getMediaStorePreview](docs/DICH-VU.md#get_media_store_preview) | `zalo_call.get_media_store_preview` | getMediaStorePreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ (Ảnh/Video, File, Link) của nhóm (command... |
 | [getPersonalMedia](docs/DICH-VU.md#get_personal_media) | `zalo_call.get_personal_media` | getPersonalMedia — Lấy danh sách Kho Lưu Trữ Ảnh/Video ("media"), File ("file"), hoặc Link ("link") trong... |
 | [getPersonalMediaPreview](docs/DICH-VU.md#get_personal_media_preview) | `zalo_call.get_personal_media_preview` | getPersonalMediaPreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ trong Cloud của tôi (Send2Me) (command... |
-| [removeConversationMedia](docs/DICH-VU.md#remove_conversation_media) | `zalo_call.remove_conversation_media` | removeConversationMedia — Xóa mục Ảnh/Video, File hoặc Link khỏi Kho Lưu Trữ của nhóm (command 11842) (không... |
-| [removePersonalMedia](docs/DICH-VU.md#remove_personal_media) | `zalo_call.remove_personal_media` | removePersonalMedia — Xóa mục lưu trữ trong Kho Lưu Trữ Cloud của tôi (Send2Me) (command 12222) (không hoàn... |
+| [removeConversationMedia](docs/DICH-VU.md#remove_conversation_media) | `zalo_call.remove_conversation_media` | removeConversationMedia — Xóa mục Ảnh/Video, File hoặc Link khỏi Kho Lưu Trữ của nhóm (command 11842) [Tham... |
+| [removePersonalMedia](docs/DICH-VU.md#remove_personal_media) | `zalo_call.remove_personal_media` | removePersonalMedia — Xóa mục lưu trữ trong Kho Lưu Trữ Cloud của tôi (Send2Me) (command 12222) [Tham số theo... |
 | [uploadAttachment](docs/DICH-VU.md#upload_attachment) | `zalo_call.upload_attachment` | uploadAttachment — Tải tệp đính kèm (Ảnh, Video, File) lên máy chủ Zalo để lấy thông tin fileUrl / fileId... |
 | **Sticker (nâng cao)** | | |
-| [getAIStickerList](docs/DICH-VU.md#get_a_i_sticker_list) | `zalo_call.get_a_i_sticker_list` | getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190) |
-| [getDefaultGuggyGifs](docs/DICH-VU.md#get_default_guggy_gifs) | `zalo_call.get_default_guggy_gifs` | getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749) |
-| [getGifCategories](docs/DICH-VU.md#get_gif_categories) | `zalo_call.get_gif_categories` | getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294) |
-| [getGifDictionaries](docs/DICH-VU.md#get_gif_dictionaries) | `zalo_call.get_gif_dictionaries` | getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298) |
-| [getGifsByCategory](docs/DICH-VU.md#get_gifs_by_category) | `zalo_call.get_gifs_by_category` | getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295) |
-| [getGifsByDictionary](docs/DICH-VU.md#get_gifs_by_dictionary) | `zalo_call.get_gifs_by_dictionary` | getGifsByDictionary — Lấy danh sách ảnh động Giphy GIF theo ID từ điển (command 11299) |
-| [getMessageEffectById](docs/DICH-VU.md#get_message_effect_by_id) | `zalo_call.get_message_effect_by_id` | getMessageEffectById — Lấy chi tiết một hiệu ứng tin nhắn theo ID và kích thước (command 11743) |
-| [getMessageEffects](docs/DICH-VU.md#get_message_effects) | `zalo_call.get_message_effects` | getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742) |
-| [getPersonalizedStickerList](docs/DICH-VU.md#get_personalized_sticker_list) | `zalo_call.get_personalized_sticker_list` | getPersonalizedStickerList — Lấy danh sách Sticker cá nhân hóa của tài khoản (command 11745) |
-| [getRecommendedStickers](docs/DICH-VU.md#get_recommended_stickers) | `zalo_call.get_recommended_stickers` | getRecommendedStickers — Lấy danh sách các bộ Sticker được Zalo đề xuất (command 11748) |
+| [getAIStickerList](docs/DICH-VU.md#get_a_i_sticker_list) | `zalo_call.get_a_i_sticker_list` | getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190) [Tham số theo zca-js (web), chưa... |
+| [getDefaultGuggyGifs](docs/DICH-VU.md#get_default_guggy_gifs) | `zalo_call.get_default_guggy_gifs` | getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749) [Tham số theo zca-js (web),... |
+| [getGifCategories](docs/DICH-VU.md#get_gif_categories) | `zalo_call.get_gif_categories` | getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294) [Tham số theo zca-js (web), chưa... |
+| [getGifDictionaries](docs/DICH-VU.md#get_gif_dictionaries) | `zalo_call.get_gif_dictionaries` | getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298) [Tham số theo zca-js (web),... |
+| [getGifsByCategory](docs/DICH-VU.md#get_gifs_by_category) | `zalo_call.get_gifs_by_category` | getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295) [Tham số theo zca-js... |
+| [getGifsByDictionary](docs/DICH-VU.md#get_gifs_by_dictionary) | `zalo_call.get_gifs_by_dictionary` | getGifsByDictionary — Lấy danh sách ảnh động Giphy GIF theo ID từ điển (command 11299) [Tham số theo zca-js... |
+| [getMessageEffectById](docs/DICH-VU.md#get_message_effect_by_id) | `zalo_call.get_message_effect_by_id` | getMessageEffectById — Lấy chi tiết một hiệu ứng tin nhắn theo ID và kích thước (command 11743) [Tham số theo... |
+| [getMessageEffects](docs/DICH-VU.md#get_message_effects) | `zalo_call.get_message_effects` | getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742) [Tham số theo zca-js... |
+| [getPersonalizedStickerList](docs/DICH-VU.md#get_personalized_sticker_list) | `zalo_call.get_personalized_sticker_list` | getPersonalizedStickerList — Lấy danh sách Sticker cá nhân hóa của tài khoản (command 11745) [Tham số theo... |
+| [getRecommendedStickers](docs/DICH-VU.md#get_recommended_stickers) | `zalo_call.get_recommended_stickers` | getRecommendedStickers — Lấy danh sách các bộ Sticker được Zalo đề xuất (command 11748) [Tham số theo zca-js... |
 | [getStickerCategoriesV2](docs/DICH-VU.md#get_sticker_categories_v2) | `zalo_call.get_sticker_categories_v2` | getStickerCategoriesV2 — Lấy danh sách danh mục bộ nhãn dán (Sticker Categories V2 - command 12020) (chưa tự... |
-| [getStickerCategoryDetail](docs/DICH-VU.md#get_sticker_category_detail) | `zalo_call.get_sticker_category_detail` | getStickerCategoryDetail — Lấy danh sách toàn bộ nhãn dán nằm trong một bộ nhãn dán (Category/Pack ID). |
-| [getStickerHello](docs/DICH-VU.md#get_sticker_hello) | `zalo_call.get_sticker_hello` | getStickerHello — Lấy danh sách Sticker chào hỏi gợi ý khi bắt đầu trò chuyện mới (command 11751) |
-| [getStickerSuggestKeywords](docs/DICH-VU.md#get_sticker_suggest_keywords) | `zalo_call.get_sticker_suggest_keywords` | getStickerSuggestKeywords — Lấy bộ từ khóa gợi ý Sticker tự động khi gõ tin nhắn (command 11740) |
-| [getStickerSuggestion](docs/DICH-VU.md#get_sticker_suggestion) | `zalo_call.get_sticker_suggestion` | getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741) |
-| [getTenorStickerMapping](docs/DICH-VU.md#get_tenor_sticker_mapping) | `zalo_call.get_tenor_sticker_mapping` | getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015) |
-| [getTrendingGifs](docs/DICH-VU.md#get_trending_gifs) | `zalo_call.get_trending_gifs` | getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296) |
-| [searchGifs](docs/DICH-VU.md#search_gifs) | `zalo_call.search_gifs` | searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297) |
-| [searchGuggyGifs](docs/DICH-VU.md#search_guggy_gifs) | `zalo_call.search_guggy_gifs` | searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750) |
-| [searchSticker](docs/DICH-VU.md#search_sticker) | `zalo_call.search_sticker` | searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa. |
-| [updatePersonalizedStickerList](docs/DICH-VU.md#update_personalized_sticker_list) | `zalo_call.update_personalized_sticker_list` | updatePersonalizedStickerList — Cập nhật danh sách các bộ Sticker cá nhân hóa của người dùng (command 11746) |
+| [getStickerCategoryDetail](docs/DICH-VU.md#get_sticker_category_detail) | `zalo_call.get_sticker_category_detail` | getStickerCategoryDetail — Lấy danh sách toàn bộ nhãn dán nằm trong một bộ nhãn dán (Category/Pack ID). [Tham... |
+| [getStickerHello](docs/DICH-VU.md#get_sticker_hello) | `zalo_call.get_sticker_hello` | getStickerHello — Lấy danh sách Sticker chào hỏi gợi ý khi bắt đầu trò chuyện mới (command 11751) [Tham số... |
+| [getStickerSuggestKeywords](docs/DICH-VU.md#get_sticker_suggest_keywords) | `zalo_call.get_sticker_suggest_keywords` | getStickerSuggestKeywords — Lấy bộ từ khóa gợi ý Sticker tự động khi gõ tin nhắn (command 11740) [Tham số... |
+| [getStickerSuggestion](docs/DICH-VU.md#get_sticker_suggestion) | `zalo_call.get_sticker_suggestion` | getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741) [Tham số theo zca-js (web),... |
+| [getTenorStickerMapping](docs/DICH-VU.md#get_tenor_sticker_mapping) | `zalo_call.get_tenor_sticker_mapping` | getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015) [Tham số theo zca-js (web),... |
+| [getTrendingGifs](docs/DICH-VU.md#get_trending_gifs) | `zalo_call.get_trending_gifs` | getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296) [Tham số theo zca-js (web),... |
+| [searchGifs](docs/DICH-VU.md#search_gifs) | `zalo_call.search_gifs` | searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297) [Tham số theo zca-js (web), chưa đối... |
+| [searchGuggyGifs](docs/DICH-VU.md#search_guggy_gifs) | `zalo_call.search_guggy_gifs` | searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750) [Tham số theo zca-js (web), chưa... |
+| [searchSticker](docs/DICH-VU.md#search_sticker) | `zalo_call.search_sticker` | searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa. [Tham số theo zca-js (web), chưa đối chiếu với Zalo... |
+| [updatePersonalizedStickerList](docs/DICH-VU.md#update_personalized_sticker_list) | `zalo_call.update_personalized_sticker_list` | updatePersonalizedStickerList — Cập nhật danh sách các bộ Sticker cá nhân hóa của người dùng (command 11746)... |
 | **Ghi chú, bình chọn, việc cần làm** | | |
-| [ackDingTodo](docs/DICH-VU.md#ack_ding_todo) | `zalo_call.ack_ding_todo` | ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427) |
-| [addPollOptions](docs/DICH-VU.md#add_poll_options) | `zalo_call.add_poll_options` | addPollOptions — Thêm phương án lựa chọn mới vào một cuộc Bình chọn (Poll) đang mở trong nhóm. |
-| [createNote](docs/DICH-VU.md#create_note) | `zalo_call.create_note` | createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu. |
-| [createTodo](docs/DICH-VU.md#create_todo) | `zalo_call.create_todo` | createTodo — Tạo công việc mới trong Zalo To-Do (command 12413) |
-| [deleteTodo](docs/DICH-VU.md#delete_todo) | `zalo_call.delete_todo` | deleteTodo — Xóa công việc trong Zalo To-Do (command 12415) (không hoàn tác được) |
-| [dingTodo](docs/DICH-VU.md#ding_todo) | `zalo_call.ding_todo` | dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426) |
-| [editNote](docs/DICH-VU.md#edit_note) | `zalo_call.edit_note` | editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm. |
-| [getListPinTopics](docs/DICH-VU.md#get_list_pin_topics) | `zalo_call.get_list_pin_topics` | getListPinTopics — Lấy danh sách chủ đề / tin nhắn đã ghim trong bảng tin nhóm (command 12001) |
-| [getTodoDetail](docs/DICH-VU.md#get_todo_detail) | `zalo_call.get_todo_detail` | getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417) |
-| [getTodoList](docs/DICH-VU.md#get_todo_list) | `zalo_call.get_todo_list` | getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416) |
-| [multiUnpinBoardTopics](docs/DICH-VU.md#multi_unpin_board_topics) | `zalo_call.multi_unpin_board_topics` | multiUnpinBoardTopics — Bỏ ghim đồng thời nhiều chủ đề khỏi bảng tin nhóm (command 12010) |
-| [pinBoardTopic](docs/DICH-VU.md#pin_board_topic) | `zalo_call.pin_board_topic` | pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004) |
-| [pinFriendMessage](docs/DICH-VU.md#pin_friend_message) | `zalo_call.pin_friend_message` | pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067) |
-| [reorderFriendBoard](docs/DICH-VU.md#reorder_friend_board) | `zalo_call.reorder_friend_board` | reorderFriendBoard — Sắp xếp lại thứ tự các tin nhắn đã ghim trong hội thoại 1-1 (command 12068) |
-| [reorderPinTopics](docs/DICH-VU.md#reorder_pin_topics) | `zalo_call.reorder_pin_topics` | reorderPinTopics — Sắp xếp lại thứ tự các chủ đề đã ghim trên bảng tin nhóm (command 12002) |
-| [sharePoll](docs/DICH-VU.md#share_poll) | `zalo_call.share_poll` | sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm. |
-| [unpinBoardTopic](docs/DICH-VU.md#unpin_board_topic) | `zalo_call.unpin_board_topic` | unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005) |
-| [unpinFriendMessages](docs/DICH-VU.md#unpin_friend_messages) | `zalo_call.unpin_friend_messages` | unpinFriendMessages — Bỏ ghim một hoặc nhiều tin nhắn trong hội thoại 1-1 (command 12069) |
-| [updateTodo](docs/DICH-VU.md#update_todo) | `zalo_call.update_todo` | updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414) |
-| [updateTodoStatus](docs/DICH-VU.md#update_todo_status) | `zalo_call.update_todo_status` | updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418) |
-| [verifyTodo](docs/DICH-VU.md#verify_todo) | `zalo_call.verify_todo` | verifyTodo — Kiểm tra tính đồng bộ của danh sách công việc trong Zalo To-Do (command 12603) |
+| [ackDingTodo](docs/DICH-VU.md#ack_ding_todo) | `zalo_call.ack_ding_todo` | ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427) [Tham số theo zca-js... |
+| [addPollOptions](docs/DICH-VU.md#add_poll_options) | `zalo_call.add_poll_options` | addPollOptions — Thêm phương án lựa chọn mới vào một cuộc Bình chọn (Poll) đang mở trong nhóm. [Tham số theo... |
+| [createNote](docs/DICH-VU.md#create_note) | `zalo_call.create_note` | createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu. [Tham số theo zca-js... |
+| [createTodo](docs/DICH-VU.md#create_todo) | `zalo_call.create_todo` | createTodo — Tạo công việc mới trong Zalo To-Do (command 12413) [Tham số theo zca-js (web), chưa đối chiếu... |
+| [deleteTodo](docs/DICH-VU.md#delete_todo) | `zalo_call.delete_todo` | deleteTodo — Xóa công việc trong Zalo To-Do (command 12415) [Tham số theo zca-js (web), chưa đối chiếu với... |
+| [dingTodo](docs/DICH-VU.md#ding_todo) | `zalo_call.ding_todo` | dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426) [Tham số theo zca-js (web),... |
+| [editNote](docs/DICH-VU.md#edit_note) | `zalo_call.edit_note` | editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm. [Tham số theo zca-js (web), chưa đối chiếu... |
+| [getListPinTopics](docs/DICH-VU.md#get_list_pin_topics) | `zalo_call.get_list_pin_topics` | getListPinTopics — Lấy danh sách chủ đề / tin nhắn đã ghim trong bảng tin nhóm (command 12001) [Tham số theo... |
+| [getTodoDetail](docs/DICH-VU.md#get_todo_detail) | `zalo_call.get_todo_detail` | getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417) [Tham số theo zca-js (web), chưa đối... |
+| [getTodoList](docs/DICH-VU.md#get_todo_list) | `zalo_call.get_todo_list` | getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416) [Tham số theo zca-js (web), chưa đối... |
+| [multiUnpinBoardTopics](docs/DICH-VU.md#multi_unpin_board_topics) | `zalo_call.multi_unpin_board_topics` | multiUnpinBoardTopics — Bỏ ghim đồng thời nhiều chủ đề khỏi bảng tin nhóm (command 12010) [Tham số theo... |
+| [pinBoardTopic](docs/DICH-VU.md#pin_board_topic) | `zalo_call.pin_board_topic` | pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004) [Tham số theo zca-js (web), chưa... |
+| [pinFriendMessage](docs/DICH-VU.md#pin_friend_message) | `zalo_call.pin_friend_message` | pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067) [Tham số theo zca-js... |
+| [reorderFriendBoard](docs/DICH-VU.md#reorder_friend_board) | `zalo_call.reorder_friend_board` | reorderFriendBoard — Sắp xếp lại thứ tự các tin nhắn đã ghim trong hội thoại 1-1 (command 12068) [Tham số... |
+| [reorderPinTopics](docs/DICH-VU.md#reorder_pin_topics) | `zalo_call.reorder_pin_topics` | reorderPinTopics — Sắp xếp lại thứ tự các chủ đề đã ghim trên bảng tin nhóm (command 12002) [Tham số theo... |
+| [sharePoll](docs/DICH-VU.md#share_poll) | `zalo_call.share_poll` | sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm. [Tham số theo zca-js (web), chưa đối chiếu... |
+| [unpinBoardTopic](docs/DICH-VU.md#unpin_board_topic) | `zalo_call.unpin_board_topic` | unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005) [Tham số theo zca-js (web), chưa đối... |
+| [unpinFriendMessages](docs/DICH-VU.md#unpin_friend_messages) | `zalo_call.unpin_friend_messages` | unpinFriendMessages — Bỏ ghim một hoặc nhiều tin nhắn trong hội thoại 1-1 (command 12069) [Tham số theo... |
+| [updateTodo](docs/DICH-VU.md#update_todo) | `zalo_call.update_todo` | updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414) [Tham số theo zca-js (web), chưa... |
+| [updateTodoStatus](docs/DICH-VU.md#update_todo_status) | `zalo_call.update_todo_status` | updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418) [Tham số theo zca-js (web),... |
+| [verifyTodo](docs/DICH-VU.md#verify_todo) | `zalo_call.verify_todo` | verifyTodo — Kiểm tra tính đồng bộ của danh sách công việc trong Zalo To-Do (command 12603) [Tham số theo... |
 | **Zalo Business (OA)** | | |
-| [addConversationLabel](docs/DICH-VU.md#add_conversation_label) | `zalo_call.add_conversation_label` | addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163) |
+| [addConversationLabel](docs/DICH-VU.md#add_conversation_label) | `zalo_call.add_conversation_label` | addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163) [Tham số theo zca-js (web), chưa đối... |
 | [blockOA](docs/DICH-VU.md#block_o_a) | `zalo_call.block_o_a` | blockOA — Chặn nhận tin nhắn / thông báo từ một Zalo Official Account (OA) qua /api/social/oa/block (cmd... |
 | [convertOAIds](docs/DICH-VU.md#convert_o_a_ids) | `zalo_call.convert_o_a_ids` | convertOAIds — Chuyển đổi danh sách OA ID sang Zalo UID nội bộ (hoặc ngược lại) qua /api/social/oa/convertid... |
-| [createAutoReply](docs/DICH-VU.md#create_auto_reply) | `zalo_call.create_auto_reply` | createAutoReply — Tạo kịch bản Trả lời tự động (Auto Reply) theo khung giờ cho Zalo Business. |
-| [createBankAccount](docs/DICH-VU.md#create_bank_account) | `zalo_call.create_bank_account` | createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng. (không hoàn tác được) |
-| [createCatalog](docs/DICH-VU.md#create_catalog) | `zalo_call.create_catalog` | createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business. |
-| [createProductCatalog](docs/DICH-VU.md#create_product_catalog) | `zalo_call.create_product_catalog` | createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog). |
-| [deleteAutoReply](docs/DICH-VU.md#delete_auto_reply) | `zalo_call.delete_auto_reply` | deleteAutoReply — Xóa một kịch bản Trả lời tự động. (không hoàn tác được) |
-| [deleteBankAccount](docs/DICH-VU.md#delete_bank_account) | `zalo_call.delete_bank_account` | deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu. (không hoàn tác được) |
-| [deleteCatalog](docs/DICH-VU.md#delete_catalog) | `zalo_call.delete_catalog` | deleteCatalog — Xóa một Danh mục sản phẩm (Catalog). (không hoàn tác được) |
-| [deleteConversationLabel](docs/DICH-VU.md#delete_conversation_label) | `zalo_call.delete_conversation_label` | deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165) (không hoàn tác được) |
-| [deleteProductCatalog](docs/DICH-VU.md#delete_product_catalog) | `zalo_call.delete_product_catalog` | deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm. (không hoàn tác được) |
-| [deleteSingleProduct](docs/DICH-VU.md#delete_single_product) | `zalo_call.delete_single_product` | deleteSingleProduct — Xóa một sản phẩm đơn lẻ khỏi danh mục Zalo Business (command 12042) (không hoàn tác... |
-| [getAutoReplyList](docs/DICH-VU.md#get_auto_reply_list) | `zalo_call.get_auto_reply_list` | getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản. |
-| [getBizAccount](docs/DICH-VU.md#get_biz_account) | `zalo_call.get_biz_account` | getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness). |
-| [getCatalogList](docs/DICH-VU.md#get_catalog_list) | `zalo_call.get_catalog_list` | getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản. |
-| [getListBank](docs/DICH-VU.md#get_list_bank) | `zalo_call.get_list_bank` | getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ. (không hoàn tác được) |
-| [getListBankAccount](docs/DICH-VU.md#get_list_bank_account) | `zalo_call.get_list_bank_account` | getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng. (không hoàn tác được) |
+| [createAutoReply](docs/DICH-VU.md#create_auto_reply) | `zalo_call.create_auto_reply` | createAutoReply — Tạo kịch bản Trả lời tự động (Auto Reply) theo khung giờ cho Zalo Business. [Tham số theo... |
+| [createBankAccount](docs/DICH-VU.md#create_bank_account) | `zalo_call.create_bank_account` | createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng. [Tham số theo zca-js (web),... |
+| [createCatalog](docs/DICH-VU.md#create_catalog) | `zalo_call.create_catalog` | createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business. [Tham số theo zca-js (web), chưa đối... |
+| [createProductCatalog](docs/DICH-VU.md#create_product_catalog) | `zalo_call.create_product_catalog` | createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog). [Tham số theo zca-js (web),... |
+| [deleteAutoReply](docs/DICH-VU.md#delete_auto_reply) | `zalo_call.delete_auto_reply` | deleteAutoReply — Xóa một kịch bản Trả lời tự động. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]... |
+| [deleteBankAccount](docs/DICH-VU.md#delete_bank_account) | `zalo_call.delete_bank_account` | deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu. [Tham số theo zca-js (web), chưa đối chiếu với Zalo... |
+| [deleteCatalog](docs/DICH-VU.md#delete_catalog) | `zalo_call.delete_catalog` | deleteCatalog — Xóa một Danh mục sản phẩm (Catalog). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]... |
+| [deleteConversationLabel](docs/DICH-VU.md#delete_conversation_label) | `zalo_call.delete_conversation_label` | deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165) [Tham số theo zca-js... |
+| [deleteProductCatalog](docs/DICH-VU.md#delete_product_catalog) | `zalo_call.delete_product_catalog` | deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm. [Tham số theo zca-js (web), chưa... |
+| [deleteSingleProduct](docs/DICH-VU.md#delete_single_product) | `zalo_call.delete_single_product` | deleteSingleProduct — Xóa một sản phẩm đơn lẻ khỏi danh mục Zalo Business (command 12042) [Tham số theo... |
+| [getAutoReplyList](docs/DICH-VU.md#get_auto_reply_list) | `zalo_call.get_auto_reply_list` | getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản. [Tham số theo zca-js (web), chưa... |
+| [getBizAccount](docs/DICH-VU.md#get_biz_account) | `zalo_call.get_biz_account` | getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness). [Tham số theo zca-js (web), chưa... |
+| [getCatalogList](docs/DICH-VU.md#get_catalog_list) | `zalo_call.get_catalog_list` | getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản. [Tham số theo zca-js (web),... |
+| [getListBank](docs/DICH-VU.md#get_list_bank) | `zalo_call.get_list_bank` | getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ. [Tham số theo zca-js (web), chưa đối... |
+| [getListBankAccount](docs/DICH-VU.md#get_list_bank_account) | `zalo_call.get_list_bank_account` | getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng. [Tham số theo zca-js (web),... |
 | [getOAProfile](docs/DICH-VU.md#get_o_a_profile) | `zalo_call.get_o_a_profile` | getOAProfile — Lấy hồ sơ chuẩn hóa đầy đủ của một Zalo Official Account (OA) theo oaId (bao gồm tích vàng... |
-| [getProductCatalogList](docs/DICH-VU.md#get_product_catalog_list) | `zalo_call.get_product_catalog_list` | getProductCatalogList — Lấy danh sách các sản phẩm nằm trong một Danh mục sản phẩm (Catalog). |
-| [getProductDetail](docs/DICH-VU.md#get_product_detail) | `zalo_call.get_product_detail` | getProductDetail — Lấy thông tin chi tiết một sản phẩm trong danh mục Zalo Business (command 12057) |
-| [registerCatalog](docs/DICH-VU.md#register_catalog) | `zalo_call.register_catalog` | registerCatalog — Đăng ký kích hoạt tính năng Danh mục sản phẩm (Catalog) cho tài khoản. |
-| [reorderConversationLabels](docs/DICH-VU.md#reorder_conversation_labels) | `zalo_call.reorder_conversation_labels` | reorderConversationLabels — Sắp xếp lại vị trí hiển thị của các nhãn phân loại hội thoại (command 12166) |
+| [getProductCatalogList](docs/DICH-VU.md#get_product_catalog_list) | `zalo_call.get_product_catalog_list` | getProductCatalogList — Lấy danh sách các sản phẩm nằm trong một Danh mục sản phẩm (Catalog). [Tham số theo... |
+| [getProductDetail](docs/DICH-VU.md#get_product_detail) | `zalo_call.get_product_detail` | getProductDetail — Lấy thông tin chi tiết một sản phẩm trong danh mục Zalo Business (command 12057) [Tham số... |
+| [registerCatalog](docs/DICH-VU.md#register_catalog) | `zalo_call.register_catalog` | registerCatalog — Đăng ký kích hoạt tính năng Danh mục sản phẩm (Catalog) cho tài khoản. [Tham số theo zca-js... |
+| [reorderConversationLabels](docs/DICH-VU.md#reorder_conversation_labels) | `zalo_call.reorder_conversation_labels` | reorderConversationLabels — Sắp xếp lại vị trí hiển thị của các nhãn phân loại hội thoại (command 12166)... |
 | [unblockOA](docs/DICH-VU.md#unblock_o_a) | `zalo_call.unblock_o_a` | unblockOA — Bỏ chặn một Zalo Official Account (OA) để tiếp tục nhận tin nhắn qua /api/social/oa/unblock (cmd... |
-| [updateAutoReply](docs/DICH-VU.md#update_auto_reply) | `zalo_call.update_auto_reply` | updateAutoReply — Cập nhật nội dung và thời gian hoạt động của kịch bản Trả lời tự động. |
-| [updateBankAccount](docs/DICH-VU.md#update_bank_account) | `zalo_call.update_bank_account` | updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu. (không hoàn tác được) |
-| [updateCatalog](docs/DICH-VU.md#update_catalog) | `zalo_call.update_catalog` | updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm. |
+| [updateAutoReply](docs/DICH-VU.md#update_auto_reply) | `zalo_call.update_auto_reply` | updateAutoReply — Cập nhật nội dung và thời gian hoạt động của kịch bản Trả lời tự động. [Tham số theo zca-js... |
+| [updateBankAccount](docs/DICH-VU.md#update_bank_account) | `zalo_call.update_bank_account` | updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu. [Tham số theo zca-js (web), chưa đối chiếu... |
+| [updateCatalog](docs/DICH-VU.md#update_catalog) | `zalo_call.update_catalog` | updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm. [Tham số theo zca-js (web), chưa đối chiếu với... |
 | [updateConversationLabelItem](docs/DICH-VU.md#update_conversation_label_item) | `zalo_call.update_conversation_label_item` | updateConversationLabelItem — Cập nhật thông tin một nhãn phân loại hội thoại và danh sách hội thoại gắn nhãn... |
-| [updateProductCatalog](docs/DICH-VU.md#update_product_catalog) | `zalo_call.update_product_catalog` | updateProductCatalog — Cập nhật thông tin chi tiết, giá bán và hình ảnh của sản phẩm trong Danh mục. |
+| [updateProductCatalog](docs/DICH-VU.md#update_product_catalog) | `zalo_call.update_product_catalog` | updateProductCatalog — Cập nhật thông tin chi tiết, giá bán và hình ảnh của sản phẩm trong Danh mục. [Tham số... |
 | [uploadProductPhoto](docs/DICH-VU.md#upload_product_photo) | `zalo_call.upload_product_photo` | uploadProductPhoto — Tải ảnh sản phẩm lên máy chủ Zalo phục vụ cho Product Catalog hoặc Quick Message. (chưa... |
 | **Khác** | | |
 | [Chuyển giọng nói thành văn bản (Zalo AI)](docs/DICH-VU.md#voice_to_text) | `zalo_call.voice_to_text` | Gửi một tin nhắn thoại (URL tệp .aac/.mp3/.m4a trên máy chủ Zalo) cho Zalo AI và trả về văn bản. Chỉ dùng cho... |
@@ -1514,6 +1551,10 @@ Năm mẫu automation dựng sẵn cho Zalo Call, nằm ở kho **[TriTue2011/Bl
 | **Quy tắc cho cuộc gọi đến** | Báo ra loa, tự nghe máy, AI nói chuyện, thiết bị nhà dùng khi người nhà nói trực tiếp | [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FTriTue2011%2FBlueprint%2Fmain%2Fzalo_call_incoming_rule.yaml) |
 | **Messenger tuỳ biến** | Nhắn tin hoặc gọi khi thiết bị đổi trạng thái / vượt ngưỡng / báo cáo hằng ngày; kiểu chữ chọn từ danh sách | [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FTriTue2011%2FBlueprint%2Fmain%2Fzalo_call_messenger.yaml) |
 | **Gọi hoặc nhắn nhắc hẹn theo lịch** | Đúng giờ gọi đọc lời nhắc (thuốc, ngủ, thức dậy, ăn...) | [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FTriTue2011%2FBlueprint%2Fmain%2Fzalo_call_nhac_hen.yaml) |
+| **Cài đặt âm thanh và chống vọng mặc định** | Đặt độ to mic/loa (%, hiện cả dB) và tham số chống vọng trễ lúc HA khởi động hoặc khi nhấn nút; cùng giá trị với WebUI | [![Import Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fraw.githubusercontent.com%2FTriTue2011%2FBlueprint%2Fmain%2Fzalo_call_cai_dat_am_thanh.yaml) |
+
+Các blueprint camera, lịch/thời tiết, cập nhật blueprint, tạo ảnh và LLM Vision có nhánh **Zalo Calling** đều có ô chọn cho tham số của dịch vụ gửi tin (tự xóa, tự thu hồi, định dạng, màu chữ, cỡ chữ, đậm, nghiêng, gạch chân, tiêu đề, emoji, nhờ AI chọn định dạng; với video: chú thích nằm trong video và ảnh bìa). Ô để «Theo mặc định» thì không gửi trường đó, nên automation cũ chạy như trước. Các mẫu có gọi điện (gọi đi, cảnh báo, nút bấm, nghe máy, nhắc hẹn, messenger) thêm ô **độ to mic / loa**, **engine TTS** và **ngôn ngữ đọc**.
+
 
 ## 12. Add-on Home Assistant và cấu trúc kho
 

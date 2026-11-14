@@ -43,6 +43,8 @@ class FakeZaloApp:
         self.runner = None
         self.url = ""
         self.fail_next: tuple[int, dict] | None = None
+        self.devices: dict = {}                    # cài đặt thiết bị của app (devices.json giả)
+        self.device_posts: list[dict] = []
 
     def last(self, part: str) -> dict:
         return [r for r in self.requests if part in r["path"]][-1]
@@ -67,7 +69,10 @@ class FakeZaloApp:
         if p == "/api/calls":
             return web.json_response({"calls": []})
         if p == "/api/settings/devices":
-            return web.json_response({"devices": {}})
+            if request.method == "POST" and isinstance(body, dict):
+                self.device_posts.append(body)
+                self.devices.update({k: (None if v == "" else v) for k, v in body.items()})
+            return web.json_response({"ok": True, "devices": self.devices})
         if p.startswith("/api/thread/"):
             return web.json_response({"ok": True, "data": {"msgId": "8474"}, "message": {"id": "1", "client_id": "1", "text": (body or {}).get("message", "")}})
         if p == "/api/svc/search_sticker":
@@ -451,70 +456,71 @@ async def test_ai_style_prompt_only_lists_the_aspects_set_to_auto():
     assert styler.looks_marked("**a**") and styler.looks_marked("🚨 x") and not styler.looks_marked("a thường")
 
 
-# ---- send_video: video THẬT (khung phát được), không phải tệp đính kèm (13/11) --------------------------------------------------------
-async def _set_external_url(hass, url):
-    try:
-        from homeassistant.core_config import async_process_ha_core_config
-    except ImportError:
-        from homeassistant.config import async_process_ha_core_config
-    await async_process_ha_core_config(hass, {"external_url": url})
-
-
-async def test_send_video_with_a_public_url_sends_a_real_video_message(hass, setup, app):
-    await call(hass, "send_video", {"thread_id": THREAD, "type": "group", "file": "https://cdn.example.test/v.mp4",
-                                    "thumbnail": "https://cdn.example.test/t.jpg", "message": "Có người", "width": 640, "height": 360, "duration": 5.5})
-    r = app.last("/sendvideo")
-    assert r["path"] == "/api/thread/%s/sendvideo" % THREAD, r
-    assert r["json"] == {"type": "group", "video_url": "https://cdn.example.test/v.mp4", "thumbnail_url": "https://cdn.example.test/t.jpg",
-                         "message": "Có người", "width": 640, "height": 360, "duration": 5500}, r["json"]
-    assert not [x for x in app.requests if x["path"].endswith("/sendfile")], "không được gửi thêm dạng tệp đính kèm"
-
-
-async def test_send_video_from_www_gets_a_public_local_url_and_the_thumb_next_to_it(hass, setup, app):
-    www = hass.config.path("www")
-    os.makedirs(www, exist_ok=True)
-    hass.config.allowlist_external_dirs.add(www)
-    for n in ("clip.mp4", "clip_thumb.jpg"):
-        with open(os.path.join(www, n), "wb") as f:
-            f.write(b"x")
-    await _set_external_url(hass, "https://ha.example.test")
-    await call(hass, "send_video", {"thread_id": THREAD, "type": "user", "file": os.path.join(www, "clip.mp4")})
-    j = app.last("/sendvideo")["json"]
-    assert j["video_url"] == "https://ha.example.test/local/clip.mp4" and j["thumbnail_url"] == "https://ha.example.test/local/clip_thumb.jpg", j
-
-
-async def test_send_video_from_media_dir_is_signed_and_uses_the_camera_blueprint_thumb(hass, setup, app, monkeypatch, tmp_path):
-    media = tmp_path / "media"
-    (media / "snapshots").mkdir(parents=True)
-    (media / "snapshots" / "go2rtc_cua_video.mp4").write_bytes(b"x")
-    (media / "snapshots" / "go2rtc_cua_thumb.jpg").write_bytes(b"x")
-    await _set_external_url(hass, "https://ha.example.test")        # đặt TRƯỚC: lệnh này đặt lại media_dirs về mặc định của HA
-    hass.config.media_dirs = {"local": str(media)}
-    hass.config.allowlist_external_dirs.add(str(media))
-    import homeassistant.components.http.auth as http_auth
-    monkeypatch.setattr(http_auth, "async_sign_path", lambda _hass, path, _exp, **_k: path + "?authSig=T")
-    await call(hass, "send_video", {"thread_id": THREAD, "type": "user", "file": str(media / "snapshots" / "go2rtc_cua_video.mp4")})
-    j = app.last("/sendvideo")["json"]
-    assert j["video_url"] == "https://ha.example.test/media/local/snapshots/go2rtc_cua_video.mp4?authSig=T", j
-    assert j["thumbnail_url"] == "https://ha.example.test/media/local/snapshots/go2rtc_cua_thumb.jpg?authSig=T", j
-
-
-async def test_send_video_without_a_public_address_falls_back_to_a_file_attachment(hass, setup, app, tmp_path):
-    f = tmp_path / "clip.mp4"
-    f.write_bytes(b"FAKE-MP4")
-    await call(hass, "send_video", {"thread_id": THREAD, "type": "user", "file": str(f)})      # HA chưa có địa chỉ ngoài -> như trước
-    assert not [x for x in app.requests if x["path"].endswith("/sendvideo")], app.requests
-    r = app.last("/sendfile")
-    assert r["ctype"] == "multipart/form-data" and b"FAKE-MP4" in r["raw"], r
-
-
-# ---- send_images_to_*: nhiều ảnh MỘT LÚC thành album, không gửi từng ảnh rời (13/11) ----------------------------------------------------
+# ---- send_video: video THẬT, TẢI LÊN Zalo qua app như zalo_bot cũ (14/11): không đưa địa chỉ HA (hết hạn, tên tệp bị ghi đè), ảnh bìa là khung đầu của chính video ----------
 def _form_value(raw: bytes, name: str):
     import re
     m = re.search(rb'name="%s"\r\n\r\n(.*?)\r\n' % name.encode(), raw)
     return m.group(1).decode() if m else None
 
 
+async def test_send_video_uploads_the_file_with_caption_and_ttl_never_a_public_address(hass, setup, app, tmp_path):
+    f = tmp_path / "go2rtc_phong_khach_video.mp4"
+    f.write_bytes(b"VIDEO-BYTES-1")
+    (tmp_path / "go2rtc_phong_khach_thumb.jpg").write_bytes(b"ANH-BIA-CU")                 # ảnh cũ nằm cạnh: KHÔNG được tự nhặt làm bìa
+    await call(hass, "send_video", {"thread_id": THREAD, "type": "group", "file": str(f), "message": "🔔 Phát hiện chuyển động!", "ttl": 60000})
+    assert not [x for x in app.requests if x["path"].endswith("/sendvideo")], "không gửi địa chỉ video"
+    r = app.last("/sendfile")
+    assert r["path"] == "/api/thread/%s/sendfile" % THREAD and r["ctype"] == "multipart/form-data", r
+    raw = r["raw"]
+    assert b"VIDEO-BYTES-1" in raw and b'filename="go2rtc_phong_khach_video.mp4"' in raw, "đúng nội dung và tên video"
+    assert _form_value(raw, "desc") == "🔔 Phát hiện chuyển động!" and _form_value(raw, "ttl") == "60000" and _form_value(raw, "type") == "group"
+    assert b"ANH-BIA-CU" not in raw and b'name="thumb"' not in raw, "bìa do app tách từ khung hình đầu của video, không lấy ảnh cũ cạnh tệp"
+
+
+async def test_send_video_sends_the_explicit_thumbnail_as_its_own_part(hass, setup, app, tmp_path):
+    f, t = tmp_path / "clip.mp4", tmp_path / "bia.jpg"
+    f.write_bytes(b"V")
+    t.write_bytes(b"ANH-BIA-MOI")
+    await call(hass, "send_video", {"thread_id": THREAD, "type": "user", "file": str(f), "thumbnail": str(t)})
+    raw = app.last("/sendfile")["raw"]
+    assert b'name="thumb"' in raw and b"ANH-BIA-MOI" in raw, "ảnh bìa tường minh đi kèm để app dùng thay khung hình đầu"
+    assert _form_value(raw, "desc") is None, "không chú thích thì không gửi trường desc"
+
+
+async def test_send_video_without_extension_still_goes_as_video(hass, setup, app, tmp_path):
+    f = tmp_path / "clip-khong-duoi"
+    f.write_bytes(b"V")
+    await call(hass, "send_video", {"thread_id": THREAD, "type": "user", "file": str(f)})
+    assert b'filename="clip-khong-duoi.mp4"' in app.last("/sendfile")["raw"], "app nhận video theo đuôi tên tệp"
+
+
+# ---- type kiểu zalo_bot: 0/1 lẫn user/group, không phân biệt hoa thường (14/11) ---------------------------------------------------------
+@pytest.mark.parametrize("given,want", [("0", "user"), ("1", "group"), (0, "user"), (1, "group"), ("user", "user"), ("group", "group"),
+                                        ("Group", "group"), (" GROUP ", "group")])
+async def test_type_accepts_zalo_bot_values_and_normalises(hass, setup, app, given, want):
+    await call(hass, "send_message", {"thread_id": THREAD, "type": given, "message": "x"})
+    assert app.last("/send")["json"]["type"] == want
+
+
+async def test_type_rejects_garbage_with_a_clear_message(hass, setup):
+    import voluptuous as vol
+    with pytest.raises(vol.Invalid, match="user hoặc group"):
+        await call(hass, "send_message", {"thread_id": THREAD, "type": "2", "message": "x"})
+
+
+async def test_type_is_normalised_on_other_services_too(hass, setup, app):
+    await call(hass, "undo_message", {"thread_id": THREAD, "type": "1", "msg_id": "5", "cli_msg_id": "6"})
+    assert app.last("/api/svc/undo_message")["json"]["type"] == "group"
+
+
+async def test_poll_detail_and_lock_need_only_the_poll_id_like_zalo_bot(hass, setup, app):
+    await call(hass, "get_poll_detail", {"poll_id": "123"})
+    await call(hass, "lock_poll", {"poll_id": "123"})
+    assert app.last("/api/svc/get_poll_detail")["json"]["poll_id"] == "123"
+    assert app.last("/api/svc/lock_poll")["json"]["poll_id"] == "123"
+
+
+# ---- send_images_to_*: nhiều ảnh MỘT LÚC thành album, không gửi từng ảnh rời (13/11) ----------------------------------------------------
 async def test_send_images_to_group_sends_one_album_in_order_and_gif_apart(hass, setup, app, tmp_path):
     files = []
     for n in ("a.jpg", "b.jpg", "c.png", "anim.gif"):
@@ -559,10 +565,12 @@ async def test_zalo_bot_field_names_still_work_and_ttl_reaches_the_app(hass, set
     f.write_bytes(b"IMG-OLD-NAME")
     await call(hass, "send_image", {"thread_id": THREAD, "type": "user", "image_path": str(f), "account_selection": "tai-khoan-cu"})
     assert b"IMG-OLD-NAME" in _sent(app, "/sendfile")[-1]["raw"]
-    await call(hass, "send_video", {"thread_id": THREAD, "type": "group", "video_path_or_url": "https://cdn.example.test/v.mp4",
-                                    "thumbnail_url": "https://cdn.example.test/t.jpg", "ttl": 86400000})
-    j = _sent(app, "/sendvideo")[-1]["json"]
-    assert j["video_url"] == "https://cdn.example.test/v.mp4" and j["thumbnail_url"] == "https://cdn.example.test/t.jpg" and j["ttl"] == 86400000, j
+    v, t = tmp_path / "v.mp4", tmp_path / "t.jpg"
+    v.write_bytes(b"VID-OLD-NAME")
+    t.write_bytes(b"THUMB-OLD-NAME")
+    await call(hass, "send_video", {"thread_id": THREAD, "type": "group", "video_path_or_url": str(v), "thumbnail_url": str(t), "ttl": 86400000})
+    raw = _sent(app, "/sendfile")[-1]["raw"]
+    assert b"VID-OLD-NAME" in raw and b"THUMB-OLD-NAME" in raw and b'name="thumb"' in raw and _form_value(raw, "ttl") == "86400000", "tên cũ video_path_or_url / thumbnail_url vẫn chạy"
     await call(hass, "send_message", {"thread_id": THREAD, "type": "user", "message": "Xin chào", "ttl": 3600000})
     assert _sent(app, "/send")[-1]["json"]["ttl"] == 3600000
     await call(hass, "send_link", {"thread_id": THREAD, "type": "user", "link": "https://example.test", "thumbnail": "https://example.test/i.jpg", "ttl": 5000})
@@ -652,3 +660,34 @@ async def test_unknown_keys_are_reported_not_silently_dropped(hass, setup, app, 
     caplog.clear()
     await call(hass, "send_message", {"thread_id": THREAD, "type": "user", "message": "x", "account_selection": "cu", "ttl": 5})
     assert "bỏ qua khoá" not in caplog.text, "account_selection và ttl là khoá hợp lệ/được bỏ qua êm"
+
+
+# ---- cài đặt ÂM THANH của thiết bị: HA ghi thẳng vào app (một nguồn với WebUI), thực thể số đọc lại từ app (14/11) -----------------------
+async def test_set_default_devices_writes_audio_settings_to_the_app_and_get_reads_them_back(hass, setup, app):
+    await hass.services.async_call(DOMAIN, "set_default_devices", {"mic_gain": 150, "speaker_gain": 80, "echo_delay_min_ms": 400,
+                                                                     "echo_delay_max_ms": 800, "echo_ratio": 2.5}, blocking=True)
+    assert {"mic_gain": 150, "speaker_gain": 80, "echo_delay_min_ms": 400, "echo_delay_max_ms": 800, "echo_ratio": 2.5} in app.device_posts, app.device_posts
+    got = (await call(hass, "get_default_devices", {}))
+    assert got["mic_gain"] == 150 and got["echo_delay_max_ms"] == 800 and got["echo_ratio"] == 2.5, got
+    app.devices.update({"echo_delay_min_ms": 400, "echo_delay_max_ms": 800})
+    await hass.services.async_call(DOMAIN, "set_default_devices", {"echo_delay_min_ms": 450}, blocking=True)
+    assert {"echo_delay_min_ms": 450, "echo_delay_max_ms": 800} in app.device_posts, "đưa một ô trễ: lấy ô kia từ app, vì app kiểm cặp thấp < cao"
+    await hass.services.async_call(DOMAIN, "set_default_devices", {"echo_use_default": True}, blocking=True)
+    assert app.devices["echo_delay_min_ms"] is None and app.devices["echo_ratio"] is None, "trở về mặc định của máy chủ"
+
+
+async def test_audio_number_entities_follow_the_app_and_write_through(hass, setup, app):
+    app.devices.update({"mic_gain": 120, "echo_delay_min_ms": 450, "echo_delay_max_ms": 700})
+    ent = {k: er.async_get(hass).async_get_entity_id("number", DOMAIN, "%s_app_%s" % (setup.entry_id, k))
+           for k in ("mic_gain", "speaker_gain", "echo_delay_min_ms", "echo_delay_max_ms", "echo_ratio")}
+    assert all(ent.values()), ent
+    from homeassistant.helpers.entity_component import async_update_entity
+    await async_update_entity(hass, ent["mic_gain"])
+    st = hass.states.get(ent["mic_gain"])
+    assert float(st.state) == 120 and st.attributes["db"] == 1.6, st.attributes        # 120 % ≈ +1,6 dB
+    await hass.services.async_call("number", "set_value", {"entity_id": ent["mic_gain"], "value": 200}, blocking=True)
+    assert app.device_posts[-1] == {"mic_gain": 200} and app.devices["mic_gain"] == 200
+    await hass.services.async_call("number", "set_value", {"entity_id": ent["echo_delay_min_ms"], "value": 500}, blocking=True)
+    assert app.device_posts[-1] == {"echo_delay_min_ms": 500, "echo_delay_max_ms": 700}, "app kiểm cặp (thấp < cao) nên luôn gửi đủ hai"
+    await hass.services.async_call("number", "set_value", {"entity_id": ent["echo_ratio"], "value": 3.25}, blocking=True)
+    assert app.device_posts[-1] == {"echo_ratio": 3.25}

@@ -1485,32 +1485,17 @@
   "fields": [
    {
     "key": "file",
-    "label": "Video: đường dẫn trong HA (thư mục www hoặc media) hoặc URL công khai. Gửi dạng video phát được trong chat; tệp trong HA được cấp địa chỉ công khai từ địa chỉ ngoài của HA (media có chữ ký hạn 1 giờ). Không có địa chỉ công khai thì gửi dạng tệp đính kèm",
+    "label": "Video: đường dẫn trong HA (thư mục được phép, ví dụ /media/…) hoặc URL. HA đọc nội dung video rồi app TẢI LÊN Zalo như zalo_bot cũ: xem được lâu dài, không phụ thuộc địa chỉ ngoài của HA. Kích thước, thời lượng và ảnh bìa (khung hình đầu của chính video) do app tự lấy",
     "required": true
    },
    {
     "key": "thumbnail",
-    "label": "Ảnh bìa: đường dẫn hoặc URL. Bỏ trống = tự tìm «…_thumb.jpg» cạnh video, không có thì dùng chính video",
+    "label": "Ảnh bìa JPEG: đường dẫn hoặc URL. Bỏ trống = khung hình đầu của video (không tự lấy ảnh nằm cạnh tệp)",
     "required": false
    },
    {
     "key": "message",
-    "label": "Chú thích kèm video (bỏ trống = không)",
-    "required": false
-   },
-   {
-    "key": "width",
-    "label": "Độ rộng (px). Bỏ trống = tự đo bằng ffprobe",
-    "required": false
-   },
-   {
-    "key": "height",
-    "label": "Độ cao (px). Bỏ trống = tự đo bằng ffprobe",
-    "required": false
-   },
-   {
-    "key": "duration",
-    "label": "Thời lượng (giây). Bỏ trống = tự đo bằng ffprobe",
+    "label": "Chú thích nằm TRONG video (bỏ trống = không). Không cần gửi thêm tin chữ riêng",
     "required": false
    },
    {
@@ -1639,7 +1624,7 @@
   "action": "get_poll_detail",
   "group": "nhom",
   "label": "Xem chi tiết bình chọn",
-  "thread": "group",
+  "thread": "none",
   "danger": false,
   "fields": [
    {
@@ -1656,7 +1641,7 @@
   "action": "lock_poll",
   "group": "nhom",
   "label": "Khóa bình chọn",
-  "thread": "group",
+  "thread": "none",
   "danger": false,
   "fields": [
    {
@@ -2095,7 +2080,7 @@
   "kind": "zca",
   "action": "decrypt_gids",
   "group": "zca_auth",
-  "label": "decryptGids — Giải mã danh sách Global ID (g_...) ẩn danh thành User ID thật (tương ứng hàm getUidFromGlobalNoiseId / command 12054 trên Zalo PC)",
+  "label": "decryptGids — Giải mã danh sách Global ID (g_...) ẩn danh thành User ID thật (tương ứng hàm getUidFromGlobalNoiseId / command 12054 trên Zalo PC) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2113,7 +2098,7 @@
   "kind": "zca",
   "action": "encrypt_gids",
   "group": "zca_auth",
-  "label": "encryptGids — Mã hóa danh sách UID thật sang định danh ẩn danh Global Noise ID (OTDAKO...) (command 12053)",
+  "label": "encryptGids — Mã hóa danh sách UID thật sang định danh ẩn danh Global Noise ID (OTDAKO...) (command 12053) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2131,7 +2116,7 @@
   "kind": "zca",
   "action": "export_session",
   "group": "zca_auth",
-  "label": "exportSession — Xuất toàn bộ thông tin phiên đăng nhập hiện tại (uid, imei, userAgent, language, cookie) dưới định dạng chuẩn Credentials để lưu trữ (JSON/Database) và truyền trực tiếp vào zalo.login(session). (chưa tự động: khong dung dich",
+  "label": "exportSession — Xuất toàn bộ thông tin phiên đăng nhập hiện tại (uid, imei, userAgent, language, cookie) dưới định dạng chuẩn Credentials để lưu trữ (JSON/Database) và truyền trực tiếp vào zalo.login( (chưa tự động: khong dung dich vu Zalo ",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -2164,7 +2149,7 @@
   "kind": "zca",
   "action": "get_list_device",
   "group": "zca_auth",
-  "label": "getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại.",
+  "label": "getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -2175,7 +2160,7 @@
   "kind": "zca",
   "action": "get_noised_ids",
   "group": "zca_auth",
-  "label": "getNoisedIds — Chuyển đổi danh sách UID cá nhân (fids) và GID nhóm (gids) dạng số thuần (từ SQLite ZDB4.0 mobile) sang định dạng Noised ID 19 chữ số dùng trên Zalo Web/PC (getNoisedUids, command 12390). Tự động fallback sang https://zwid.ap",
+  "label": "getNoisedIds — Chuyển đổi danh sách UID cá nhân (fids) và GID nhóm (gids) dạng số thuần (từ SQLite ZDB4.0 mobile) sang định dạng Noised ID 19 chữ số dùng trên Zalo Web/PC (getNoisedUids, command 12390 (chưa tự động: goi 2 request (nhieu buo",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -2197,7 +2182,7 @@
   "kind": "zca",
   "action": "get_q_r",
   "group": "zca_auth",
-  "label": "getQR — Lấy mã QR của danh sách người dùng theo UID.",
+  "label": "getQR — Lấy mã QR của danh sách người dùng theo UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2215,7 +2200,7 @@
   "kind": "zca",
   "action": "lost_focus",
   "group": "zca_auth",
-  "label": "lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background).",
+  "label": "lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -2226,7 +2211,7 @@
   "kind": "zca",
   "action": "scan_u_r_l",
   "group": "zca_auth",
-  "label": "scanURL — Quét và kiểm tra độ an toàn của đường dẫn URL thông qua bộ lọc bảo mật Zalo.",
+  "label": "scanURL — Quét và kiểm tra độ an toàn của đường dẫn URL thông qua bộ lọc bảo mật Zalo. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2255,7 +2240,7 @@
   "kind": "zca",
   "action": "update_lang",
   "group": "zca_auth",
-  "label": "updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo.",
+  "label": "updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2273,7 +2258,7 @@
   "kind": "zca",
   "action": "get_block_sharing_conversations",
   "group": "zca_chat",
-  "label": "getBlockSharingConversations — Lấy danh sách hội thoại đang bật chế độ chặn chia sẻ / chuyển tiếp tin nhắn (command 12178)",
+  "label": "getBlockSharingConversations — Lấy danh sách hội thoại đang bật chế độ chặn chia sẻ / chuyển tiếp tin nhắn (command 12178) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -2294,7 +2279,7 @@
   "kind": "zca",
   "action": "get_conv_offline_messages",
   "group": "zca_chat",
-  "label": "getConvOfflineMessages — Lấy danh sách hội thoại nhóm có tin nhắn ngoại tuyến mới (command 12300)",
+  "label": "getConvOfflineMessages — Lấy danh sách hội thoại nhóm có tin nhắn ngoại tuyến mới (command 12300) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2324,7 +2309,7 @@
   "kind": "zca",
   "action": "get_direct_message_status",
   "group": "zca_chat",
-  "label": "getDirectMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn trong các hội thoại cá nhân 1-1 (command 12016)",
+  "label": "getDirectMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn trong các hội thoại cá nhân 1-1 (command 12016) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2351,7 +2336,7 @@
   "kind": "zca",
   "action": "get_last_seen",
   "group": "zca_chat",
-  "label": "getLastSeen — Lấy thông tin trạng thái đã xem cuối cùng của danh sách nhóm và cá nhân (command 12009)",
+  "label": "getLastSeen — Lấy thông tin trạng thái đã xem cuối cùng của danh sách nhóm và cá nhân (command 12009) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2384,7 +2369,7 @@
   "kind": "zca",
   "action": "get_last_seen_reaction",
   "group": "zca_chat",
-  "label": "getLastSeenReaction — Lấy trạng thái đã xem cảm xúc (Reaction) cuối cùng của danh sách nhóm và cá nhân (command 12450)",
+  "label": "getLastSeenReaction — Lấy trạng thái đã xem cảm xúc (Reaction) cuối cùng của danh sách nhóm và cá nhân (command 12450) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2417,7 +2402,7 @@
   "kind": "zca",
   "action": "get_recent_search_list",
   "group": "zca_chat",
-  "label": "getRecentSearchList — Lấy danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12125)",
+  "label": "getRecentSearchList — Lấy danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12125) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2435,7 +2420,7 @@
   "kind": "zca",
   "action": "get_suggested_conversations",
   "group": "zca_chat",
-  "label": "getSuggestedConversations — Lấy danh sách các cuộc hội thoại được gợi ý (command 11233)",
+  "label": "getSuggestedConversations — Lấy danh sách các cuộc hội thoại được gợi ý (command 11233) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2462,7 +2447,7 @@
   "kind": "zca",
   "action": "get_translate_setting",
   "group": "zca_chat",
-  "label": "getTranslateSetting — Lấy cấu hình tính năng dịch tin nhắn tự động bằng Zalo AI (command 13395)",
+  "label": "getTranslateSetting — Lấy cấu hình tính năng dịch tin nhắn tự động bằng Zalo AI (command 13395) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -2473,7 +2458,7 @@
   "kind": "zca",
   "action": "mark_sub_tab_seen",
   "group": "zca_chat",
-  "label": "markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214)",
+  "label": "markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2500,7 +2485,7 @@
   "kind": "zca",
   "action": "preload_conversations",
   "group": "zca_chat",
-  "label": "preloadConversations — Tải trước tin nhắn cuối cùng và trạng thái đã đọc của các hội thoại đang hoạt động (command 10053).",
+  "label": "preloadConversations — Tải trước tin nhắn cuối cùng và trạng thái đã đọc của các hội thoại đang hoạt động (command 10053). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2527,7 +2512,7 @@
   "kind": "zca",
   "action": "renew_message_link",
   "group": "zca_chat",
-  "label": "renewMessageLink — Gia hạn đường dẫn tải tệp đính kèm / đa phương tiện đã hết hạn trong tin nhắn (command 12094)",
+  "label": "renewMessageLink — Gia hạn đường dẫn tải tệp đính kèm / đa phương tiện đã hết hạn trong tin nhắn (command 12094) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2578,7 +2563,7 @@
   "kind": "zca",
   "action": "send_bank_card",
   "group": "zca_chat",
-  "label": "sendBankCard — Gửi danh thiếp thông tin tài khoản ngân hàng (Bank Card) vào cuộc trò chuyện.",
+  "label": "sendBankCard — Gửi danh thiếp thông tin tài khoản ngân hàng (Bank Card) vào cuộc trò chuyện. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -2659,7 +2644,7 @@
   "kind": "zca",
   "action": "set_pinned_conversations",
   "group": "zca_chat",
-  "label": "setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách.",
+  "label": "setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2698,7 +2683,7 @@
   "kind": "zca",
   "action": "translate_message",
   "group": "zca_chat",
-  "label": "translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397)",
+  "label": "translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2767,7 +2752,7 @@
   "kind": "zca",
   "action": "translate_message_auto",
   "group": "zca_chat",
-  "label": "translateMessageAuto — Gửi yêu cầu dịch tự động hàng loạt tin nhắn đến bằng Zalo AI (command 13398). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener.on(\"translate_event\", ...).",
+  "label": "translateMessageAuto — Gửi yêu cầu dịch tự động hàng loạt tin nhắn đến bằng Zalo AI (command 13398). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2824,7 +2809,7 @@
   "kind": "zca",
   "action": "translate_message_suggest",
   "group": "zca_chat",
-  "label": "translateMessageSuggest — Gửi yêu cầu dịch gợi ý tin nhắn đang soạn thảo bằng Zalo AI (command 13399). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener.on(\"translate_event\", ...).",
+  "label": "translateMessageSuggest — Gửi yêu cầu dịch gợi ý tin nhắn đang soạn thảo bằng Zalo AI (command 13399). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listene [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2929,7 +2914,7 @@
   "kind": "zca",
   "action": "update_archived_chat_list",
   "group": "zca_chat",
-  "label": "updateArchivedChatList — Đưa cuộc trò chuyện vào mục Lưu trữ (Archive) hoặc khôi phục ra ngoài.",
+  "label": "updateArchivedChatList — Đưa cuộc trò chuyện vào mục Lưu trữ (Archive) hoặc khôi phục ra ngoài. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -2962,7 +2947,7 @@
   "kind": "zca",
   "action": "update_block_sharing_conversation",
   "group": "zca_chat",
-  "label": "updateBlockSharingConversation — Bật hoặc tắt chế độ chặn chia sẻ / chuyển tiếp tin nhắn trong một hội thoại (command 12179)",
+  "label": "updateBlockSharingConversation — Bật hoặc tắt chế độ chặn chia sẻ / chuyển tiếp tin nhắn trong một hội thoại (command 12179) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -3027,7 +3012,7 @@
   "kind": "zca",
   "action": "update_recent_search",
   "group": "zca_chat",
-  "label": "updateRecentSearch — Cập nhật danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12126)",
+  "label": "updateRecentSearch — Cập nhật danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12126) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3126,7 +3111,7 @@
   "kind": "zca",
   "action": "add_group_blocked_member",
   "group": "zca_group",
-  "label": "addGroupBlockedMember — Chặn một hoặc nhiều thành viên khỏi nhóm (không cho tham gia lại).",
+  "label": "addGroupBlockedMember — Chặn một hoặc nhiều thành viên khỏi nhóm (không cho tham gia lại). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -3159,7 +3144,7 @@
   "kind": "zca",
   "action": "analyse_group",
   "group": "zca_group",
-  "label": "analyseGroup — Lấy dữ liệu phân tích/thống kê của nhóm qua /api/group/analyse (command 12407)",
+  "label": "analyseGroup — Lấy dữ liệu phân tích/thống kê của nhóm qua /api/group/analyse (command 12407) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3186,7 +3171,7 @@
   "kind": "zca",
   "action": "check_quota_community_member",
   "group": "zca_group",
-  "label": "checkQuotaCommunityMember — Kiểm tra điều kiện/hạn mức thành viên Cộng đồng đối với một thành viên cụ thể trong nhóm (command 12182)",
+  "label": "checkQuotaCommunityMember — Kiểm tra điều kiện/hạn mức thành viên Cộng đồng đối với một thành viên cụ thể trong nhóm (command 12182) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3219,7 +3204,7 @@
   "kind": "zca",
   "action": "delete_group_invite_box",
   "group": "zca_group",
-  "label": "deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm.",
+  "label": "deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -3261,7 +3246,7 @@
   "kind": "zca",
   "action": "get_e2ee_group_list",
   "group": "zca_group",
-  "label": "getE2eeGroupList — Lấy danh sách các nhóm đang bật mã hóa đầu cuối E2EE (command 12146)",
+  "label": "getE2eeGroupList — Lấy danh sách các nhóm đang bật mã hóa đầu cuối E2EE (command 12146) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -3272,7 +3257,7 @@
   "kind": "zca",
   "action": "get_extra_group_info",
   "group": "zca_group",
-  "label": "getExtraGroupInfo — Lấy ngữ cảnh và vai trò mở rộng của người dùng đối với nhiều nhóm (command 12607)",
+  "label": "getExtraGroupInfo — Lấy ngữ cảnh và vai trò mở rộng của người dùng đối với nhiều nhóm (command 12607) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3299,7 +3284,7 @@
   "kind": "zca",
   "action": "get_group_blocked_member",
   "group": "zca_group",
-  "label": "getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm.",
+  "label": "getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -3341,7 +3326,7 @@
   "kind": "zca",
   "action": "get_group_cloud_message_jump",
   "group": "zca_group",
-  "label": "getGroupCloudMessageJump — Nhảy tới vị trí một tin nhắn nhóm cụ thể trên Zalo Cloud Message và lấy ngữ cảnh xung quanh (command 12508)",
+  "label": "getGroupCloudMessageJump — Nhảy tới vị trí một tin nhắn nhóm cụ thể trên Zalo Cloud Message và lấy ngữ cảnh xung quanh (command 12508) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3392,7 +3377,7 @@
   "kind": "zca",
   "action": "get_group_cloud_message_path",
   "group": "zca_group",
-  "label": "getGroupCloudMessagePath — Lấy chuỗi tin nhắn nhóm theo đường dẫn nhảy tới một tin nhắn cụ thể (globalMsgId / rGlobalMsgId) qua /api/cm/getpath (command 12504)",
+  "label": "getGroupCloudMessagePath — Lấy chuỗi tin nhắn nhóm theo đường dẫn nhảy tới một tin nhắn cụ thể (globalMsgId / rGlobalMsgId) qua /api/cm/getpath (command 12504) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3466,7 +3451,7 @@
   "kind": "zca",
   "action": "get_group_invite_box_info",
   "group": "zca_group",
-  "label": "getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể.",
+  "label": "getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3496,7 +3481,7 @@
   "kind": "zca",
   "action": "get_group_invite_box_list",
   "group": "zca_group",
-  "label": "getGroupInviteBoxList — Lấy danh sách tất cả lời mời tham gia nhóm đang chờ trong hộp thư.",
+  "label": "getGroupInviteBoxList — Lấy danh sách tất cả lời mời tham gia nhóm đang chờ trong hộp thư. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3541,7 +3526,7 @@
   "kind": "zca",
   "action": "get_group_link_info",
   "group": "zca_group",
-  "label": "getGroupLinkInfo — Tra cứu thông tin nhóm và danh sách thành viên theo trang từ đường dẫn nhóm công khai (https://zalo.me/g/...).",
+  "label": "getGroupLinkInfo — Tra cứu thông tin nhóm và danh sách thành viên theo trang từ đường dẫn nhóm công khai (https://zalo.me/g/...). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3565,7 +3550,7 @@
   "kind": "zca",
   "action": "get_group_list_v3",
   "group": "zca_group",
-  "label": "getGroupListV3 — Lấy danh sách nhóm theo trang kèm thông tin thành viên đại diện (currentMems) và gợi ý nhóm (suggestGroup) qua /api/group/getlg/v3 (command 11161)",
+  "label": "getGroupListV3 — Lấy danh sách nhóm theo trang kèm thông tin thành viên đại diện (currentMems) và gợi ý nhóm (suggestGroup) qua /api/group/getlg/v3 (command 11161) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3592,7 +3577,7 @@
   "kind": "zca",
   "action": "get_group_members_info",
   "group": "zca_group",
-  "label": "getGroupMembersInfo — Giải mã hàng loạt thông tin hồ sơ thành viên (displayName, zaloName, avatar, globalId) từ danh sách UID qua /api/social/group/members.",
+  "label": "getGroupMembersInfo — Giải mã hàng loạt thông tin hồ sơ thành viên (displayName, zaloName, avatar, globalId) từ danh sách UID qua /api/social/group/members. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3619,7 +3604,7 @@
   "kind": "zca",
   "action": "get_group_message_status",
   "group": "zca_group",
-  "label": "getGroupMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn của danh sách thành viên trong nhóm (command 12017)",
+  "label": "getGroupMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn của danh sách thành viên trong nhóm (command 12017) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3652,7 +3637,7 @@
   "kind": "zca",
   "action": "get_multi_group_cloud_messages",
   "group": "zca_group",
-  "label": "getMultiGroupCloudMessages — Đồng bộ nhanh tin nhắn Cloud của nhiều nhóm cùng lúc theo danh sách groupIds (command 12503 - syncCloudMsgFirstLogin)",
+  "label": "getMultiGroupCloudMessages — Đồng bộ nhanh tin nhắn Cloud của nhiều nhóm cùng lúc theo danh sách groupIds (command 12503 - syncCloudMsgFirstLogin) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3685,7 +3670,7 @@
   "kind": "zca",
   "action": "get_pending_group_members",
   "group": "zca_group",
-  "label": "getPendingGroupMembers — Lấy danh sách các yêu cầu xin vào nhóm đang chờ Quản trị viên phê duyệt.",
+  "label": "getPendingGroupMembers — Lấy danh sách các yêu cầu xin vào nhóm đang chờ Quản trị viên phê duyệt. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3703,7 +3688,7 @@
   "kind": "zca",
   "action": "get_quota_community",
   "group": "zca_group",
-  "label": "getQuotaCommunity — Kiểm tra hạn mức nâng cấp nhóm lên Cộng đồng của tài khoản (command 12181)",
+  "label": "getQuotaCommunity — Kiểm tra hạn mức nâng cấp nhóm lên Cộng đồng của tài khoản (command 12181) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3736,7 +3721,7 @@
   "kind": "zca",
   "action": "get_related_friend_group",
   "group": "zca_group",
-  "label": "getRelatedFriendGroup — Kiểm tra danh sách các nhóm chung giữa tài khoản hiện tại và danh sách UID truyền vào qua /api/friend/group/related.",
+  "label": "getRelatedFriendGroup — Kiểm tra danh sách các nhóm chung giữa tài khoản hiện tại và danh sách UID truyền vào qua /api/friend/group/related. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3763,7 +3748,7 @@
   "kind": "zca",
   "action": "invite_user_to_groups",
   "group": "zca_group",
-  "label": "inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng.",
+  "label": "inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3796,7 +3781,7 @@
   "kind": "zca",
   "action": "join_group_invite_box",
   "group": "zca_group",
-  "label": "joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời.",
+  "label": "joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3814,7 +3799,7 @@
   "kind": "zca",
   "action": "remove_group_blocked_member",
   "group": "zca_group",
-  "label": "removeGroupBlockedMember — Gỡ chặn (Unblock) cho người dùng khỏi danh sách chặn của nhóm.",
+  "label": "removeGroupBlockedMember — Gỡ chặn (Unblock) cho người dùng khỏi danh sách chặn của nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -3847,7 +3832,7 @@
   "kind": "zca",
   "action": "remove_group_topic",
   "group": "zca_group",
-  "label": "removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829)",
+  "label": "removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -3883,7 +3868,7 @@
   "kind": "zca",
   "action": "remove_user_from_groups",
   "group": "zca_group",
-  "label": "removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606)",
+  "label": "removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -3931,7 +3916,7 @@
   "kind": "zca",
   "action": "review_pending_member_request",
   "group": "zca_group",
-  "label": "reviewPendingMemberRequest — Phê duyệt (Chấp nhận hoặc Từ chối) yêu cầu xin tham gia nhóm của thành viên mới.",
+  "label": "reviewPendingMemberRequest — Phê duyệt (Chấp nhận hoặc Từ chối) yêu cầu xin tham gia nhóm của thành viên mới. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3964,7 +3949,7 @@
   "kind": "zca",
   "action": "update_group_settings",
   "group": "zca_group",
-  "label": "updateGroupSettings — Cập nhật các thiết lập quyền hạn của nhóm (ẩn thành viên lockViewMember, duyệt thành viên joinAppr, khóa nhắn tin lockSendMsg...).",
+  "label": "updateGroupSettings — Cập nhật các thiết lập quyền hạn của nhóm (ẩn thành viên lockViewMember, duyệt thành viên joinAppr, khóa nhắn tin lockSendMsg...). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -3997,7 +3982,7 @@
   "kind": "zca",
   "action": "upgrade_group_to_community",
   "group": "zca_group",
-  "label": "upgradeGroupToCommunity — Nâng cấp nhóm thường lên Cộng đồng (Community - tối đa 1000 thành viên).",
+  "label": "upgradeGroupToCommunity — Nâng cấp nhóm thường lên Cộng đồng (Community - tối đa 1000 thành viên). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4015,7 +4000,7 @@
   "kind": "zca",
   "action": "clear_unread_friend_requests",
   "group": "zca_friend",
-  "label": "clearUnreadFriendRequests — Đánh dấu đã xem danh sách lời mời kết bạn chưa đọc (command 12232)",
+  "label": "clearUnreadFriendRequests — Đánh dấu đã xem danh sách lời mời kết bạn chưa đọc (command 12232) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -4042,7 +4027,7 @@
   "kind": "zca",
   "action": "find_user_by_username",
   "group": "zca_friend",
-  "label": "findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username.",
+  "label": "findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4066,7 +4051,7 @@
   "kind": "zca",
   "action": "get_alias_list",
   "group": "zca_friend",
-  "label": "getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè.",
+  "label": "getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4090,7 +4075,7 @@
   "kind": "zca",
   "action": "get_alias_list_v2",
   "group": "zca_friend",
-  "label": "getAliasListV2 — Lấy danh sách tên gợi nhớ (Alias) của bạn bè chuẩn V2 có hỗ trợ phân trang (command 12205)",
+  "label": "getAliasListV2 — Lấy danh sách tên gợi nhớ (Alias) của bạn bè chuẩn V2 có hỗ trợ phân trang (command 12205) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4114,7 +4099,7 @@
   "kind": "zca",
   "action": "get_block_friends",
   "group": "zca_friend",
-  "label": "getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429)",
+  "label": "getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -4153,7 +4138,7 @@
   "kind": "zca",
   "action": "get_close_friends",
   "group": "zca_friend",
-  "label": "getCloseFriends — Lấy danh sách bạn thân (Close Friends).",
+  "label": "getCloseFriends — Lấy danh sách bạn thân (Close Friends). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -4164,7 +4149,7 @@
   "kind": "zca",
   "action": "get_extra_friend_info",
   "group": "zca_friend",
-  "label": "getExtraFriendInfo — Lấy ngữ cảnh và vai trò mở rộng (ví dụ role: [\"boss\"]) của danh sách bạn bè (command 11442)",
+  "label": "getExtraFriendInfo — Lấy ngữ cảnh và vai trò mở rộng (ví dụ role: [\"boss\"]) của danh sách bạn bè (command 11442) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4182,7 +4167,7 @@
   "kind": "zca",
   "action": "get_friend_board_list",
   "group": "zca_friend",
-  "label": "getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn.",
+  "label": "getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4200,7 +4185,7 @@
   "kind": "zca",
   "action": "get_friend_onlines",
   "group": "zca_friend",
-  "label": "getFriendOnlines — Lấy danh sách bạn bè đang trực tuyến (Online) kèm trạng thái thiết bị.",
+  "label": "getFriendOnlines — Lấy danh sách bạn bè đang trực tuyến (Online) kèm trạng thái thiết bị. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -4211,7 +4196,7 @@
   "kind": "zca",
   "action": "get_friend_recommendations",
   "group": "zca_friend",
-  "label": "getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận.",
+  "label": "getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -4222,7 +4207,7 @@
   "kind": "zca",
   "action": "get_friend_request_status",
   "group": "zca_friend",
-  "label": "getFriendRequestStatus — Kiểm tra trạng thái quan hệ bạn bè và lời mời kết bạn với một UID.",
+  "label": "getFriendRequestStatus — Kiểm tra trạng thái quan hệ bạn bè và lời mời kết bạn với một UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4240,7 +4225,7 @@
   "kind": "zca",
   "action": "get_friends_active_p_c_web",
   "group": "zca_friend",
-  "label": "getFriendsActivePCWeb — Lấy danh sách bạn bè đang hoạt động trên Zalo PC / Web qua /api/social/friend/active-pcweb (command 12072)",
+  "label": "getFriendsActivePCWeb — Lấy danh sách bạn bè đang hoạt động trên Zalo PC / Web qua /api/social/friend/active-pcweb (command 12072) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -4251,7 +4236,7 @@
   "kind": "zca",
   "action": "get_friends_emoji_status",
   "group": "zca_friend",
-  "label": "getFriendsEmojiStatus — Lấy danh sách trạng thái Emoji (Emoji Status) hiện tại của bạn bè (command 16301)",
+  "label": "getFriendsEmojiStatus — Lấy danh sách trạng thái Emoji (Emoji Status) hiện tại của bạn bè (command 16301) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4287,7 +4272,7 @@
   "kind": "zca",
   "action": "get_last_read_contact_tab",
   "group": "zca_friend",
-  "label": "getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230)",
+  "label": "getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -4298,7 +4283,7 @@
   "kind": "zca",
   "action": "get_multi_user_q_r_codes",
   "group": "zca_friend",
-  "label": "getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128)",
+  "label": "getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4325,7 +4310,7 @@
   "kind": "zca",
   "action": "get_multi_users_by_phones",
   "group": "zca_friend",
-  "label": "getMultiUsersByPhones — Tra cứu hàng loạt thông tin tài khoản Zalo từ danh sách nhiều số điện thoại cùng lúc.",
+  "label": "getMultiUsersByPhones — Tra cứu hàng loạt thông tin tài khoản Zalo từ danh sách nhiều số điện thoại cùng lúc. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4349,7 +4334,7 @@
   "kind": "zca",
   "action": "get_phonebook_v2",
   "group": "zca_friend",
-  "label": "getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428)",
+  "label": "getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4367,7 +4352,7 @@
   "kind": "zca",
   "action": "read_contact_tab",
   "group": "zca_friend",
-  "label": "readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231)",
+  "label": "readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4385,7 +4370,7 @@
   "kind": "zca",
   "action": "remove_friend_recommendation",
   "group": "zca_friend",
-  "label": "removeFriendRecommendation — Xóa một gợi ý kết bạn khỏi danh sách đề xuất (command 11432)",
+  "label": "removeFriendRecommendation — Xóa một gợi ý kết bạn khỏi danh sách đề xuất (command 11432) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -4418,7 +4403,7 @@
   "kind": "zca",
   "action": "remove_friend_recommendation_v2",
   "group": "zca_friend",
-  "label": "removeFriendRecommendationV2 — Xóa một gợi ý kết bạn khỏi danh sách đề xuất V2 (command 11438)",
+  "label": "removeFriendRecommendationV2 — Xóa một gợi ý kết bạn khỏi danh sách đề xuất V2 (command 11438) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -4457,7 +4442,7 @@
   "kind": "zca",
   "action": "update_close_friend",
   "group": "zca_friend",
-  "label": "updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421)",
+  "label": "updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4490,7 +4475,7 @@
   "kind": "zca",
   "action": "verify_friend",
   "group": "zca_friend",
-  "label": "verifyFriend — Kiểm tra và xác thực danh sách bạn bè qua /api/social/friend/verify (command 11138)",
+  "label": "verifyFriend — Kiểm tra và xác thực danh sách bạn bè qua /api/social/friend/verify (command 11138) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4523,7 +4508,7 @@
   "kind": "zca",
   "action": "delete_avatar",
   "group": "zca_profile",
-  "label": "deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện.",
+  "label": "deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -4559,7 +4544,7 @@
   "kind": "zca",
   "action": "disable_limit_search_phone_reminder",
   "group": "zca_profile",
-  "label": "disableLimitSearchPhoneReminder — Tắt thông báo nhắc nhở giới hạn tìm kiếm số điện thoại (command 12131)",
+  "label": "disableLimitSearchPhoneReminder — Tắt thông báo nhắc nhở giới hạn tìm kiếm số điện thoại (command 12131) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -4595,7 +4580,7 @@
   "kind": "zca",
   "action": "fetch_account_info",
   "group": "zca_profile",
-  "label": "fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile.",
+  "label": "fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -4606,7 +4591,7 @@
   "kind": "zca",
   "action": "get_avatar_url_profile",
   "group": "zca_profile",
-  "label": "getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng.",
+  "label": "getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4630,7 +4615,7 @@
   "kind": "zca",
   "action": "get_emoji_status_config",
   "group": "zca_profile",
-  "label": "getEmojiStatusConfig — Lấy cấu hình và danh sách bộ biểu tượng Trạng thái Emoji (Emoji Status - command 16300)",
+  "label": "getEmojiStatusConfig — Lấy cấu hình và danh sách bộ biểu tượng Trạng thái Emoji (Emoji Status - command 16300) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4648,7 +4633,7 @@
   "kind": "zca",
   "action": "get_enterprise_profiles",
   "group": "zca_profile",
-  "label": "getEnterpriseProfiles — Lấy thông tin hồ sơ doanh nghiệp (Zalo Enterprise) của một hoặc nhiều tài khoản (command 12193)",
+  "label": "getEnterpriseProfiles — Lấy thông tin hồ sơ doanh nghiệp (Zalo Enterprise) của một hoặc nhiều tài khoản (command 12193) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4675,7 +4660,7 @@
   "kind": "zca",
   "action": "get_full_avatar",
   "group": "zca_profile",
-  "label": "getFullAvatar — Lấy ảnh đại diện kích thước gốc (Full HD) của một người dùng theo UID.",
+  "label": "getFullAvatar — Lấy ảnh đại diện kích thước gốc (Full HD) của một người dùng theo UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4693,7 +4678,7 @@
   "kind": "zca",
   "action": "get_mini_profile",
   "group": "zca_profile",
-  "label": "getMiniProfile — Lấy nhanh thông tin hồ sơ rút gọn (Avatar, Global ID, gói Biz) của danh sách người dùng (command 12134)",
+  "label": "getMiniProfile — Lấy nhanh thông tin hồ sơ rút gọn (Avatar, Global ID, gói Biz) của danh sách người dùng (command 12134) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4717,7 +4702,7 @@
   "kind": "zca",
   "action": "get_profile_extra",
   "group": "zca_profile",
-  "label": "getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864)",
+  "label": "getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4744,7 +4729,7 @@
   "kind": "zca",
   "action": "get_profile_rank",
   "group": "zca_profile",
-  "label": "getProfileRank — Lấy hạng tài khoản Zalo của một người dùng (ví dụ \"WHITE\", \"GOLD\" - command 12012)",
+  "label": "getProfileRank — Lấy hạng tài khoản Zalo của một người dùng (ví dụ \"WHITE\", \"GOLD\" - command 12012) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4771,7 +4756,7 @@
   "kind": "zca",
   "action": "get_profile_verification_status",
   "group": "zca_profile",
-  "label": "getProfileVerificationStatus — Kiểm tra trạng thái xác thực định danh (eKYC) của tài khoản Zalo (command 12150)",
+  "label": "getProfileVerificationStatus — Kiểm tra trạng thái xác thực định danh (eKYC) của tài khoản Zalo (command 12150) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -4782,7 +4767,7 @@
   "kind": "zca",
   "action": "push_profile_verification_message",
   "group": "zca_profile",
-  "label": "pushProfileVerificationMessage — Yêu cầu đẩy tin nhắn hướng dẫn xác thực tài khoản (eKYC) từ Official Account (command 12151)",
+  "label": "pushProfileVerificationMessage — Yêu cầu đẩy tin nhắn hướng dẫn xác thực tài khoản (eKYC) từ Official Account (command 12151) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4821,7 +4806,7 @@
   "kind": "zca",
   "action": "register_trial_biz_account",
   "group": "zca_profile",
-  "label": "registerTrialBizAccount — Đăng ký dùng thử gói Zalo Business V2 cho tài khoản (command 12152)",
+  "label": "registerTrialBizAccount — Đăng ký dùng thử gói Zalo Business V2 cho tài khoản (command 12152) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4848,7 +4833,7 @@
   "kind": "zca",
   "action": "reuse_avatar",
   "group": "zca_profile",
-  "label": "reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện.",
+  "label": "reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4866,7 +4851,7 @@
   "kind": "zca",
   "action": "update_profile_bio",
   "group": "zca_profile",
-  "label": "updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân.",
+  "label": "updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4884,7 +4869,7 @@
   "kind": "zca",
   "action": "update_profile_mode",
   "group": "zca_profile",
-  "label": "updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865)",
+  "label": "updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4923,7 +4908,7 @@
   "kind": "zca",
   "action": "delete_mobile_msg_snapshot",
   "group": "zca_sync",
-  "label": "deleteMobileMsgSnapshot — Xóa bản chụp nhanh (snapshot) dữ liệu đồng bộ tin nhắn từ thiết bị di động sau khi hoàn tất (command 12003)",
+  "label": "deleteMobileMsgSnapshot — Xóa bản chụp nhanh (snapshot) dữ liệu đồng bộ tin nhắn từ thiết bị di động sau khi hoàn tất (command 12003) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -4961,7 +4946,7 @@
   "kind": "zca",
   "action": "get_backup_msg_info",
   "group": "zca_sync",
-  "label": "getBackupMsgInfo — Lấy thông tin bản sao lưu tin nhắn hiện có trên máy chủ (command 12096)",
+  "label": "getBackupMsgInfo — Lấy thông tin bản sao lưu tin nhắn hiện có trên máy chủ (command 12096) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -4979,7 +4964,7 @@
   "kind": "zca",
   "action": "get_cross_db_info",
   "group": "zca_sync",
-  "label": "getCrossDbInfo — Lấy thông tin cơ sở dữ liệu chéo (Cross-DB) phục vụ đồng bộ dữ liệu sang máy tính (command 12412)",
+  "label": "getCrossDbInfo — Lấy thông tin cơ sở dữ liệu chéo (Cross-DB) phục vụ đồng bộ dữ liệu sang máy tính (command 12412) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5020,7 +5005,7 @@
   "kind": "zca",
   "action": "pull_mobile",
   "group": "zca_sync",
-  "label": "pullMobile — Yêu cầu thiết bị di động Zalo đóng gói và tải lên bản sao lưu tin nhắn (pull_mobile_msg, command 12000). Sự kiện tiến trình (user_confirm, syncmsg_info, transfer_error) sẽ được đẩy về qua api.listener.on(\"sync_event\"). (chưa tự",
+  "label": "pullMobile — Yêu cầu thiết bị di động Zalo đóng gói và tải lên bản sao lưu tin nhắn (pull_mobile_msg, command 12000). Sự kiện tiến trình (user_confirm, syncmsg_info, transfer_error) sẽ được đẩy về qua (chưa tự động: khong dung dich vu Zalo ",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -5031,7 +5016,7 @@
   "kind": "zca",
   "action": "request_sync_from_phone",
   "group": "zca_sync",
-  "label": "requestSyncFromPhone — Phát tín hiệu yêu cầu đồng bộ tin nhắn từ ứng dụng Zalo trên điện thoại (pull_mobile_msg, command 12000). Tự động sinh cặp khoá RSA 2048-bit (nếu chưa truyền vào) và gọi api.pullMobile(...). Điện thoại của người dùng ",
+  "label": "requestSyncFromPhone — Phát tín hiệu yêu cầu đồng bộ tin nhắn từ ứng dụng Zalo trên điện thoại (pull_mobile_msg, command 12000). Tự động sinh cặp khoá RSA 2048-bit (nếu chưa truyền vào) và gọi api.pul (chưa tự động: khong dung dich vu Zalo ",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -5042,7 +5027,7 @@
   "kind": "zca",
   "action": "submit_sync_media_actions",
   "group": "zca_sync",
-  "label": "submitSyncMediaActions — Gửi danh sách hành động đồng bộ hóa tệp đa phương tiện lên máy chủ (command 16213)",
+  "label": "submitSyncMediaActions — Gửi danh sách hành động đồng bộ hóa tệp đa phương tiện lên máy chủ (command 16213) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5060,7 +5045,7 @@
   "kind": "zca",
   "action": "upload_backup_chunk",
   "group": "zca_sync",
-  "label": "uploadBackupChunk — Tải lên gói dữ liệu phân mảnh (chunk) sao lưu tin nhắn từ máy tính sang điện thoại (command 13538)",
+  "label": "uploadBackupChunk — Tải lên gói dữ liệu phân mảnh (chunk) sao lưu tin nhắn từ máy tính sang điện thoại (command 13538) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5133,7 +5118,7 @@
   "kind": "zca",
   "action": "get_cloud_viewer_key",
   "group": "zca_zcloud",
-  "label": "getCloudViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho hệ thống ZCloud / MyCloud (command 12741). Tự động cache trong bộ nhớ ctx.zcloudViewerKeyCache (TTL 15 phút) để tối ưu hiệu năng khi gọi liên tiếp. (chưa tự",
+  "label": "getCloudViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho hệ thống ZCloud / MyCloud (command 12741). Tự động cache trong bộ nhớ ctx.zcloudViewerKeyCache (TTL 15 phút) để tối  (chưa tự động: khong dung dich vu Zalo ",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -5166,7 +5151,7 @@
   "kind": "zca",
   "action": "get_family_viewer_key",
   "group": "zca_zcloud",
-  "label": "getFamilyViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho gói gia đình ZFamily (command 12759). Tự động cache trong bộ nhớ ctx.zfamilyViewerKeyCache (TTL 15 phút) để tối ưu hiệu năng khi gọi liên tiếp. (chưa tự độ",
+  "label": "getFamilyViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho gói gia đình ZFamily (command 12759). Tự động cache trong bộ nhớ ctx.zfamilyViewerKeyCache (TTL 15 phút) để tối ưu  (chưa tự động: khong dung dich vu Zalo ",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -5614,7 +5599,7 @@
   "kind": "zca",
   "action": "get_conversation_media",
   "group": "zca_media",
-  "label": "getConversationMedia — Lấy danh sách Kho Lưu Trữ (Ảnh/Video \"media\", File \"file\", hoặc Link \"link\") trong hội thoại nhóm (command 11841)",
+  "label": "getConversationMedia — Lấy danh sách Kho Lưu Trữ (Ảnh/Video \"media\", File \"file\", hoặc Link \"link\") trong hội thoại nhóm (command 11841) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5662,7 +5647,7 @@
   "kind": "zca",
   "action": "get_media_store_preview",
   "group": "zca_media",
-  "label": "getMediaStorePreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ (Ảnh/Video, File, Link) của nhóm (command 11843)",
+  "label": "getMediaStorePreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ (Ảnh/Video, File, Link) của nhóm (command 11843) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5695,7 +5680,7 @@
   "kind": "zca",
   "action": "get_personal_media",
   "group": "zca_media",
-  "label": "getPersonalMedia — Lấy danh sách Kho Lưu Trữ Ảnh/Video (\"media\"), File (\"file\"), hoặc Link (\"link\") trong Cloud của tôi (Send2Me) (command 12220)",
+  "label": "getPersonalMedia — Lấy danh sách Kho Lưu Trữ Ảnh/Video (\"media\"), File (\"file\"), hoặc Link (\"link\") trong Cloud của tôi (Send2Me) (command 12220) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5731,7 +5716,7 @@
   "kind": "zca",
   "action": "get_personal_media_preview",
   "group": "zca_media",
-  "label": "getPersonalMediaPreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ trong Cloud của tôi (Send2Me) (command 12221)",
+  "label": "getPersonalMediaPreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ trong Cloud của tôi (Send2Me) (command 12221) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5749,7 +5734,7 @@
   "kind": "zca",
   "action": "remove_conversation_media",
   "group": "zca_media",
-  "label": "removeConversationMedia — Xóa mục Ảnh/Video, File hoặc Link khỏi Kho Lưu Trữ của nhóm (command 11842)",
+  "label": "removeConversationMedia — Xóa mục Ảnh/Video, File hoặc Link khỏi Kho Lưu Trữ của nhóm (command 11842) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -5797,7 +5782,7 @@
   "kind": "zca",
   "action": "remove_personal_media",
   "group": "zca_media",
-  "label": "removePersonalMedia — Xóa mục lưu trữ trong Kho Lưu Trữ Cloud của tôi (Send2Me) (command 12222)",
+  "label": "removePersonalMedia — Xóa mục lưu trữ trong Kho Lưu Trữ Cloud của tôi (Send2Me) (command 12222) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -5841,7 +5826,7 @@
   "kind": "zca",
   "action": "get_a_i_sticker_list",
   "group": "zca_sticker",
-  "label": "getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190)",
+  "label": "getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -5852,7 +5837,7 @@
   "kind": "zca",
   "action": "get_default_guggy_gifs",
   "group": "zca_sticker",
-  "label": "getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749)",
+  "label": "getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5870,7 +5855,7 @@
   "kind": "zca",
   "action": "get_gif_categories",
   "group": "zca_sticker",
-  "label": "getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294)",
+  "label": "getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5894,7 +5879,7 @@
   "kind": "zca",
   "action": "get_gif_dictionaries",
   "group": "zca_sticker",
-  "label": "getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298)",
+  "label": "getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5918,7 +5903,7 @@
   "kind": "zca",
   "action": "get_gifs_by_category",
   "group": "zca_sticker",
-  "label": "getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295)",
+  "label": "getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5948,7 +5933,7 @@
   "kind": "zca",
   "action": "get_gifs_by_dictionary",
   "group": "zca_sticker",
-  "label": "getGifsByDictionary — Lấy danh sách ảnh động Giphy GIF theo ID từ điển (command 11299)",
+  "label": "getGifsByDictionary — Lấy danh sách ảnh động Giphy GIF theo ID từ điển (command 11299) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -5978,7 +5963,7 @@
   "kind": "zca",
   "action": "get_message_effect_by_id",
   "group": "zca_sticker",
-  "label": "getMessageEffectById — Lấy chi tiết một hiệu ứng tin nhắn theo ID và kích thước (command 11743)",
+  "label": "getMessageEffectById — Lấy chi tiết một hiệu ứng tin nhắn theo ID và kích thước (command 11743) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6002,7 +5987,7 @@
   "kind": "zca",
   "action": "get_message_effects",
   "group": "zca_sticker",
-  "label": "getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742)",
+  "label": "getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6029,7 +6014,7 @@
   "kind": "zca",
   "action": "get_personalized_sticker_list",
   "group": "zca_sticker",
-  "label": "getPersonalizedStickerList — Lấy danh sách Sticker cá nhân hóa của tài khoản (command 11745)",
+  "label": "getPersonalizedStickerList — Lấy danh sách Sticker cá nhân hóa của tài khoản (command 11745) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -6040,7 +6025,7 @@
   "kind": "zca",
   "action": "get_recommended_stickers",
   "group": "zca_sticker",
-  "label": "getRecommendedStickers — Lấy danh sách các bộ Sticker được Zalo đề xuất (command 11748)",
+  "label": "getRecommendedStickers — Lấy danh sách các bộ Sticker được Zalo đề xuất (command 11748) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -6062,7 +6047,7 @@
   "kind": "zca",
   "action": "get_sticker_category_detail",
   "group": "zca_sticker",
-  "label": "getStickerCategoryDetail — Lấy danh sách toàn bộ nhãn dán nằm trong một bộ nhãn dán (Category/Pack ID).",
+  "label": "getStickerCategoryDetail — Lấy danh sách toàn bộ nhãn dán nằm trong một bộ nhãn dán (Category/Pack ID). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6080,7 +6065,7 @@
   "kind": "zca",
   "action": "get_sticker_hello",
   "group": "zca_sticker",
-  "label": "getStickerHello — Lấy danh sách Sticker chào hỏi gợi ý khi bắt đầu trò chuyện mới (command 11751)",
+  "label": "getStickerHello — Lấy danh sách Sticker chào hỏi gợi ý khi bắt đầu trò chuyện mới (command 11751) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -6091,7 +6076,7 @@
   "kind": "zca",
   "action": "get_sticker_suggest_keywords",
   "group": "zca_sticker",
-  "label": "getStickerSuggestKeywords — Lấy bộ từ khóa gợi ý Sticker tự động khi gõ tin nhắn (command 11740)",
+  "label": "getStickerSuggestKeywords — Lấy bộ từ khóa gợi ý Sticker tự động khi gõ tin nhắn (command 11740) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -6102,7 +6087,7 @@
   "kind": "zca",
   "action": "get_sticker_suggestion",
   "group": "zca_sticker",
-  "label": "getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741)",
+  "label": "getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6129,7 +6114,7 @@
   "kind": "zca",
   "action": "get_tenor_sticker_mapping",
   "group": "zca_sticker",
-  "label": "getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015)",
+  "label": "getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -6140,7 +6125,7 @@
   "kind": "zca",
   "action": "get_trending_gifs",
   "group": "zca_sticker",
-  "label": "getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296)",
+  "label": "getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6164,7 +6149,7 @@
   "kind": "zca",
   "action": "search_gifs",
   "group": "zca_sticker",
-  "label": "searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297)",
+  "label": "searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6194,7 +6179,7 @@
   "kind": "zca",
   "action": "search_guggy_gifs",
   "group": "zca_sticker",
-  "label": "searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750)",
+  "label": "searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6218,7 +6203,7 @@
   "kind": "zca",
   "action": "search_sticker",
   "group": "zca_sticker",
-  "label": "searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa.",
+  "label": "searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6242,7 +6227,7 @@
   "kind": "zca",
   "action": "update_personalized_sticker_list",
   "group": "zca_sticker",
-  "label": "updatePersonalizedStickerList — Cập nhật danh sách các bộ Sticker cá nhân hóa của người dùng (command 11746)",
+  "label": "updatePersonalizedStickerList — Cập nhật danh sách các bộ Sticker cá nhân hóa của người dùng (command 11746) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6266,7 +6251,7 @@
   "kind": "zca",
   "action": "ack_ding_todo",
   "group": "zca_board",
-  "label": "ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427)",
+  "label": "ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6293,7 +6278,7 @@
   "kind": "zca",
   "action": "add_poll_options",
   "group": "zca_board",
-  "label": "addPollOptions — Thêm phương án lựa chọn mới vào một cuộc Bình chọn (Poll) đang mở trong nhóm.",
+  "label": "addPollOptions — Thêm phương án lựa chọn mới vào một cuộc Bình chọn (Poll) đang mở trong nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6323,7 +6308,7 @@
   "kind": "zca",
   "action": "create_note",
   "group": "zca_board",
-  "label": "createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu.",
+  "label": "createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6356,7 +6341,7 @@
   "kind": "zca",
   "action": "create_todo",
   "group": "zca_board",
-  "label": "createTodo — Tạo công việc mới trong Zalo To-Do (command 12413)",
+  "label": "createTodo — Tạo công việc mới trong Zalo To-Do (command 12413) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6437,7 +6422,7 @@
   "kind": "zca",
   "action": "delete_todo",
   "group": "zca_board",
-  "label": "deleteTodo — Xóa công việc trong Zalo To-Do (command 12415)",
+  "label": "deleteTodo — Xóa công việc trong Zalo To-Do (command 12415) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -6464,7 +6449,7 @@
   "kind": "zca",
   "action": "ding_todo",
   "group": "zca_board",
-  "label": "dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426)",
+  "label": "dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6491,7 +6476,7 @@
   "kind": "zca",
   "action": "edit_note",
   "group": "zca_board",
-  "label": "editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm.",
+  "label": "editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6524,7 +6509,7 @@
   "kind": "zca",
   "action": "get_list_pin_topics",
   "group": "zca_board",
-  "label": "getListPinTopics — Lấy danh sách chủ đề / tin nhắn đã ghim trong bảng tin nhóm (command 12001)",
+  "label": "getListPinTopics — Lấy danh sách chủ đề / tin nhắn đã ghim trong bảng tin nhóm (command 12001) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6548,7 +6533,7 @@
   "kind": "zca",
   "action": "get_todo_detail",
   "group": "zca_board",
-  "label": "getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417)",
+  "label": "getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6566,7 +6551,7 @@
   "kind": "zca",
   "action": "get_todo_list",
   "group": "zca_board",
-  "label": "getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416)",
+  "label": "getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6617,7 +6602,7 @@
   "kind": "zca",
   "action": "multi_unpin_board_topics",
   "group": "zca_board",
-  "label": "multiUnpinBoardTopics — Bỏ ghim đồng thời nhiều chủ đề khỏi bảng tin nhóm (command 12010)",
+  "label": "multiUnpinBoardTopics — Bỏ ghim đồng thời nhiều chủ đề khỏi bảng tin nhóm (command 12010) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6656,7 +6641,7 @@
   "kind": "zca",
   "action": "pin_board_topic",
   "group": "zca_board",
-  "label": "pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004)",
+  "label": "pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6695,7 +6680,7 @@
   "kind": "zca",
   "action": "pin_friend_message",
   "group": "zca_board",
-  "label": "pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067)",
+  "label": "pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6734,7 +6719,7 @@
   "kind": "zca",
   "action": "reorder_friend_board",
   "group": "zca_board",
-  "label": "reorderFriendBoard — Sắp xếp lại thứ tự các tin nhắn đã ghim trong hội thoại 1-1 (command 12068)",
+  "label": "reorderFriendBoard — Sắp xếp lại thứ tự các tin nhắn đã ghim trong hội thoại 1-1 (command 12068) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6773,7 +6758,7 @@
   "kind": "zca",
   "action": "reorder_pin_topics",
   "group": "zca_board",
-  "label": "reorderPinTopics — Sắp xếp lại thứ tự các chủ đề đã ghim trên bảng tin nhóm (command 12002)",
+  "label": "reorderPinTopics — Sắp xếp lại thứ tự các chủ đề đã ghim trên bảng tin nhóm (command 12002) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6812,7 +6797,7 @@
   "kind": "zca",
   "action": "share_poll",
   "group": "zca_board",
-  "label": "sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm.",
+  "label": "sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6830,7 +6815,7 @@
   "kind": "zca",
   "action": "unpin_board_topic",
   "group": "zca_board",
-  "label": "unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005)",
+  "label": "unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6869,7 +6854,7 @@
   "kind": "zca",
   "action": "unpin_friend_messages",
   "group": "zca_board",
-  "label": "unpinFriendMessages — Bỏ ghim một hoặc nhiều tin nhắn trong hội thoại 1-1 (command 12069)",
+  "label": "unpinFriendMessages — Bỏ ghim một hoặc nhiều tin nhắn trong hội thoại 1-1 (command 12069) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6908,7 +6893,7 @@
   "kind": "zca",
   "action": "update_todo",
   "group": "zca_board",
-  "label": "updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414)",
+  "label": "updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -6989,7 +6974,7 @@
   "kind": "zca",
   "action": "update_todo_status",
   "group": "zca_board",
-  "label": "updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418)",
+  "label": "updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7013,7 +6998,7 @@
   "kind": "zca",
   "action": "verify_todo",
   "group": "zca_board",
-  "label": "verifyTodo — Kiểm tra tính đồng bộ của danh sách công việc trong Zalo To-Do (command 12603)",
+  "label": "verifyTodo — Kiểm tra tính đồng bộ của danh sách công việc trong Zalo To-Do (command 12603) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7037,7 +7022,7 @@
   "kind": "zca",
   "action": "add_conversation_label",
   "group": "zca_business",
-  "label": "addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163)",
+  "label": "addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7082,7 +7067,7 @@
   "kind": "zca",
   "action": "block_o_a",
   "group": "zca_business",
-  "label": "blockOA — Chặn nhận tin nhắn / thông báo từ một Zalo Official Account (OA) qua /api/social/oa/block (cmd 12681).",
+  "label": "blockOA — Chặn nhận tin nhắn / thông báo từ một Zalo Official Account (OA) qua /api/social/oa/block (cmd 12681). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7109,7 +7094,7 @@
   "kind": "zca",
   "action": "convert_o_a_ids",
   "group": "zca_business",
-  "label": "convertOAIds — Chuyển đổi danh sách OA ID sang Zalo UID nội bộ (hoặc ngược lại) qua /api/social/oa/convertid (cmd 11863).",
+  "label": "convertOAIds — Chuyển đổi danh sách OA ID sang Zalo UID nội bộ (hoặc ngược lại) qua /api/social/oa/convertid (cmd 11863). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7136,7 +7121,7 @@
   "kind": "zca",
   "action": "create_auto_reply",
   "group": "zca_business",
-  "label": "createAutoReply — Tạo kịch bản Trả lời tự động (Auto Reply) theo khung giờ cho Zalo Business.",
+  "label": "createAutoReply — Tạo kịch bản Trả lời tự động (Auto Reply) theo khung giờ cho Zalo Business. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7193,7 +7178,7 @@
   "kind": "zca",
   "action": "create_bank_account",
   "group": "zca_business",
-  "label": "createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng.",
+  "label": "createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7241,7 +7226,7 @@
   "kind": "zca",
   "action": "create_catalog",
   "group": "zca_business",
-  "label": "createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business.",
+  "label": "createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7259,7 +7244,7 @@
   "kind": "zca",
   "action": "create_product_catalog",
   "group": "zca_business",
-  "label": "createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog).",
+  "label": "createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7316,7 +7301,7 @@
   "kind": "zca",
   "action": "delete_auto_reply",
   "group": "zca_business",
-  "label": "deleteAutoReply — Xóa một kịch bản Trả lời tự động.",
+  "label": "deleteAutoReply — Xóa một kịch bản Trả lời tự động. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7343,7 +7328,7 @@
   "kind": "zca",
   "action": "delete_bank_account",
   "group": "zca_business",
-  "label": "deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu.",
+  "label": "deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7376,7 +7361,7 @@
   "kind": "zca",
   "action": "delete_catalog",
   "group": "zca_business",
-  "label": "deleteCatalog — Xóa một Danh mục sản phẩm (Catalog).",
+  "label": "deleteCatalog — Xóa một Danh mục sản phẩm (Catalog). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7403,7 +7388,7 @@
   "kind": "zca",
   "action": "delete_conversation_label",
   "group": "zca_business",
-  "label": "deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165)",
+  "label": "deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7439,7 +7424,7 @@
   "kind": "zca",
   "action": "delete_product_catalog",
   "group": "zca_business",
-  "label": "deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm.",
+  "label": "deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7472,7 +7457,7 @@
   "kind": "zca",
   "action": "delete_single_product",
   "group": "zca_business",
-  "label": "deleteSingleProduct — Xóa một sản phẩm đơn lẻ khỏi danh mục Zalo Business (command 12042)",
+  "label": "deleteSingleProduct — Xóa một sản phẩm đơn lẻ khỏi danh mục Zalo Business (command 12042) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7505,7 +7490,7 @@
   "kind": "zca",
   "action": "get_auto_reply_list",
   "group": "zca_business",
-  "label": "getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản.",
+  "label": "getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": []
@@ -7516,7 +7501,7 @@
   "kind": "zca",
   "action": "get_biz_account",
   "group": "zca_business",
-  "label": "getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness).",
+  "label": "getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7534,7 +7519,7 @@
   "kind": "zca",
   "action": "get_catalog_list",
   "group": "zca_business",
-  "label": "getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản.",
+  "label": "getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7573,7 +7558,7 @@
   "kind": "zca",
   "action": "get_list_bank",
   "group": "zca_business",
-  "label": "getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ.",
+  "label": "getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7594,7 +7579,7 @@
   "kind": "zca",
   "action": "get_list_bank_account",
   "group": "zca_business",
-  "label": "getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng.",
+  "label": "getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7638,7 +7623,7 @@
   "kind": "zca",
   "action": "get_product_catalog_list",
   "group": "zca_business",
-  "label": "getProductCatalogList — Lấy danh sách các sản phẩm nằm trong một Danh mục sản phẩm (Catalog).",
+  "label": "getProductCatalogList — Lấy danh sách các sản phẩm nằm trong một Danh mục sản phẩm (Catalog). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7680,7 +7665,7 @@
   "kind": "zca",
   "action": "get_product_detail",
   "group": "zca_business",
-  "label": "getProductDetail — Lấy thông tin chi tiết một sản phẩm trong danh mục Zalo Business (command 12057)",
+  "label": "getProductDetail — Lấy thông tin chi tiết một sản phẩm trong danh mục Zalo Business (command 12057) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7698,7 +7683,7 @@
   "kind": "zca",
   "action": "register_catalog",
   "group": "zca_business",
-  "label": "registerCatalog — Đăng ký kích hoạt tính năng Danh mục sản phẩm (Catalog) cho tài khoản.",
+  "label": "registerCatalog — Đăng ký kích hoạt tính năng Danh mục sản phẩm (Catalog) cho tài khoản. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7716,7 +7701,7 @@
   "kind": "zca",
   "action": "reorder_conversation_labels",
   "group": "zca_business",
-  "label": "reorderConversationLabels — Sắp xếp lại vị trí hiển thị của các nhãn phân loại hội thoại (command 12166)",
+  "label": "reorderConversationLabels — Sắp xếp lại vị trí hiển thị của các nhãn phân loại hội thoại (command 12166) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7743,7 +7728,7 @@
   "kind": "zca",
   "action": "unblock_o_a",
   "group": "zca_business",
-  "label": "unblockOA — Bỏ chặn một Zalo Official Account (OA) để tiếp tục nhận tin nhắn qua /api/social/oa/unblock (cmd 12682).",
+  "label": "unblockOA — Bỏ chặn một Zalo Official Account (OA) để tiếp tục nhận tin nhắn qua /api/social/oa/unblock (cmd 12682). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7770,7 +7755,7 @@
   "kind": "zca",
   "action": "update_auto_reply",
   "group": "zca_business",
-  "label": "updateAutoReply — Cập nhật nội dung và thời gian hoạt động của kịch bản Trả lời tự động.",
+  "label": "updateAutoReply — Cập nhật nội dung và thời gian hoạt động của kịch bản Trả lời tự động. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7833,7 +7818,7 @@
   "kind": "zca",
   "action": "update_bank_account",
   "group": "zca_business",
-  "label": "updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu.",
+  "label": "updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": true,
   "fields": [
@@ -7887,7 +7872,7 @@
   "kind": "zca",
   "action": "update_catalog",
   "group": "zca_business",
-  "label": "updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm.",
+  "label": "updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7911,7 +7896,7 @@
   "kind": "zca",
   "action": "update_conversation_label_item",
   "group": "zca_business",
-  "label": "updateConversationLabelItem — Cập nhật thông tin một nhãn phân loại hội thoại và danh sách hội thoại gắn nhãn (command 12164)",
+  "label": "updateConversationLabelItem — Cập nhật thông tin một nhãn phân loại hội thoại và danh sách hội thoại gắn nhãn (command 12164) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [
@@ -7968,7 +7953,7 @@
   "kind": "zca",
   "action": "update_product_catalog",
   "group": "zca_business",
-  "label": "updateProductCatalog — Cập nhật thông tin chi tiết, giá bán và hình ảnh của sản phẩm trong Danh mục.",
+  "label": "updateProductCatalog — Cập nhật thông tin chi tiết, giá bán và hình ảnh của sản phẩm trong Danh mục. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]",
   "thread": "none",
   "danger": false,
   "fields": [

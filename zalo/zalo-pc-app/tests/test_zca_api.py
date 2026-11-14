@@ -166,6 +166,28 @@ def test_unknown_api_raises_keyerror():
         raise AssertionError
 
 
+def test_signature_defaults_are_applied_like_zca_js_does():
+    """Do that 14/11/2026 tren app that: getAliasList / getPhonebookV2 / getDefaultGuggyGifs bo trong tham so thi Zalo tra 114/111, vi
+    zca-js ap mac dinh trong chu ky ham (page = 1, count = 100…) con bo goi chung thi khong. Sua theo nguyen tac: doc mac dinh tu chu ky."""
+    sd = zca_api.signature_defaults
+    assert sd("api.friend.getAliasListV2(page: number = 1, count: number = 100)") == {"page": 1, "count": 100}
+    assert sd("api.x.y(a: Record<string, number>, b?: string = 'vi', c: boolean = true, d: number = 0.5)") == {"b": "vi", "c": True, "d": 0.5}
+    assert sd("api.media.getPersonalMedia(options: GetPersonalMediaOptions = {})") == {}, "mac dinh doi tuong/bieu thuc bo qua"
+    assert sd("api.friend.getCloseFriends()") == {} and sd("") == {} and sd(None) == {}
+    by = {a["name"]: a for a in zca_api.load_registry()["apis"]} if hasattr(zca_api, "load_registry") else {a["name"]: a for a in json.load(open(zca_api._REG_PATH))["apis"]}
+    assert zca_api.build_params(by["getAliasListV2"], {}, {"imei": "I"}) == {"page": 1, "count": 100, "src": -1, "imei": "I"}
+    assert zca_api.build_params(by["getPhonebookV2"], {}, {}) == {"phonebook_version": 0}
+    assert zca_api.build_params(by["getDefaultGuggyGifs"], {}, {}) == {"limit": 10}
+    # người dùng đưa giá trị thì thắng mặc định; giá trị rỗng coi như bỏ trống
+    assert zca_api.build_params(by["getAliasListV2"], {"page": 3, "count": ""}, {"imei": "I"})["page"] == 3
+    assert zca_api.build_params(by["getAliasListV2"], {"count": ""}, {"imei": "I"})["count"] == 100
+    # mọi mặc định đọc được đều thuộc một tham số có thật của API đó (không đẻ khóa lạ)
+    for a in by.values():
+        names = {x["name"] for x in a.get("args", [])}
+        for k in zca_api.signature_defaults(a["signature"]):
+            assert k in names or a["mode"] != "template", (a["name"], k)
+
+
 if __name__ == "__main__":
     for _n, _f in list(globals().items()):
         if _n.startswith("test_") and callable(_f):

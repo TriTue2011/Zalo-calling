@@ -131,30 +131,10 @@ class ZaloCallApi:
         return await self._request(
             "POST", "/api/thread/%s/sendlink" % thread_id, json=body)
 
-    async def thread_sendvideo(self, ttype: str, thread_id: str, video_url: str, thumbnail_url: str = "",
-                               message: str = "", width: Any = None, height: Any = None, duration_s: Any = None,
-                               recall_after: Any = None, ttl: Any = None) -> Any:
-        """Video thật (khung phát được trong chat), không phải tệp đính kèm: gửi ĐỊA CHỈ video, Zalo tự tải về."""
-        body: dict[str, Any] = {"type": ttype, "video_url": video_url}
-        if thumbnail_url:
-            body["thumbnail_url"] = thumbnail_url
-        if message:
-            body["message"] = message
-        if width:
-            body["width"] = int(float(width))
-        if height:
-            body["height"] = int(float(height))
-        if duration_s:
-            body["duration"] = int(float(duration_s) * 1000)
-        if recall_after not in (None, "", 0, "0"):
-            body["recall_after"] = recall_after
-        if ttl not in (None, "", 0, "0"):
-            body["ttl"] = int(float(ttl))
-        return await self._request("POST", "/api/thread/%s/sendvideo" % thread_id, json=body)
-
     async def _multipart(self, action: str, ttype: str, thread_id: str,
                          filename: str, data: bytes, mime: str,
-                         kind: str | None, recall_after: Any = None, fields: dict | None = None) -> Any:
+                         kind: str | None, recall_after: Any = None, fields: dict | None = None,
+                         extra_files: dict | None = None) -> Any:
         form = aiohttp.FormData()
         form.add_field("type", ttype)
         if recall_after not in (None, "", 0, "0"):
@@ -164,13 +144,15 @@ class ZaloCallApi:
         for key, value in (fields or {}).items():           # trường phụ của app (ví dụ 4 trường gộp album: groupLayoutId…)
             form.add_field(key, str(value))
         form.add_field("file", data, filename=filename, content_type=mime)
+        for name, (fn, blob, ctype) in (extra_files or {}).items():       # tệp phụ (ảnh bìa video: trường `thumb`)
+            form.add_field(name, blob, filename=fn, content_type=ctype)
         return await self._request(
             "POST", "/api/thread/%s/%s" % (thread_id, action), data=form)
 
     async def thread_sendfile(self, ttype, thread_id, filename, data, mime,
-                              kind="file", recall_after=None, fields=None) -> Any:
+                              kind="file", recall_after=None, fields=None, extra_files=None) -> Any:
         return await self._multipart("sendfile", ttype, thread_id, filename,
-                                     data, mime, kind, recall_after, fields)
+                                     data, mime, kind, recall_after, fields, extra_files)
 
     async def thread_sendvoice(self, ttype, thread_id, filename, data,
                                mime, recall_after=None) -> Any:

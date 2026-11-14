@@ -19,13 +19,14 @@ send_message:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     message:
       name: Nội dung tin nhắn
       description: Nội dung tin nhắn
@@ -426,13 +427,14 @@ send_file:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     file:
       name: Đường dẫn tệp trong HA hoặc URL
       description: Đường dẫn file trên Home Assistant hoặc URL của file cần gửi.
@@ -486,13 +488,14 @@ send_image:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     file:
       name: Ảnh (đường dẫn trong HA hoặc URL)
       description: Đường dẫn file ảnh trên Home Assistant
@@ -622,13 +625,14 @@ get_group_info:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 add_user_to_group:
   name: Mời thành viên vào nhóm
   description: Thêm thành viên vào group
@@ -643,13 +647,14 @@ add_user_to_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     member_id:
       name: UserId (cách nhau bằng dấu phẩy)
       description: Member ID (comma-separated for multiple)
@@ -672,13 +677,14 @@ remove_user_from_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     member_id:
       name: UserId (cách nhau bằng dấu phẩy)
       description: Member ID (comma-separated for multiple)
@@ -701,13 +707,14 @@ send_image_to_user:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     file:
       name: Ảnh (đường dẫn hoặc URL)
       description: Đường dẫn ảnh
@@ -758,13 +765,14 @@ send_images_to_user:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     files:
       name: 'Các ảnh, cách nhau dấu phẩy. Gửi MỘT LÚC thành một album: ảnh jpg/png/webp từ 2 tấm trở lên
         gộp chung, GIF và tệp khác gửi rời'
@@ -810,13 +818,14 @@ send_image_to_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     file:
       name: Ảnh (đường dẫn hoặc URL)
       description: Đường dẫn ảnh
@@ -867,13 +876,14 @@ send_images_to_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     files:
       name: 'Các ảnh, cách nhau dấu phẩy. Gửi MỘT LÚC thành một album: ảnh jpg/png/webp từ 2 tấm trở lên
         gộp chung, GIF và tệp khác gửi rời'
@@ -1020,13 +1030,14 @@ send_sticker:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     sticker_id:
       name: Sticker ID
       description: ID số của sticker (zca-js)
@@ -1078,13 +1089,14 @@ undo_message:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     msg_id:
       name: ID tin nhắn
       description: ID của tin nhắn cần thu hồi
@@ -1114,13 +1126,14 @@ create_reminder:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     title:
       name: Tiêu đề
       description: Tiêu đề nhắc nhở
@@ -1156,13 +1169,14 @@ remove_reminder:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     reminder_id:
       name: ID nhắc hẹn
       description: ID của nhắc nhở cần xóa
@@ -1184,13 +1198,14 @@ change_group_name:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     name:
       name: Tên mới
       description: Tên mới của nhóm
@@ -1212,13 +1227,14 @@ change_group_avatar:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     file:
       name: Ảnh đại diện (upload file)
       description: Đường dẫn đến ảnh mới
@@ -1260,13 +1276,14 @@ send_voice:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     file:
       name: 'Tệp âm thanh: đường dẫn trong HA, URL http(s):// hoặc media-source:// (bỏ trống nếu dùng
         «Chữ để đọc»)'
@@ -1406,13 +1423,14 @@ get_group_chat_history:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     count:
       name: Số tin (tối đa 1000)
       description: Số lượng tin nhắn muốn lấy (mặc định 50, tối đa 1000)
@@ -1437,13 +1455,14 @@ add_group_deputy:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     member_id:
       name: UserId
       description: ID thành viên cần thêm làm phó nhóm
@@ -1465,13 +1484,14 @@ remove_group_deputy:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     member_id:
       name: UserId
       description: ID thành viên cần xóa quyền phó nhóm
@@ -1493,13 +1513,14 @@ change_group_owner:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     member_id:
       name: UserId chủ mới
       description: ID thành viên được chuyển quyền sở hữu
@@ -1521,13 +1542,14 @@ disperse_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 enable_group_link:
   name: Bật link tham gia nhóm
   description: Kích hoạt và lấy link tham gia nhóm (không hoàn tác được)
@@ -1542,13 +1564,14 @@ enable_group_link:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 disable_group_link:
   name: Tắt link tham gia nhóm
   description: Vô hiệu hóa link tham gia nhóm (không hoàn tác được)
@@ -1563,13 +1586,14 @@ disable_group_link:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 join_group:
   name: Tham gia nhóm bằng link
   description: Tham gia nhóm bằng link mời (không hoàn tác được)
@@ -1596,13 +1620,14 @@ leave_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     silent:
       name: Rời lặng lẽ (true/false)
       description: Rời nhóm trong im lặng
@@ -1688,13 +1713,14 @@ set_mute:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     duration:
       name: Thời lượng giây (3600/14400/-1=vĩnh viễn/0=bật lại)
       description: Thời gian tắt thông báo
@@ -1724,13 +1750,14 @@ set_pinned_conversation:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     pinned:
       name: Ghim (true/false)
       description: Ghim hay bỏ ghim
@@ -1756,13 +1783,14 @@ add_unread_mark:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 remove_unread_mark:
   name: Bỏ đánh dấu chưa đọc
   description: Bỏ đánh dấu chưa đọc cho một cuộc trò chuyện
@@ -1777,13 +1805,14 @@ remove_unread_mark:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 delete_chat:
   name: Xóa hội thoại
   description: Xóa một cuộc trò chuyện khỏi danh sách (không hoàn tác được)
@@ -1798,13 +1827,14 @@ delete_chat:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     cli_msg_id:
       name: Client ID tin cuối
       description: cliMsgId của chính tin nhắn đó (Zalo cần cả hai mã mới thu hồi được). Sự kiện tin nhắn
@@ -1842,13 +1872,14 @@ update_auto_delete_chat:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     ttl:
       name: TTL (0=tắt, 86400000=1 ngày, 604800000=7 ngày)
       description: Thời gian tự xóa
@@ -1881,13 +1912,14 @@ set_hidden_conversations:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     hidden:
       name: Ẩn (true/false)
       description: Ẩn hoặc hiện cuộc trò chuyện
@@ -1935,13 +1967,14 @@ add_reaction:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     icon:
       name: Icon (like/heart/haha/...)
       description: Tên cảm xúc
@@ -2105,13 +2138,14 @@ delete_message:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     msg_id:
       name: ID tin nhắn
       description: ID tin nhắn cần xóa
@@ -2201,13 +2235,14 @@ send_card:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     user_id:
       name: UserId của danh thiếp
       description: ID người dùng của danh thiếp
@@ -2229,13 +2264,14 @@ send_link:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     link:
       name: Đường link
       description: URL cần gửi
@@ -2318,71 +2354,37 @@ send_video:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     file:
-      name: 'Video: đường dẫn trong HA (thư mục www hoặc media) hoặc URL công khai. Gửi dạng video phát
-        được trong chat; tệp trong HA được cấp địa chỉ công khai từ địa chỉ ngoài của HA (media có chữ
-        ký hạn 1 giờ). Không có địa chỉ công khai thì gửi dạng tệp đính kèm'
+      name: 'Video: đường dẫn trong HA (thư mục được phép, ví dụ /media/…) hoặc URL. HA đọc nội dung video
+        rồi app TẢI LÊN Zalo như zalo_bot cũ: xem được lâu dài, không phụ thuộc địa chỉ ngoài của HA.
+        Kích thước, thời lượng và ảnh bìa (khung hình đầu của chính video) do app tự lấy'
       description: Đường dẫn file video trên Home Assistant hoặc URL của video cần gửi
       required: true
       selector:
         text: null
       example: /config/www/video.mp4
     thumbnail:
-      name: 'Ảnh bìa: đường dẫn hoặc URL. Bỏ trống = tự tìm «…_thumb.jpg» cạnh video, không có thì dùng
-        chính video'
+      name: 'Ảnh bìa JPEG: đường dẫn hoặc URL. Bỏ trống = khung hình đầu của video (không tự lấy ảnh nằm
+        cạnh tệp)'
       description: URL thumbnail tùy chỉnh
       required: false
       selector: *id005
       default: ''
     message:
-      name: Chú thích kèm video (bỏ trống = không)
+      name: Chú thích nằm TRONG video (bỏ trống = không). Không cần gửi thêm tin chữ riêng
       description: Tin nhắn kèm theo
       required: false
       selector:
         text: null
       default: ''
-    width:
-      name: Độ rộng (px). Bỏ trống = tự đo bằng ffprobe
-      description: Chiều rộng video (pixels)
-      required: false
-      selector:
-        number:
-          min: 0
-          max: 100000
-          step: 1
-          mode: box
-      example: 1280
-      default: 1280
-    height:
-      name: Độ cao (px). Bỏ trống = tự đo bằng ffprobe
-      description: Chiều cao video (pixels)
-      required: false
-      selector:
-        number:
-          min: 0
-          max: 100000
-          step: 1
-          mode: box
-      example: 720
-      default: 720
-    duration:
-      name: Thời lượng (giây). Bỏ trống = tự đo bằng ffprobe
-      description: Thời gian tắt thông báo
-      required: false
-      selector:
-        number:
-          min: 0
-          max: 36000
-          step: 1
-          unit_of_measurement: s
-          mode: box
     ttl:
       name: Thời gian tự hủy (mili giây)
       description: Thời gian tự hủy (milliseconds)
@@ -2422,13 +2424,14 @@ create_note_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     title:
       name: Tiêu đề ghi chú
       description: Tiêu đề ghi chú
@@ -2456,13 +2459,14 @@ edit_note_group:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     topic_id:
       name: ID ghi chú
       description: ID của ghi chú
@@ -2496,13 +2500,14 @@ get_list_board:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 create_poll:
   name: Tạo bình chọn
   description: Tạo một cuộc bình chọn trong nhóm
@@ -2517,13 +2522,14 @@ create_poll:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     question:
       name: Câu hỏi
       description: Câu hỏi bình chọn
@@ -2574,22 +2580,6 @@ get_poll_detail:
   description: Lấy thông tin chi tiết của một cuộc bình chọn
   fields:
     entry_id: *id001
-    thread_id:
-      name: Mã hội thoại (threadId)
-      description: UserId (1-1) hoặc GroupId (nhóm).
-      required: true
-      example: '5841349563795164131'
-      selector:
-        text: null
-    type:
-      name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
-      default: user
-      selector:
-        select:
-          options:
-          - user
-          - group
     poll_id:
       name: ID bình chọn
       description: ID số của cuộc bình chọn (zca-js)
@@ -2602,22 +2592,6 @@ lock_poll:
   description: Khóa một cuộc bình chọn
   fields:
     entry_id: *id001
-    thread_id:
-      name: Mã hội thoại (threadId)
-      description: UserId (1-1) hoặc GroupId (nhóm).
-      required: true
-      example: '5841349563795164131'
-      selector:
-        text: null
-    type:
-      name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
-      default: user
-      selector:
-        select:
-          options:
-          - user
-          - group
     poll_id:
       name: ID bình chọn
       description: ID của cuộc bình chọn
@@ -2639,13 +2613,14 @@ edit_reminder:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     topic_id:
       name: ID nhắc hẹn
       description: ID của nhắc hẹn
@@ -2692,13 +2667,14 @@ get_list_reminder:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 get_reminder_responses:
   name: Xem phản hồi nhắc hẹn
   description: Lấy danh sách phản hồi cho một nhắc hẹn
@@ -2856,13 +2832,14 @@ send_typing_event:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 get_login_qr:
   name: get_login_qr
   description: Lấy mã QR đăng nhập Zalo từ server và hiển thị lên thông báo.
@@ -2882,13 +2859,14 @@ quote_message:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     msg_id:
       name: ID tin nhắn
       description: ID của tin nhắn cần thu hồi
@@ -2952,13 +2930,14 @@ mark_seen:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     msg_ids:
       name: ID tin nhắn (cách nhau bằng dấu phẩy)
       description: ID tin nhắn (cách nhau bằng dấu phẩy)
@@ -2979,13 +2958,14 @@ fetch_important:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 reject_friend_request:
   name: Từ chối lời mời kết bạn
   description: Từ chối lời mời kết bạn
@@ -3012,13 +2992,14 @@ get_group_link:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
 get_settings:
   name: Xem cài đặt riêng tư
   description: Xem cài đặt riêng tư
@@ -3038,13 +3019,14 @@ vote_poll:
         text: null
     type:
       name: Loại hội thoại
-      description: user = 1-1, group = nhóm.
+      description: user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).
       default: user
       selector:
         select:
           options:
           - user
           - group
+          custom_value: true
     poll_id:
       name: ID bình chọn
       description: ID số của cuộc bình chọn (zca-js)
@@ -3077,7 +3059,8 @@ update_label:
 decrypt_gids:
   name: decryptGids
   description: decryptGids — Giải mã danh sách Global ID (g_...) ẩn danh thành User ID thật (tương ứng
-    hàm getUidFromGlobalNoiseId / command 12054 trên Zalo PC)
+    hàm getUidFromGlobalNoiseId / command 12054 trên Zalo PC) [Tham số theo zca-js (web), chưa đối chiếu
+    với Zalo PC]
   fields:
     entry_id: *id001
     gids:
@@ -3089,7 +3072,7 @@ decrypt_gids:
 encrypt_gids:
   name: encryptGids
   description: encryptGids — Mã hóa danh sách UID thật sang định danh ẩn danh Global Noise ID (OTDAKO...)
-    (command 12053)
+    (command 12053) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     uids:
@@ -3102,7 +3085,7 @@ export_session:
   name: exportSession
   description: 'exportSession — Xuất toàn bộ thông tin phiên đăng nhập hiện tại (uid, imei, userAgent,
     language, cookie) dưới định dạng chuẩn Credentials để lưu trữ (JSON/Database) và truyền trực tiếp
-    vào zalo.login(session). (chưa tự động: khong dung dich'
+    vào zalo.login( (chưa tự động: khong dung dich vu Zalo '
   fields:
     entry_id: *id001
 get_context:
@@ -3119,14 +3102,15 @@ get_cookie:
     entry_id: *id001
 get_list_device:
   name: getListDevice
-  description: getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại.
+  description: getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại. [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_noised_ids:
   name: getNoisedIds
-  description: getNoisedIds — Chuyển đổi danh sách UID cá nhân (fids) và GID nhóm (gids) dạng số thuần
+  description: 'getNoisedIds — Chuyển đổi danh sách UID cá nhân (fids) và GID nhóm (gids) dạng số thuần
     (từ SQLite ZDB4.0 mobile) sang định dạng Noised ID 19 chữ số dùng trên Zalo Web/PC (getNoisedUids,
-    command 12390). Tự động fallback sang https://zwid.ap
+    command 12390 (chưa tự động: goi 2 request (nhieu buo'
   fields:
     entry_id: *id001
 get_own_id:
@@ -3137,7 +3121,8 @@ get_own_id:
     entry_id: *id001
 get_q_r:
   name: getQR
-  description: getQR — Lấy mã QR của danh sách người dùng theo UID.
+  description: getQR — Lấy mã QR của danh sách người dùng theo UID. [Tham số theo zca-js (web), chưa đối
+    chiếu với Zalo PC]
   fields:
     entry_id: *id001
     userId:
@@ -3148,12 +3133,14 @@ get_q_r:
         text: null
 lost_focus:
   name: lostFocus
-  description: lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background).
+  description: lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background). [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 scan_u_r_l:
   name: scanURL
   description: scanURL — Quét và kiểm tra độ an toàn của đường dẫn URL thông qua bộ lọc bảo mật Zalo.
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     url:
@@ -3170,7 +3157,8 @@ update_active_status:
     entry_id: *id001
 update_lang:
   name: updateLang
-  description: updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo.
+  description: updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo. [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     language:
@@ -3182,7 +3170,8 @@ update_lang:
 get_block_sharing_conversations:
   name: getBlockSharingConversations
   description: getBlockSharingConversations — Lấy danh sách hội thoại đang bật chế độ chặn chia sẻ / chuyển
-    tiếp tin nhắn (command 12178) (không hoàn tác được)
+    tiếp tin nhắn (command 12178) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn
+    tác được)
   fields:
     entry_id: *id001
     confirm:
@@ -3194,7 +3183,7 @@ get_block_sharing_conversations:
 get_conv_offline_messages:
   name: getConvOfflineMessages
   description: getConvOfflineMessages — Lấy danh sách hội thoại nhóm có tin nhắn ngoại tuyến mới (command
-    12300)
+    12300) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     queueInfo:
@@ -3218,7 +3207,8 @@ get_conv_offline_messages:
 get_direct_message_status:
   name: getDirectMessageStatus
   description: getDirectMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn
-    trong các hội thoại cá nhân 1-1 (command 12016)
+    trong các hội thoại cá nhân 1-1 (command 12016) [Tham số theo zca-js (web), chưa đối chiếu với Zalo
+    PC]
   fields:
     entry_id: *id001
     data:
@@ -3237,7 +3227,7 @@ get_direct_message_status:
 get_last_seen:
   name: getLastSeen
   description: getLastSeen — Lấy thông tin trạng thái đã xem cuối cùng của danh sách nhóm và cá nhân (command
-    12009)
+    12009) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupIds:
@@ -3261,7 +3251,7 @@ get_last_seen:
 get_last_seen_reaction:
   name: getLastSeenReaction
   description: getLastSeenReaction — Lấy trạng thái đã xem cảm xúc (Reaction) cuối cùng của danh sách
-    nhóm và cá nhân (command 12450)
+    nhóm và cá nhân (command 12450) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupIds:
@@ -3285,6 +3275,7 @@ get_last_seen_reaction:
 get_recent_search_list:
   name: getRecentSearchList
   description: getRecentSearchList — Lấy danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12125)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     version:
@@ -3296,6 +3287,7 @@ get_recent_search_list:
 get_suggested_conversations:
   name: getSuggestedConversations
   description: getSuggestedConversations — Lấy danh sách các cuộc hội thoại được gợi ý (command 11233)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     language:
@@ -3313,12 +3305,13 @@ get_suggested_conversations:
 get_translate_setting:
   name: getTranslateSetting
   description: getTranslateSetting — Lấy cấu hình tính năng dịch tin nhắn tự động bằng Zalo AI (command
-    13395)
+    13395) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 mark_sub_tab_seen:
   name: markSubTabSeen
-  description: markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214)
+  description: markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     seens:
@@ -3336,7 +3329,7 @@ mark_sub_tab_seen:
 preload_conversations:
   name: preloadConversations
   description: preloadConversations — Tải trước tin nhắn cuối cùng và trạng thái đã đọc của các hội thoại
-    đang hoạt động (command 10053).
+    đang hoạt động (command 10053). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     threadIdLocalMsgId:
@@ -3355,7 +3348,7 @@ preload_conversations:
 renew_message_link:
   name: renewMessageLink
   description: renewMessageLink — Gia hạn đường dẫn tải tệp đính kèm / đa phương tiện đã hết hạn trong
-    tin nhắn (command 12094)
+    tin nhắn (command 12094) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     toId:
@@ -3397,7 +3390,7 @@ renew_message_link:
 send_bank_card:
   name: sendBankCard
   description: sendBankCard — Gửi danh thiếp thông tin tài khoản ngân hàng (Bank Card) vào cuộc trò chuyện.
-    (không hoàn tác được)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     payload:
@@ -3457,7 +3450,8 @@ send_seen_event:
     entry_id: *id001
 set_pinned_conversations:
   name: setPinnedConversations
-  description: setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách.
+  description: setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách. [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     pinned:
@@ -3486,7 +3480,8 @@ set_pinned_conversations:
         object: null
 translate_message:
   name: translateMessage
-  description: translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397)
+  description: translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     reqId:
@@ -3548,8 +3543,8 @@ translate_message:
 translate_message_auto:
   name: translateMessageAuto
   description: translateMessageAuto — Gửi yêu cầu dịch tự động hàng loạt tin nhắn đến bằng Zalo AI (command
-    13398). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener.on("translate_event",
-    ...).
+    13398). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener. [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     reqId:
@@ -3598,8 +3593,8 @@ translate_message_auto:
 translate_message_suggest:
   name: translateMessageSuggest
   description: translateMessageSuggest — Gửi yêu cầu dịch gợi ý tin nhắn đang soạn thảo bằng Zalo AI (command
-    13399). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener.on("translate_event",
-    ...).
+    13399). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listene [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     reqId:
@@ -3680,7 +3675,7 @@ undo_multi_message:
 update_archived_chat_list:
   name: updateArchivedChatList
   description: updateArchivedChatList — Đưa cuộc trò chuyện vào mục Lưu trữ (Archive) hoặc khôi phục ra
-    ngoài.
+    ngoài. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     isArchived:
@@ -3704,7 +3699,8 @@ update_archived_chat_list:
 update_block_sharing_conversation:
   name: updateBlockSharingConversation
   description: updateBlockSharingConversation — Bật hoặc tắt chế độ chặn chia sẻ / chuyển tiếp tin nhắn
-    trong một hội thoại (command 12179) (không hoàn tác được)
+    trong một hội thoại (command 12179) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không
+    hoàn tác được)
   fields:
     entry_id: *id001
     threadId:
@@ -3753,6 +3749,7 @@ update_pin_conversations:
 update_recent_search:
   name: updateRecentSearch
   description: updateRecentSearch — Cập nhật danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12126)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     listRecent:
@@ -3837,7 +3834,7 @@ update_translate_setting:
 add_group_blocked_member:
   name: addGroupBlockedMember
   description: addGroupBlockedMember — Chặn một hoặc nhiều thành viên khỏi nhóm (không cho tham gia lại).
-    (không hoàn tác được)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     memberId:
@@ -3861,7 +3858,7 @@ add_group_blocked_member:
 analyse_group:
   name: analyseGroup
   description: analyseGroup — Lấy dữ liệu phân tích/thống kê của nhóm qua /api/group/analyse (command
-    12407)
+    12407) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -3879,7 +3876,7 @@ analyse_group:
 check_quota_community_member:
   name: checkQuotaCommunityMember
   description: checkQuotaCommunityMember — Kiểm tra điều kiện/hạn mức thành viên Cộng đồng đối với một
-    thành viên cụ thể trong nhóm (command 12182)
+    thành viên cụ thể trong nhóm (command 12182) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -3902,8 +3899,8 @@ check_quota_community_member:
         object: null
 delete_group_invite_box:
   name: deleteGroupInviteBox
-  description: deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm. (không hoàn
-    tác được)
+  description: deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     groupId:
@@ -3933,12 +3930,13 @@ delete_group_invite_box:
 get_e2ee_group_list:
   name: getE2eeGroupList
   description: getE2eeGroupList — Lấy danh sách các nhóm đang bật mã hóa đầu cuối E2EE (command 12146)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_extra_group_info:
   name: getExtraGroupInfo
   description: getExtraGroupInfo — Lấy ngữ cảnh và vai trò mở rộng của người dùng đối với nhiều nhóm (command
-    12607)
+    12607) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupIds:
@@ -3955,8 +3953,8 @@ get_extra_group_info:
         object: null
 get_group_blocked_member:
   name: getGroupBlockedMember
-  description: getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm. (không hoàn
-    tác được)
+  description: getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     payload:
@@ -3986,7 +3984,7 @@ get_group_blocked_member:
 get_group_cloud_message_jump:
   name: getGroupCloudMessageJump
   description: getGroupCloudMessageJump — Nhảy tới vị trí một tin nhắn nhóm cụ thể trên Zalo Cloud Message
-    và lấy ngữ cảnh xung quanh (command 12508)
+    và lấy ngữ cảnh xung quanh (command 12508) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -4029,7 +4027,8 @@ get_group_cloud_message_jump:
 get_group_cloud_message_path:
   name: getGroupCloudMessagePath
   description: getGroupCloudMessagePath — Lấy chuỗi tin nhắn nhóm theo đường dẫn nhảy tới một tin nhắn
-    cụ thể (globalMsgId / rGlobalMsgId) qua /api/cm/getpath (command 12504)
+    cụ thể (globalMsgId / rGlobalMsgId) qua /api/cm/getpath (command 12504) [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -4090,7 +4089,8 @@ get_group_info_v2:
     entry_id: *id001
 get_group_invite_box_info:
   name: getGroupInviteBoxInfo
-  description: getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể.
+  description: getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể. [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -4114,6 +4114,7 @@ get_group_invite_box_info:
 get_group_invite_box_list:
   name: getGroupInviteBoxList
   description: getGroupInviteBoxList — Lấy danh sách tất cả lời mời tham gia nhóm đang chờ trong hộp thư.
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     mpage:
@@ -4150,7 +4151,7 @@ get_group_invite_box_list:
 get_group_link_info:
   name: getGroupLinkInfo
   description: getGroupLinkInfo — Tra cứu thông tin nhóm và danh sách thành viên theo trang từ đường dẫn
-    nhóm công khai (https://zalo.me/g/...).
+    nhóm công khai (https://zalo.me/g/...). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     link:
@@ -4168,7 +4169,8 @@ get_group_link_info:
 get_group_list_v3:
   name: getGroupListV3
   description: getGroupListV3 — Lấy danh sách nhóm theo trang kèm thông tin thành viên đại diện (currentMems)
-    và gợi ý nhóm (suggestGroup) qua /api/group/getlg/v3 (command 11161)
+    và gợi ý nhóm (suggestGroup) qua /api/group/getlg/v3 (command 11161) [Tham số theo zca-js (web), chưa
+    đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     pageOrOptions:
@@ -4186,7 +4188,8 @@ get_group_list_v3:
 get_group_members_info:
   name: getGroupMembersInfo
   description: getGroupMembersInfo — Giải mã hàng loạt thông tin hồ sơ thành viên (displayName, zaloName,
-    avatar, globalId) từ danh sách UID qua /api/social/group/members.
+    avatar, globalId) từ danh sách UID qua /api/social/group/members. [Tham số theo zca-js (web), chưa
+    đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     memberId:
@@ -4204,7 +4207,8 @@ get_group_members_info:
 get_group_message_status:
   name: getGroupMessageStatus
   description: getGroupMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn
-    của danh sách thành viên trong nhóm (command 12017)
+    của danh sách thành viên trong nhóm (command 12017) [Tham số theo zca-js (web), chưa đối chiếu với
+    Zalo PC]
   fields:
     entry_id: *id001
     groupIdOrItems:
@@ -4228,7 +4232,8 @@ get_group_message_status:
 get_multi_group_cloud_messages:
   name: getMultiGroupCloudMessages
   description: getMultiGroupCloudMessages — Đồng bộ nhanh tin nhắn Cloud của nhiều nhóm cùng lúc theo
-    danh sách groupIds (command 12503 - syncCloudMsgFirstLogin)
+    danh sách groupIds (command 12503 - syncCloudMsgFirstLogin) [Tham số theo zca-js (web), chưa đối chiếu
+    với Zalo PC]
   fields:
     entry_id: *id001
     groupIds:
@@ -4252,7 +4257,7 @@ get_multi_group_cloud_messages:
 get_pending_group_members:
   name: getPendingGroupMembers
   description: getPendingGroupMembers — Lấy danh sách các yêu cầu xin vào nhóm đang chờ Quản trị viên
-    phê duyệt.
+    phê duyệt. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -4264,7 +4269,7 @@ get_pending_group_members:
 get_quota_community:
   name: getQuotaCommunity
   description: getQuotaCommunity — Kiểm tra hạn mức nâng cấp nhóm lên Cộng đồng của tài khoản (command
-    12181)
+    12181) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -4288,7 +4293,8 @@ get_quota_community:
 get_related_friend_group:
   name: getRelatedFriendGroup
   description: getRelatedFriendGroup — Kiểm tra danh sách các nhóm chung giữa tài khoản hiện tại và danh
-    sách UID truyền vào qua /api/friend/group/related.
+    sách UID truyền vào qua /api/friend/group/related. [Tham số theo zca-js (web), chưa đối chiếu với
+    Zalo PC]
   fields:
     entry_id: *id001
     friendId:
@@ -4305,7 +4311,8 @@ get_related_friend_group:
         object: null
 invite_user_to_groups:
   name: inviteUserToGroups
-  description: inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng.
+  description: inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng. [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     userId:
@@ -4328,7 +4335,8 @@ invite_user_to_groups:
         object: null
 join_group_invite_box:
   name: joinGroupInviteBox
-  description: joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời.
+  description: joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -4340,7 +4348,7 @@ join_group_invite_box:
 remove_group_blocked_member:
   name: removeGroupBlockedMember
   description: removeGroupBlockedMember — Gỡ chặn (Unblock) cho người dùng khỏi danh sách chặn của nhóm.
-    (không hoàn tác được)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     memberId:
@@ -4363,7 +4371,8 @@ remove_group_blocked_member:
         boolean: null
 remove_group_topic:
   name: removeGroupTopic
-  description: removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829) (không hoàn tác được)
+  description: removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829) [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     groupId:
@@ -4386,8 +4395,8 @@ remove_group_topic:
         boolean: null
 remove_user_from_groups:
   name: removeUserFromGroups
-  description: removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606) (không
-    hoàn tác được)
+  description: removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     groupIds:
@@ -4423,7 +4432,7 @@ remove_user_from_groups:
 review_pending_member_request:
   name: reviewPendingMemberRequest
   description: reviewPendingMemberRequest — Phê duyệt (Chấp nhận hoặc Từ chối) yêu cầu xin tham gia nhóm
-    của thành viên mới.
+    của thành viên mới. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     payload:
@@ -4447,7 +4456,8 @@ review_pending_member_request:
 update_group_settings:
   name: updateGroupSettings
   description: updateGroupSettings — Cập nhật các thiết lập quyền hạn của nhóm (ẩn thành viên lockViewMember,
-    duyệt thành viên joinAppr, khóa nhắn tin lockSendMsg...).
+    duyệt thành viên joinAppr, khóa nhắn tin lockSendMsg...). [Tham số theo zca-js (web), chưa đối chiếu
+    với Zalo PC]
   fields:
     entry_id: *id001
     options:
@@ -4471,7 +4481,7 @@ update_group_settings:
 upgrade_group_to_community:
   name: upgradeGroupToCommunity
   description: upgradeGroupToCommunity — Nâng cấp nhóm thường lên Cộng đồng (Community - tối đa 1000 thành
-    viên).
+    viên). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -4483,7 +4493,7 @@ upgrade_group_to_community:
 clear_unread_friend_requests:
   name: clearUnreadFriendRequests
   description: clearUnreadFriendRequests — Đánh dấu đã xem danh sách lời mời kết bạn chưa đọc (command
-    12232) (không hoàn tác được)
+    12232) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     uidsSeen:
@@ -4500,7 +4510,8 @@ clear_unread_friend_requests:
         boolean: null
 find_user_by_username:
   name: findUserByUsername
-  description: findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username.
+  description: findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     username:
@@ -4517,7 +4528,8 @@ find_user_by_username:
         text: null
 get_alias_list:
   name: getAliasList
-  description: getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè.
+  description: getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     count:
@@ -4537,7 +4549,7 @@ get_alias_list:
 get_alias_list_v2:
   name: getAliasListV2
   description: getAliasListV2 — Lấy danh sách tên gợi nhớ (Alias) của bạn bè chuẩn V2 có hỗ trợ phân trang
-    (command 12205)
+    (command 12205) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     page:
@@ -4556,8 +4568,8 @@ get_alias_list_v2:
       default: 50
 get_block_friends:
   name: getBlockFriends
-  description: getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429) (không
-    hoàn tác được)
+  description: getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     page:
@@ -4588,13 +4600,14 @@ get_block_friends:
         boolean: null
 get_close_friends:
   name: getCloseFriends
-  description: getCloseFriends — Lấy danh sách bạn thân (Close Friends).
+  description: getCloseFriends — Lấy danh sách bạn thân (Close Friends). [Tham số theo zca-js (web), chưa
+    đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_extra_friend_info:
   name: getExtraFriendInfo
   description: 'getExtraFriendInfo — Lấy ngữ cảnh và vai trò mở rộng (ví dụ role: ["boss"]) của danh sách
-    bạn bè (command 11442)'
+    bạn bè (command 11442) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]'
   fields:
     entry_id: *id001
     friendIds:
@@ -4605,7 +4618,8 @@ get_extra_friend_info:
         text: null
 get_friend_board_list:
   name: getFriendBoardList
-  description: getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn.
+  description: getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn. [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     conversationId:
@@ -4617,17 +4631,19 @@ get_friend_board_list:
 get_friend_onlines:
   name: getFriendOnlines
   description: getFriendOnlines — Lấy danh sách bạn bè đang trực tuyến (Online) kèm trạng thái thiết bị.
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_friend_recommendations:
   name: getFriendRecommendations
-  description: getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận.
+  description: getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận. [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_friend_request_status:
   name: getFriendRequestStatus
   description: getFriendRequestStatus — Kiểm tra trạng thái quan hệ bạn bè và lời mời kết bạn với một
-    UID.
+    UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     friendId:
@@ -4639,13 +4655,13 @@ get_friend_request_status:
 get_friends_active_p_c_web:
   name: getFriendsActivePCWeb
   description: getFriendsActivePCWeb — Lấy danh sách bạn bè đang hoạt động trên Zalo PC / Web qua /api/social/friend/active-pcweb
-    (command 12072)
+    (command 12072) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_friends_emoji_status:
   name: getFriendsEmojiStatus
   description: getFriendsEmojiStatus — Lấy danh sách trạng thái Emoji (Emoji Status) hiện tại của bạn
-    bè (command 16301)
+    bè (command 16301) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     version:
@@ -4675,12 +4691,14 @@ get_friends_emoji_status:
       default: '1'
 get_last_read_contact_tab:
   name: getLastReadContactTab
-  description: getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230)
+  description: getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_multi_user_q_r_codes:
   name: getMultiUserQRCodes
-  description: getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128)
+  description: getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     fids:
@@ -4698,7 +4716,7 @@ get_multi_user_q_r_codes:
 get_multi_users_by_phones:
   name: getMultiUsersByPhones
   description: getMultiUsersByPhones — Tra cứu hàng loạt thông tin tài khoản Zalo từ danh sách nhiều số
-    điện thoại cùng lúc.
+    điện thoại cùng lúc. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     phoneNumbers:
@@ -4715,7 +4733,8 @@ get_multi_users_by_phones:
         text: null
 get_phonebook_v2:
   name: getPhonebookV2
-  description: getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428)
+  description: getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     phonebookVersion:
@@ -4726,7 +4745,8 @@ get_phonebook_v2:
         text: null
 read_contact_tab:
   name: readContactTab
-  description: readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231)
+  description: readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231) [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     ts:
@@ -4738,7 +4758,7 @@ read_contact_tab:
 remove_friend_recommendation:
   name: removeFriendRecommendation
   description: removeFriendRecommendation — Xóa một gợi ý kết bạn khỏi danh sách đề xuất (command 11432)
-    (không hoàn tác được)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     uid:
@@ -4762,7 +4782,7 @@ remove_friend_recommendation:
 remove_friend_recommendation_v2:
   name: removeFriendRecommendationV2
   description: removeFriendRecommendationV2 — Xóa một gợi ý kết bạn khỏi danh sách đề xuất V2 (command
-    11438) (không hoàn tác được)
+    11438) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     uid:
@@ -4792,7 +4812,8 @@ remove_friend_recommendation_v2:
         boolean: null
 update_close_friend:
   name: updateCloseFriend
-  description: updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421)
+  description: updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     fids:
@@ -4816,7 +4837,7 @@ update_close_friend:
 verify_friend:
   name: verifyFriend
   description: verifyFriend — Kiểm tra và xác thực danh sách bạn bè qua /api/social/friend/verify (command
-    11138)
+    11138) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     friendIds:
@@ -4839,8 +4860,8 @@ verify_friend:
         object: null
 delete_avatar:
   name: deleteAvatar
-  description: deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện. (không hoàn tác
-    được)
+  description: deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     photoId:
@@ -4865,7 +4886,7 @@ delete_avatar:
 disable_limit_search_phone_reminder:
   name: disableLimitSearchPhoneReminder
   description: disableLimitSearchPhoneReminder — Tắt thông báo nhắc nhở giới hạn tìm kiếm số điện thoại
-    (command 12131) (không hoàn tác được)
+    (command 12131) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     uid:
@@ -4888,12 +4909,14 @@ disable_limit_search_phone_reminder:
         boolean: null
 fetch_account_info:
   name: fetchAccountInfo
-  description: fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile.
+  description: fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile. [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_avatar_url_profile:
   name: getAvatarUrlProfile
-  description: getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng.
+  description: getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng. [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     friendIds:
@@ -4911,7 +4934,7 @@ get_avatar_url_profile:
 get_emoji_status_config:
   name: getEmojiStatusConfig
   description: getEmojiStatusConfig — Lấy cấu hình và danh sách bộ biểu tượng Trạng thái Emoji (Emoji
-    Status - command 16300)
+    Status - command 16300) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     version:
@@ -4923,7 +4946,7 @@ get_emoji_status_config:
 get_enterprise_profiles:
   name: getEnterpriseProfiles
   description: getEnterpriseProfiles — Lấy thông tin hồ sơ doanh nghiệp (Zalo Enterprise) của một hoặc
-    nhiều tài khoản (command 12193)
+    nhiều tài khoản (command 12193) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     uids:
@@ -4941,6 +4964,7 @@ get_enterprise_profiles:
 get_full_avatar:
   name: getFullAvatar
   description: getFullAvatar — Lấy ảnh đại diện kích thước gốc (Full HD) của một người dùng theo UID.
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     friendId:
@@ -4952,7 +4976,7 @@ get_full_avatar:
 get_mini_profile:
   name: getMiniProfile
   description: getMiniProfile — Lấy nhanh thông tin hồ sơ rút gọn (Avatar, Global ID, gói Biz) của danh
-    sách người dùng (command 12134)
+    sách người dùng (command 12134) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     friendIds:
@@ -4969,7 +4993,8 @@ get_mini_profile:
         text: null
 get_profile_extra:
   name: getProfileExtra
-  description: getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864)
+  description: getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864) [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     profileId:
@@ -4987,7 +5012,7 @@ get_profile_extra:
 get_profile_rank:
   name: getProfileRank
   description: getProfileRank — Lấy hạng tài khoản Zalo của một người dùng (ví dụ "WHITE", "GOLD" - command
-    12012)
+    12012) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     profileId:
@@ -5005,13 +5030,13 @@ get_profile_rank:
 get_profile_verification_status:
   name: getProfileVerificationStatus
   description: getProfileVerificationStatus — Kiểm tra trạng thái xác thực định danh (eKYC) của tài khoản
-    Zalo (command 12150)
+    Zalo (command 12150) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 push_profile_verification_message:
   name: pushProfileVerificationMessage
   description: pushProfileVerificationMessage — Yêu cầu đẩy tin nhắn hướng dẫn xác thực tài khoản (eKYC)
-    từ Official Account (command 12151)
+    từ Official Account (command 12151) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     uid:
@@ -5042,7 +5067,7 @@ push_profile_verification_message:
 register_trial_biz_account:
   name: registerTrialBizAccount
   description: registerTrialBizAccount — Đăng ký dùng thử gói Zalo Business V2 cho tài khoản (command
-    12152)
+    12152) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     uid:
@@ -5059,7 +5084,8 @@ register_trial_biz_account:
         object: null
 reuse_avatar:
   name: reuseAvatar
-  description: reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện.
+  description: reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     photoId:
@@ -5070,7 +5096,8 @@ reuse_avatar:
         text: null
 update_profile_bio:
   name: updateProfileBio
-  description: updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân.
+  description: updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     status:
@@ -5080,7 +5107,8 @@ update_profile_bio:
       selector: *id019
 update_profile_mode:
   name: updateProfileMode
-  description: updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865)
+  description: updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865) [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     mode:
@@ -5105,7 +5133,8 @@ cancel_pull_mobile:
 delete_mobile_msg_snapshot:
   name: deleteMobileMsgSnapshot
   description: deleteMobileMsgSnapshot — Xóa bản chụp nhanh (snapshot) dữ liệu đồng bộ tin nhắn từ thiết
-    bị di động sau khi hoàn tất (command 12003) (không hoàn tác được)
+    bị di động sau khi hoàn tất (command 12003) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
+    (không hoàn tác được)
   fields:
     entry_id: *id001
     publicKey:
@@ -5129,6 +5158,7 @@ download_transfer_sync:
 get_backup_msg_info:
   name: getBackupMsgInfo
   description: getBackupMsgInfo — Lấy thông tin bản sao lưu tin nhắn hiện có trên máy chủ (command 12096)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     nretry:
@@ -5140,7 +5170,7 @@ get_backup_msg_info:
 get_cross_db_info:
   name: getCrossDbInfo
   description: getCrossDbInfo — Lấy thông tin cơ sở dữ liệu chéo (Cross-DB) phục vụ đồng bộ dữ liệu sang
-    máy tính (command 12412)
+    máy tính (command 12412) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     syncSession:
@@ -5170,22 +5200,22 @@ get_sync_data:
     entry_id: *id001
 pull_mobile:
   name: pullMobile
-  description: pullMobile — Yêu cầu thiết bị di động Zalo đóng gói và tải lên bản sao lưu tin nhắn (pull_mobile_msg,
+  description: 'pullMobile — Yêu cầu thiết bị di động Zalo đóng gói và tải lên bản sao lưu tin nhắn (pull_mobile_msg,
     command 12000). Sự kiện tiến trình (user_confirm, syncmsg_info, transfer_error) sẽ được đẩy về qua
-    api.listener.on("sync_event"). (chưa tự
+    (chưa tự động: khong dung dich vu Zalo '
   fields:
     entry_id: *id001
 request_sync_from_phone:
   name: requestSyncFromPhone
   description: 'requestSyncFromPhone — Phát tín hiệu yêu cầu đồng bộ tin nhắn từ ứng dụng Zalo trên điện
     thoại (pull_mobile_msg, command 12000). Tự động sinh cặp khoá RSA 2048-bit (nếu chưa truyền vào) và
-    gọi api.pullMobile(...). Điện thoại của người dùng '
+    gọi api.pul (chưa tự động: khong dung dich vu Zalo '
   fields:
     entry_id: *id001
 submit_sync_media_actions:
   name: submitSyncMediaActions
   description: submitSyncMediaActions — Gửi danh sách hành động đồng bộ hóa tệp đa phương tiện lên máy
-    chủ (command 16213)
+    chủ (command 16213) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     syncList:
@@ -5197,7 +5227,7 @@ submit_sync_media_actions:
 upload_backup_chunk:
   name: uploadBackupChunk
   description: uploadBackupChunk — Tải lên gói dữ liệu phân mảnh (chunk) sao lưu tin nhắn từ máy tính
-    sang điện thoại (command 13538)
+    sang điện thoại (command 13538) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     formData:
@@ -5238,9 +5268,9 @@ get_cloud_upload_url:
     entry_id: *id001
 get_cloud_viewer_key:
   name: getCloudViewerKey
-  description: getCloudViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho hệ
+  description: 'getCloudViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho hệ
     thống ZCloud / MyCloud (command 12741). Tự động cache trong bộ nhớ ctx.zcloudViewerKeyCache (TTL 15
-    phút) để tối ưu hiệu năng khi gọi liên tiếp. (chưa tự
+    phút) để tối  (chưa tự động: khong dung dich vu Zalo '
   fields:
     entry_id: *id001
 get_family_profile:
@@ -5257,9 +5287,9 @@ get_family_usage:
     entry_id: *id001
 get_family_viewer_key:
   name: getFamilyViewerKey
-  description: getFamilyViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho gói
+  description: 'getFamilyViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho gói
     gia đình ZFamily (command 12759). Tự động cache trong bộ nhớ ctx.zfamilyViewerKeyCache (TTL 15 phút)
-    để tối ưu hiệu năng khi gọi liên tiếp. (chưa tự độ
+    để tối ưu  (chưa tự động: khong dung dich vu Zalo '
   fields:
     entry_id: *id001
 get_usage_my_cloud:
@@ -5532,7 +5562,8 @@ update_call_media_state:
 get_conversation_media:
   name: getConversationMedia
   description: getConversationMedia — Lấy danh sách Kho Lưu Trữ (Ảnh/Video "media", File "file", hoặc
-    Link "link") trong hội thoại nhóm (command 11841)
+    Link "link") trong hội thoại nhóm (command 11841) [Tham số theo zca-js (web), chưa đối chiếu với Zalo
+    PC]
   fields:
     entry_id: *id001
     groupId:
@@ -5574,7 +5605,7 @@ get_conversation_media:
 get_media_store_preview:
   name: getMediaStorePreview
   description: getMediaStorePreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ (Ảnh/Video, File, Link)
-    của nhóm (command 11843)
+    của nhóm (command 11843) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -5598,7 +5629,8 @@ get_media_store_preview:
 get_personal_media:
   name: getPersonalMedia
   description: getPersonalMedia — Lấy danh sách Kho Lưu Trữ Ảnh/Video ("media"), File ("file"), hoặc Link
-    ("link") trong Cloud của tôi (Send2Me) (command 12220)
+    ("link") trong Cloud của tôi (Send2Me) (command 12220) [Tham số theo zca-js (web), chưa đối chiếu
+    với Zalo PC]
   fields:
     entry_id: *id001
     mediaType:
@@ -5628,7 +5660,7 @@ get_personal_media:
 get_personal_media_preview:
   name: getPersonalMediaPreview
   description: getPersonalMediaPreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ trong Cloud của tôi
-    (Send2Me) (command 12221)
+    (Send2Me) (command 12221) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     limit:
@@ -5640,7 +5672,7 @@ get_personal_media_preview:
 remove_conversation_media:
   name: removeConversationMedia
   description: removeConversationMedia — Xóa mục Ảnh/Video, File hoặc Link khỏi Kho Lưu Trữ của nhóm (command
-    11842) (không hoàn tác được)
+    11842) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     groupId:
@@ -5676,7 +5708,7 @@ remove_conversation_media:
 remove_personal_media:
   name: removePersonalMedia
   description: removePersonalMedia — Xóa mục lưu trữ trong Kho Lưu Trữ Cloud của tôi (Send2Me) (command
-    12222) (không hoàn tác được)
+    12222) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     mediaType:
@@ -5706,12 +5738,14 @@ upload_attachment:
     entry_id: *id001
 get_a_i_sticker_list:
   name: getAIStickerList
-  description: getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190)
+  description: getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190) [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_default_guggy_gifs:
   name: getDefaultGuggyGifs
-  description: getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749)
+  description: getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749) [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     limit:
@@ -5722,7 +5756,8 @@ get_default_guggy_gifs:
         text: null
 get_gif_categories:
   name: getGifCategories
-  description: getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294)
+  description: getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294) [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     offset:
@@ -5739,7 +5774,8 @@ get_gif_categories:
         text: null
 get_gif_dictionaries:
   name: getGifDictionaries
-  description: getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298)
+  description: getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298) [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     offset:
@@ -5756,7 +5792,8 @@ get_gif_dictionaries:
         text: null
 get_gifs_by_category:
   name: getGifsByCategory
-  description: getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295)
+  description: getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     cateId:
@@ -5780,6 +5817,7 @@ get_gifs_by_category:
 get_gifs_by_dictionary:
   name: getGifsByDictionary
   description: getGifsByDictionary — Lấy danh sách ảnh động Giphy GIF theo ID từ điển (command 11299)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     dicId:
@@ -5803,7 +5841,7 @@ get_gifs_by_dictionary:
 get_message_effect_by_id:
   name: getMessageEffectById
   description: getMessageEffectById — Lấy chi tiết một hiệu ứng tin nhắn theo ID và kích thước (command
-    11743)
+    11743) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     id:
@@ -5820,7 +5858,8 @@ get_message_effect_by_id:
         text: null
 get_message_effects:
   name: getMessageEffects
-  description: getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742)
+  description: getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     effectIds:
@@ -5838,11 +5877,13 @@ get_message_effects:
 get_personalized_sticker_list:
   name: getPersonalizedStickerList
   description: getPersonalizedStickerList — Lấy danh sách Sticker cá nhân hóa của tài khoản (command 11745)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_recommended_stickers:
   name: getRecommendedStickers
   description: getRecommendedStickers — Lấy danh sách các bộ Sticker được Zalo đề xuất (command 11748)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_sticker_categories_v2:
@@ -5854,7 +5895,7 @@ get_sticker_categories_v2:
 get_sticker_category_detail:
   name: getStickerCategoryDetail
   description: getStickerCategoryDetail — Lấy danh sách toàn bộ nhãn dán nằm trong một bộ nhãn dán (Category/Pack
-    ID).
+    ID). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     cateId:
@@ -5866,18 +5907,19 @@ get_sticker_category_detail:
 get_sticker_hello:
   name: getStickerHello
   description: getStickerHello — Lấy danh sách Sticker chào hỏi gợi ý khi bắt đầu trò chuyện mới (command
-    11751)
+    11751) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_sticker_suggest_keywords:
   name: getStickerSuggestKeywords
   description: getStickerSuggestKeywords — Lấy bộ từ khóa gợi ý Sticker tự động khi gõ tin nhắn (command
-    11740)
+    11740) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_sticker_suggestion:
   name: getStickerSuggestion
-  description: getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741)
+  description: getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741) [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     options:
@@ -5894,12 +5936,14 @@ get_sticker_suggestion:
         object: null
 get_tenor_sticker_mapping:
   name: getTenorStickerMapping
-  description: getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015)
+  description: getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_trending_gifs:
   name: getTrendingGifs
-  description: getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296)
+  description: getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296) [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     offset:
@@ -5916,7 +5960,8 @@ get_trending_gifs:
         text: null
 search_gifs:
   name: searchGifs
-  description: searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297)
+  description: searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297) [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     keyword:
@@ -5939,7 +5984,8 @@ search_gifs:
         text: null
 search_guggy_gifs:
   name: searchGuggyGifs
-  description: searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750)
+  description: searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750) [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     keyword:
@@ -5956,7 +6002,8 @@ search_guggy_gifs:
         text: null
 search_sticker:
   name: searchSticker
-  description: searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa.
+  description: searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa. [Tham số theo zca-js (web), chưa
+    đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     keyword:
@@ -5974,7 +6021,7 @@ search_sticker:
 update_personalized_sticker_list:
   name: updatePersonalizedStickerList
   description: updatePersonalizedStickerList — Cập nhật danh sách các bộ Sticker cá nhân hóa của người
-    dùng (command 11746)
+    dùng (command 11746) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     stickerCateIds:
@@ -5991,7 +6038,8 @@ update_personalized_sticker_list:
         text: null
 ack_ding_todo:
   name: ackDingTodo
-  description: ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427)
+  description: ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     taskIds:
@@ -6009,7 +6057,7 @@ ack_ding_todo:
 add_poll_options:
   name: addPollOptions
   description: addPollOptions — Thêm phương án lựa chọn mới vào một cuộc Bình chọn (Poll) đang mở trong
-    nhóm.
+    nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     pollId:
@@ -6032,7 +6080,8 @@ add_poll_options:
         text: null
 create_note:
   name: createNote
-  description: createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu.
+  description: createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu. [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     options:
@@ -6055,7 +6104,8 @@ create_note:
         object: null
 create_todo:
   name: createTodo
-  description: createTodo — Tạo công việc mới trong Zalo To-Do (command 12413)
+  description: createTodo — Tạo công việc mới trong Zalo To-Do (command 12413) [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     title:
@@ -6125,7 +6175,8 @@ create_todo:
         object: null
 delete_todo:
   name: deleteTodo
-  description: deleteTodo — Xóa công việc trong Zalo To-Do (command 12415) (không hoàn tác được)
+  description: deleteTodo — Xóa công việc trong Zalo To-Do (command 12415) [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     todoId:
@@ -6142,7 +6193,8 @@ delete_todo:
         boolean: null
 ding_todo:
   name: dingTodo
-  description: dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426)
+  description: dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     taskIds:
@@ -6159,7 +6211,8 @@ ding_todo:
         object: null
 edit_note:
   name: editNote
-  description: editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm.
+  description: editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm. [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     options:
@@ -6183,7 +6236,7 @@ edit_note:
 get_list_pin_topics:
   name: getListPinTopics
   description: getListPinTopics — Lấy danh sách chủ đề / tin nhắn đã ghim trong bảng tin nhóm (command
-    12001)
+    12001) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -6200,7 +6253,8 @@ get_list_pin_topics:
         text: null
 get_todo_detail:
   name: getTodoDetail
-  description: getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417)
+  description: getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417) [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     todoId:
@@ -6211,7 +6265,8 @@ get_todo_detail:
         text: null
 get_todo_list:
   name: getTodoList
-  description: getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416)
+  description: getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416) [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     scrollId:
@@ -6254,6 +6309,7 @@ get_todo_list:
 multi_unpin_board_topics:
   name: multiUnpinBoardTopics
   description: multiUnpinBoardTopics — Bỏ ghim đồng thời nhiều chủ đề khỏi bảng tin nhóm (command 12010)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -6282,7 +6338,8 @@ multi_unpin_board_topics:
         object: null
 pin_board_topic:
   name: pinBoardTopic
-  description: pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004)
+  description: pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004) [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -6312,7 +6369,8 @@ pin_board_topic:
         object: null
 pin_friend_message:
   name: pinFriendMessage
-  description: pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067)
+  description: pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     conversationId:
@@ -6342,7 +6400,7 @@ pin_friend_message:
 reorder_friend_board:
   name: reorderFriendBoard
   description: reorderFriendBoard — Sắp xếp lại thứ tự các tin nhắn đã ghim trong hội thoại 1-1 (command
-    12068)
+    12068) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     conversationId:
@@ -6372,6 +6430,7 @@ reorder_friend_board:
 reorder_pin_topics:
   name: reorderPinTopics
   description: reorderPinTopics — Sắp xếp lại thứ tự các chủ đề đã ghim trên bảng tin nhóm (command 12002)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -6400,7 +6459,8 @@ reorder_pin_topics:
         object: null
 share_poll:
   name: sharePoll
-  description: sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm.
+  description: sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm. [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     pollId:
@@ -6411,7 +6471,8 @@ share_poll:
         text: null
 unpin_board_topic:
   name: unpinBoardTopic
-  description: unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005)
+  description: unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005) [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     groupId:
@@ -6441,6 +6502,7 @@ unpin_board_topic:
 unpin_friend_messages:
   name: unpinFriendMessages
   description: unpinFriendMessages — Bỏ ghim một hoặc nhiều tin nhắn trong hội thoại 1-1 (command 12069)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     conversationId:
@@ -6469,7 +6531,8 @@ unpin_friend_messages:
         object: null
 update_todo:
   name: updateTodo
-  description: updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414)
+  description: updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414) [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     id:
@@ -6539,7 +6602,8 @@ update_todo:
         object: null
 update_todo_status:
   name: updateTodoStatus
-  description: updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418)
+  description: updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     todoId:
@@ -6556,6 +6620,7 @@ update_todo_status:
 verify_todo:
   name: verifyTodo
   description: verifyTodo — Kiểm tra tính đồng bộ của danh sách công việc trong Zalo To-Do (command 12603)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     scrollId:
@@ -6572,7 +6637,8 @@ verify_todo:
         text: null
 add_conversation_label:
   name: addConversationLabel
-  description: addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163)
+  description: addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163) [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     text:
@@ -6608,7 +6674,7 @@ add_conversation_label:
 block_o_a:
   name: blockOA
   description: blockOA — Chặn nhận tin nhắn / thông báo từ một Zalo Official Account (OA) qua /api/social/oa/block
-    (cmd 12681). (không hoàn tác được)
+    (cmd 12681). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     oaId:
@@ -6626,7 +6692,7 @@ block_o_a:
 convert_o_a_ids:
   name: convertOAIds
   description: convertOAIds — Chuyển đổi danh sách OA ID sang Zalo UID nội bộ (hoặc ngược lại) qua /api/social/oa/convertid
-    (cmd 11863).
+    (cmd 11863). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     oaIds:
@@ -6644,6 +6710,7 @@ convert_o_a_ids:
 create_auto_reply:
   name: createAutoReply
   description: createAutoReply — Tạo kịch bản Trả lời tự động (Auto Reply) theo khung giờ cho Zalo Business.
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     content:
@@ -6690,8 +6757,8 @@ create_auto_reply:
         object: null
 create_bank_account:
   name: createBankAccount
-  description: createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng. (không
-    hoàn tác được)
+  description: createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng. [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     binBank:
@@ -6726,7 +6793,8 @@ create_bank_account:
         boolean: null
 create_catalog:
   name: createCatalog
-  description: createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business.
+  description: createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business. [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     catalogName:
@@ -6737,7 +6805,8 @@ create_catalog:
         text: null
 create_product_catalog:
   name: createProductCatalog
-  description: createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog).
+  description: createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog). [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     catalogId:
@@ -6785,7 +6854,8 @@ create_product_catalog:
         object: null
 delete_auto_reply:
   name: deleteAutoReply
-  description: deleteAutoReply — Xóa một kịch bản Trả lời tự động. (không hoàn tác được)
+  description: deleteAutoReply — Xóa một kịch bản Trả lời tự động. [Tham số theo zca-js (web), chưa đối
+    chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     id:
@@ -6802,7 +6872,8 @@ delete_auto_reply:
         boolean: null
 delete_bank_account:
   name: deleteBankAccount
-  description: deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu. (không hoàn tác được)
+  description: deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu. [Tham số theo zca-js (web), chưa
+    đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     accountId:
@@ -6825,7 +6896,8 @@ delete_bank_account:
         boolean: null
 delete_catalog:
   name: deleteCatalog
-  description: deleteCatalog — Xóa một Danh mục sản phẩm (Catalog). (không hoàn tác được)
+  description: deleteCatalog — Xóa một Danh mục sản phẩm (Catalog). [Tham số theo zca-js (web), chưa đối
+    chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     catalogId:
@@ -6842,8 +6914,8 @@ delete_catalog:
         boolean: null
 delete_conversation_label:
   name: deleteConversationLabel
-  description: deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165) (không
-    hoàn tác được)
+  description: deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165) [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     labelIds:
@@ -6866,8 +6938,8 @@ delete_conversation_label:
         boolean: null
 delete_product_catalog:
   name: deleteProductCatalog
-  description: deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm. (không hoàn
-    tác được)
+  description: deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     productIds:
@@ -6891,7 +6963,7 @@ delete_product_catalog:
 delete_single_product:
   name: deleteSingleProduct
   description: deleteSingleProduct — Xóa một sản phẩm đơn lẻ khỏi danh mục Zalo Business (command 12042)
-    (không hoàn tác được)
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     productId:
@@ -6914,12 +6986,14 @@ delete_single_product:
         boolean: null
 get_auto_reply_list:
   name: getAutoReplyList
-  description: getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản.
+  description: getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
 get_biz_account:
   name: getBizAccount
-  description: getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness).
+  description: getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness). [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     friendId:
@@ -6930,7 +7004,8 @@ get_biz_account:
         text: null
 get_catalog_list:
   name: getCatalogList
-  description: getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản.
+  description: getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản. [Tham số
+    theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     limit:
@@ -6960,8 +7035,8 @@ get_catalog_list:
         object: null
 get_list_bank:
   name: getListBank
-  description: getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ. (không hoàn tác
-    được)
+  description: getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ. [Tham số theo
+    zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     confirm:
@@ -6972,8 +7047,8 @@ get_list_bank:
         boolean: null
 get_list_bank_account:
   name: getListBankAccount
-  description: getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng. (không
-    hoàn tác được)
+  description: getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng. [Tham
+    số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     page:
@@ -7005,6 +7080,7 @@ get_o_a_profile:
 get_product_catalog_list:
   name: getProductCatalogList
   description: getProductCatalogList — Lấy danh sách các sản phẩm nằm trong một Danh mục sản phẩm (Catalog).
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     catalogId:
@@ -7041,7 +7117,7 @@ get_product_catalog_list:
 get_product_detail:
   name: getProductDetail
   description: getProductDetail — Lấy thông tin chi tiết một sản phẩm trong danh mục Zalo Business (command
-    12057)
+    12057) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     productId:
@@ -7053,6 +7129,7 @@ get_product_detail:
 register_catalog:
   name: registerCatalog
   description: registerCatalog — Đăng ký kích hoạt tính năng Danh mục sản phẩm (Catalog) cho tài khoản.
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     enable:
@@ -7064,7 +7141,7 @@ register_catalog:
 reorder_conversation_labels:
   name: reorderConversationLabels
   description: reorderConversationLabels — Sắp xếp lại vị trí hiển thị của các nhãn phân loại hội thoại
-    (command 12166)
+    (command 12166) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     items:
@@ -7082,7 +7159,7 @@ reorder_conversation_labels:
 unblock_o_a:
   name: unblockOA
   description: unblockOA — Bỏ chặn một Zalo Official Account (OA) để tiếp tục nhận tin nhắn qua /api/social/oa/unblock
-    (cmd 12682). (không hoàn tác được)
+    (cmd 12682). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     oaId:
@@ -7100,6 +7177,7 @@ unblock_o_a:
 update_auto_reply:
   name: updateAutoReply
   description: updateAutoReply — Cập nhật nội dung và thời gian hoạt động của kịch bản Trả lời tự động.
+    [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     id:
@@ -7152,7 +7230,8 @@ update_auto_reply:
         object: null
 update_bank_account:
   name: updateBankAccount
-  description: updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu. (không hoàn tác được)
+  description: updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu. [Tham số theo zca-js
+    (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
   fields:
     entry_id: *id001
     accountId:
@@ -7193,7 +7272,8 @@ update_bank_account:
         boolean: null
 update_catalog:
   name: updateCatalog
-  description: updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm.
+  description: updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm. [Tham số theo zca-js (web),
+    chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     catalogId:
@@ -7211,7 +7291,7 @@ update_catalog:
 update_conversation_label_item:
   name: updateConversationLabelItem
   description: updateConversationLabelItem — Cập nhật thông tin một nhãn phân loại hội thoại và danh sách
-    hội thoại gắn nhãn (command 12164)
+    hội thoại gắn nhãn (command 12164) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     id:
@@ -7259,7 +7339,7 @@ update_conversation_label_item:
 update_product_catalog:
   name: updateProductCatalog
   description: updateProductCatalog — Cập nhật thông tin chi tiết, giá bán và hình ảnh của sản phẩm trong
-    Danh mục.
+    Danh mục. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
   fields:
     entry_id: *id001
     catalogId:
@@ -7764,9 +7844,9 @@ stop_call_mic:
         text: null
 set_default_devices:
   name: Đặt thiết bị mặc định
-  description: Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng). Loa,
-    mic, camera KHÔNG còn mặc định - do quy tắc/automation chọn cho từng cuộc gọi. Trường nào bỏ trống
-    thì giữ nguyên.
+  description: Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng) và
+    độ to phần mềm của mic/loa, tham số chống vọng trễ. Loa, mic, camera KHÔNG còn mặc định - do quy tắc/automation
+    chọn cho từng cuộc gọi. Trường nào bỏ trống thì giữ nguyên.
   fields:
     entry_id: *id001
     auto_mic:
@@ -7820,6 +7900,68 @@ set_default_devices:
           max: 100
           mode: slider
           unit_of_measurement: '%'
+    mic_gain:
+      name: Độ to mic gửi sang bên kia (phần mềm, %)
+      description: Độ to PHẦN MỀM của tiếng mic gửi đi, độc lập với cài đặt của loa R1. 100 % = 0 dB (giữ
+        nguyên), 200 % = +6 dB, 50 % = −6 dB; 0 = giữ nguyên. Là mặc định cho mọi cuộc gọi; quy tắc (set_rule),
+        make_call/answer_call và nút −/+ trên WebUI ghi đè. Ghi thẳng vào app nên WebUI hiện đúng giá
+        trị này.
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 5
+          mode: slider
+          unit_of_measurement: '%'
+    speaker_gain:
+      name: Độ to tiếng bên kia ra loa (phần mềm, %)
+      description: Độ to PHẦN MỀM của tiếng bên kia phát ra loa. 100 % = 0 dB, 0 = giữ nguyên. Mặc định
+        cho mọi cuộc gọi; quy tắc và nút −/+ ghi đè.
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 5
+          mode: slider
+          unit_of_measurement: '%'
+    echo_delay_min_ms:
+      name: Chống vọng — trễ loa→mic thấp nhất (ms)
+      description: Cửa sổ trễ để nhận ra VỌNG TRỄ của loa song công (loa R1 đo được 450–550 ms). Phải
+        đi cùng «trễ cao nhất» và nhỏ hơn nó; cùng 0 = tắt bù trễ. Mặc định máy chủ 300–750.
+      selector:
+        number:
+          min: 0
+          max: 3000
+          step: 10
+          mode: box
+          unit_of_measurement: ms
+    echo_delay_max_ms:
+      name: Chống vọng — trễ loa→mic cao nhất (ms)
+      description: Xem «trễ thấp nhất». Mic nhỏ hơn «ngưỡng × tiếng loa» trong cửa sổ trễ này bị coi là
+        vọng và không gửi; to hơn (người nhà nói chen) thì cho qua.
+      selector:
+        number:
+          min: 0
+          max: 3000
+          step: 10
+          mode: box
+          unit_of_measurement: ms
+    echo_ratio:
+      name: Chống vọng — ngưỡng (×)
+      description: Mic bị coi là vọng khi to < ngưỡng × đỉnh tiếng loa trong cửa sổ trễ. Mặc định 2,0;
+        tăng nếu vẫn lọt vọng, giảm nếu người nhà nói chen bị cắt.
+      selector:
+        number:
+          min: 0.5
+          max: 10
+          step: 0.1
+          mode: box
+    echo_use_default:
+      name: Chống vọng — trở về mặc định của máy chủ
+      description: Bật để xóa cả ba giá trị chống vọng trễ ở trên và theo mặc định / biến môi trường ZALO_PC_ECHO_*
+        của máy chủ.
+      selector:
+        boolean: null
 say_in_call:
   name: Đọc lên cuộc gọi (TTS)
   description: Đọc một câu bằng TTS của HA lên cuộc gọi đang nói.
@@ -8214,7 +8356,8 @@ list_contacts:
     entry_id: *id001
 get_default_devices:
   name: Xem mic/loa/camera mặc định
-  description: Trả về cài đặt thiết bị mặc định hiện tại (đặt bằng set_default_devices).
+  description: Trả về cài đặt thiết bị mặc định hiện tại, gồm độ to mic/loa và chống vọng đọc từ app (đặt
+    bằng set_default_devices, WebUI hoặc thực thể số).
   fields:
     entry_id: *id001
 get_app_settings:

@@ -18,12 +18,20 @@ DEFAULTS = {
     "camera_url": "",           # "" = khong tu dong phat hinh
     "speaker_url": "",          # "" = khong tu dong phat loa truc tiep (URL bo dam http(s) A-law 8 kHz)
     "echo_guard": False,        # tam ngung gui mic khi loa dang phat tieng that (mic va loa cung thiet bi)
+    "mic_gain": 0,              # do to PHAN MEM cua mic gui sang ben kia (%, 0 = giu nguyen 100); doc lap voi cai dat cua loa R1. Quy tac/cuoc goi/nut +/- ghi de
+    "speaker_gain": 0,          # do to PHAN MEM tieng ben kia ra loa (%, 0 = giu nguyen 100)
+    "echo_delay_min_ms": None,  # cua so tre loa -> mic nhan ra VONG TRE (ms). None = theo ZALO_PC_ECHO_DELAY_MS (mac dinh 300-750); 0 va 0 = tat
+    "echo_delay_max_ms": None,
+    "echo_ratio": None,         # mic < ratio x dinh loa trong cua so tre thi la vong; to hon thi la nguoi nha noi chen. None = ZALO_PC_ECHO_RATIO (2,0)
     "video": {"width": 640, "height": 360, "fps": 15, "bitrate_kbps": 300},
     "auto_mic": True,           # tu phat mic khi cuoc goi duoc nghe may
     "auto_video_on_request": False,  # dien thoai xin len video: tu dong y + phat camera. MAC DINH TAT (rieng tu): HA quyet dinh theo quy tac `video_request`
     "auto_video_delay": 0,           # giay cho truoc khi tu dong y (0 = ngay)
 }
 MAX_AUTO_VIDEO_DELAY = 120
+MAX_GAIN = 300                   # % (khop audio_gain.MAX_PERCENT)
+MAX_ECHO_DELAY_MS = 3000
+ECHO_RATIO_RANGE = (0.5, 10.0)
 MIC_FORMATS = ("auto", "s16le16k")
 _URL_OK = re.compile(r"^(rtsps?|https?|rtmps?)://\S+$")
 _HTTP_OK = re.compile(r"^https?://\S+$")
@@ -89,6 +97,39 @@ class DeviceStore:
                     data[key] = val
                 else:
                     bad("%s khong hop le" % key)
+        for key in ("mic_gain", "speaker_gain"):
+            if key in patch:
+                try:
+                    if isinstance(patch[key], bool):
+                        raise ValueError
+                    data[key] = max(0, min(MAX_GAIN, int(round(float(patch[key] or 0)))))
+                except (TypeError, ValueError):
+                    bad("%s phai la so 0-%d (%%)" % (key, MAX_GAIN))
+        if "echo_delay_min_ms" in patch or "echo_delay_max_ms" in patch:
+            lo = patch.get("echo_delay_min_ms", data["echo_delay_min_ms"])
+            hi = patch.get("echo_delay_max_ms", data["echo_delay_max_ms"])
+            if lo in (None, "") and hi in (None, ""):
+                data["echo_delay_min_ms"] = data["echo_delay_max_ms"] = None          # tro ve theo bien moi truong
+            else:
+                try:
+                    lo, hi = int(round(float(lo))), int(round(float(hi)))
+                except (TypeError, ValueError):
+                    lo = hi = None
+                if lo is None or not (0 <= lo <= hi <= MAX_ECHO_DELAY_MS) or (lo == hi and lo != 0):
+                    bad("echo_delay_min_ms / echo_delay_max_ms phai la hai so ms, thap < cao <= %d (hoac cung 0 de tat)" % MAX_ECHO_DELAY_MS)
+                else:
+                    data["echo_delay_min_ms"], data["echo_delay_max_ms"] = lo, hi
+        if "echo_ratio" in patch:
+            if patch["echo_ratio"] in (None, ""):
+                data["echo_ratio"] = None
+            else:
+                try:
+                    ratio = float(patch["echo_ratio"])
+                    if isinstance(patch["echo_ratio"], bool) or not ECHO_RATIO_RANGE[0] <= ratio <= ECHO_RATIO_RANGE[1]:
+                        raise ValueError
+                    data["echo_ratio"] = round(ratio, 2)
+                except (TypeError, ValueError):
+                    bad("echo_ratio phai la so tu %s den %s" % ECHO_RATIO_RANGE)
         if patch.get("mic_format") in MIC_FORMATS:
             data["mic_format"] = patch["mic_format"]
         elif "mic_format" in patch:

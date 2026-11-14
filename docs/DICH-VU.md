@@ -461,19 +461,25 @@ data:
 <a id="set_default_devices"></a>
 #### Đặt thiết bị mặc định — `zalo_call.set_default_devices`
 
-Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng). Loa, mic, camera KHÔNG còn mặc định - do quy tắc/automation chọn cho từng cuộc gọi. Trường nào bỏ trống thì giữ nguyên.
+Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng) và độ to phần mềm của mic/loa, tham số chống vọng trễ. Loa, mic, camera KHÔNG còn mặc định - do quy tắc/automation chọn cho từng cuộc gọi. Trường nào bỏ trống thì giữ nguyên.
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
 ```yaml
 action: zalo_call.set_default_devices
 data:
-  auto_mic: false       # tuỳ chọn - Tự phát mic khi nghe máy
-  auto_video: false     # tuỳ chọn - Tự đồng ý khi bên kia xin gọi video (mọi người)
-  video_consent: false  # tuỳ chọn - Cho phép đồng ý chuyển sang video (công tắc tổng)
-  echo_guard: "auto"    # tuỳ chọn - Chống vọng
-  auto_video_delay: 0   # tuỳ chọn - Chờ trước khi tự đồng ý (giây)
-  call_volume: 0        # tuỳ chọn - Âm lượng cuộc gọi mặc định
+  auto_mic: false          # tuỳ chọn - Tự phát mic khi nghe máy
+  auto_video: false        # tuỳ chọn - Tự đồng ý khi bên kia xin gọi video (mọi người)
+  video_consent: false     # tuỳ chọn - Cho phép đồng ý chuyển sang video (công tắc tổng)
+  echo_guard: "auto"       # tuỳ chọn - Chống vọng
+  auto_video_delay: 0      # tuỳ chọn - Chờ trước khi tự đồng ý (giây)
+  call_volume: 0           # tuỳ chọn - Âm lượng cuộc gọi mặc định
+  mic_gain: 0              # tuỳ chọn - Độ to mic gửi sang bên kia (phần mềm, %)
+  speaker_gain: 0          # tuỳ chọn - Độ to tiếng bên kia ra loa (phần mềm, %)
+  echo_delay_min_ms: 0     # tuỳ chọn - Chống vọng — trễ loa→mic thấp nhất (ms)
+  echo_delay_max_ms: 0     # tuỳ chọn - Chống vọng — trễ loa→mic cao nhất (ms)
+  echo_ratio: 0.5          # tuỳ chọn - Chống vọng — ngưỡng (×)
+  echo_use_default: false  # tuỳ chọn - Chống vọng — trở về mặc định của máy chủ
 ```
 
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
@@ -484,6 +490,12 @@ data:
 | `echo_guard` | Chống vọng | không | auto = chỉ chặn mic khi mic và loa là cùng một thiết bị (ví dụ R1); on = luôn chặn mic khi loa đang phát tiếng bên kia; duplex = song công, nói chen được (loa R1 dùng khử vọng của nó); off = tắt. |
 | `auto_video_delay` | Chờ trước khi tự đồng ý (giây) | không | Số giây chờ rồi mới tự đồng ý lời xin chuyển sang video (0 = đồng ý ngay; chỉ áp dụng khi cuộc gọi còn đang nói). |
 | `call_volume` | Âm lượng cuộc gọi mặc định | không | 1-100 % — âm lượng loa đặt khi nghe máy rồi trả lại khi cuộc gọi kết thúc; 0 = giữ nguyên âm lượng loa. |
+| `mic_gain` | Độ to mic gửi sang bên kia (phần mềm, %) | không | Độ to PHẦN MỀM của tiếng mic gửi đi, độc lập với cài đặt của loa R1. 100 % = 0 dB (giữ nguyên), 200 % = +6 dB, 50 % = −6 dB; 0 = giữ nguyên. Là mặc định cho mọi cuộc gọi; quy tắc (set_rule), make_call/answer_call và nút −/+ trên WebUI ghi đè. Ghi thẳng vào app nên WebUI hiện đúng giá trị này. |
+| `speaker_gain` | Độ to tiếng bên kia ra loa (phần mềm, %) | không | Độ to PHẦN MỀM của tiếng bên kia phát ra loa. 100 % = 0 dB, 0 = giữ nguyên. Mặc định cho mọi cuộc gọi; quy tắc và nút −/+ ghi đè. |
+| `echo_delay_min_ms` | Chống vọng — trễ loa→mic thấp nhất (ms) | không | Cửa sổ trễ để nhận ra VỌNG TRỄ của loa song công (loa R1 đo được 450–550 ms). Phải đi cùng «trễ cao nhất» và nhỏ hơn nó; cùng 0 = tắt bù trễ. Mặc định máy chủ 300–750. |
+| `echo_delay_max_ms` | Chống vọng — trễ loa→mic cao nhất (ms) | không | Xem «trễ thấp nhất». Mic nhỏ hơn «ngưỡng × tiếng loa» trong cửa sổ trễ này bị coi là vọng và không gửi; to hơn (người nhà nói chen) thì cho qua. |
+| `echo_ratio` | Chống vọng — ngưỡng (×) | không | Mic bị coi là vọng khi to < ngưỡng × đỉnh tiếng loa trong cửa sổ trễ. Mặc định 2,0; tăng nếu vẫn lọt vọng, giảm nếu người nhà nói chen bị cắt. |
+| `echo_use_default` | Chống vọng — trở về mặc định của máy chủ | không | Bật để xóa cả ba giá trị chống vọng trễ ở trên và theo mặc định / biến môi trường ZALO_PC_ECHO_* của máy chủ. |
 
 **Các lựa chọn:**
 
@@ -498,7 +510,7 @@ data:
 <a id="get_default_devices"></a>
 #### Xem mic/loa/camera mặc định — `zalo_call.get_default_devices`
 
-Trả về cài đặt thiết bị mặc định hiện tại (đặt bằng set_default_devices).
+Trả về cài đặt thiết bị mặc định hiện tại, gồm độ to mic/loa và chống vọng đọc từ app (đặt bằng set_default_devices, WebUI hoặc thực thể số).
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -718,7 +730,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `message` | Nội dung tin nhắn | có | Nội dung tin nhắn |
 | `mentions` | Nhắc người trong NHÓM (chỉ áp dụng khi gửi vào nhóm): danh sách, mỗi mục {uid, name} (tìm «@name» trong tin) hoặc {uid, pos, len}; uid -1 = @Tất cả. Ví dụ: [{"uid": "123456", "name": "Nam"}] với tin «Chào @Nam» | không | Nhắc người trong NHÓM (chỉ áp dụng khi gửi vào nhóm): danh sách, mỗi mục {uid, name} (tìm «@name» trong tin) hoặc {uid, pos, len}; uid -1 = @Tất cả. Ví dụ: [{"uid": "123456", "name": "Nam"}] với tin «Chào @Nam» |
 | `format` | Định dạng chữ: plain (mặc định) hoặc markdown — **đậm**, *nghiêng*, __gạch chân__, ~~gạch ngang~~, # tiêu đề (to + đậm), - mục / 1. mục (danh sách), {red}chữ đỏ{/} {orange} {yellow} {green} (hoặc {đỏ} {cam} {vàng} {xanh}), {big}..{/} {small}..{/} | không | Định dạng chữ: plain (mặc định) hoặc markdown — **đậm**, *nghiêng*, __gạch chân__, ~~gạch ngang~~, # tiêu đề (to + đậm), - mục / 1. mục (danh sách), {red}chữ đỏ{/} {orange} {yellow} {green} (hoặc {đỏ} {cam} {vàng} {xanh}), {big}..{/} {small}..{/} |
@@ -899,7 +911,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `file` | Đường dẫn tệp trong HA hoặc URL | có | Đường dẫn file trên Home Assistant hoặc URL của file cần gửi. |
 | `message` | Chú thích kèm tệp/ảnh | không | Nội dung tin nhắn gửi kèm (tùy chọn) |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
@@ -934,7 +946,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `file` | Ảnh (đường dẫn trong HA hoặc URL) | có | Đường dẫn file ảnh trên Home Assistant |
 | `message` | Chú thích kèm tệp/ảnh | không | Nội dung tin nhắn gửi kèm ảnh (tùy chọn) |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
@@ -969,7 +981,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `file` | Ảnh (đường dẫn hoặc URL) | có | Đường dẫn ảnh |
 | `message` | Chú thích kèm tệp/ảnh | không | Nội dung tin nhắn |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
@@ -1003,7 +1015,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `files` | Các ảnh, cách nhau dấu phẩy. Gửi MỘT LÚC thành một album: ảnh jpg/png/webp từ 2 tấm trở lên gộp chung, GIF và tệp khác gửi rời | có | Danh sách paths (comma-separated) |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
 | `recall_after` | Tự thu hồi sau N giây (0 hoặc bỏ trống = không). Tin biến mất ở cả hai bên đúng giờ, nhưng Zalo để lại dòng «tin nhắn đã được thu hồi». Hẹn giờ nằm trong app nên vẫn chạy khi HA khởi động lại; tối đa 86400 giây (1 ngày) | không | Tự thu hồi sau N giây (0 hoặc bỏ trống = không). Tin biến mất ở cả hai bên đúng giờ, nhưng Zalo để lại dòng «tin nhắn đã được thu hồi». Hẹn giờ nằm trong app nên vẫn chạy khi HA khởi động lại; tối đa 86400 giây (1 ngày) |
@@ -1037,7 +1049,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `file` | Ảnh (đường dẫn hoặc URL) | có | Đường dẫn ảnh |
 | `message` | Chú thích kèm tệp/ảnh | không | Nội dung tin nhắn |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
@@ -1071,7 +1083,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `files` | Các ảnh, cách nhau dấu phẩy. Gửi MỘT LÚC thành một album: ảnh jpg/png/webp từ 2 tấm trở lên gộp chung, GIF và tệp khác gửi rời | có | Danh sách paths (comma-separated) |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
 | `recall_after` | Tự thu hồi sau N giây (0 hoặc bỏ trống = không). Tin biến mất ở cả hai bên đúng giờ, nhưng Zalo để lại dòng «tin nhắn đã được thu hồi». Hẹn giờ nằm trong app nên vẫn chạy khi HA khởi động lại; tối đa 86400 giây (1 ngày) | không | Tự thu hồi sau N giây (0 hoặc bỏ trống = không). Tin biến mất ở cả hai bên đúng giờ, nhưng Zalo để lại dòng «tin nhắn đã được thu hồi». Hẹn giờ nằm trong app nên vẫn chạy khi HA khởi động lại; tối đa 86400 giây (1 ngày) |
@@ -1103,7 +1115,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `msg_id` | ID tin nhắn | có | ID của tin nhắn cần thu hồi |
 | `cli_msg_id` | Client ID tin nhắn | không | cliMsgId của chính tin nhắn đó (Zalo cần cả hai mã mới thu hồi được). Sự kiện tin nhắn gửi về automation có sẵn trường này. Bỏ trống thì dùng lại msg_id, có trường hợp Zalo từ chối. |
 
@@ -1138,7 +1150,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `file` | Tệp âm thanh: đường dẫn trong HA, URL http(s):// hoặc media-source:// (bỏ trống nếu dùng «Chữ để đọc») | không | Tệp âm thanh: đường dẫn trong HA, URL http(s):// hoặc media-source://. Bỏ trống nếu dùng message |
 | `message` | Chữ để TTS của Home Assistant đọc thành tin thoại (thay cho tệp) | không | Chữ để TTS của Home Assistant đọc thành tin thoại (thay cho voice_path) |
 | `tts_entity` | Thực thể TTS dùng để đọc (bỏ trống = mặc định) | không | Thực thể TTS dùng để đọc (bỏ trống = TTS mặc định) |
@@ -1172,7 +1184,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `count` | Số tin (tối đa 1000) | không | Số lượng tin nhắn muốn lấy (mặc định 50, tối đa 1000) |
 
 **Các lựa chọn:**
@@ -1206,7 +1218,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `icon` | Icon (like/heart/haha/...) | có | Tên cảm xúc |
 | `msg_id` | ID tin nhắn | có | ID tin nhắn cần thả cảm xúc |
 | `cli_msg_id` | Client ID tin nhắn | có | ID client của tin nhắn |
@@ -1298,7 +1310,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `msg_id` | ID tin nhắn | có | ID tin nhắn cần xóa |
 | `cli_msg_id` | Client ID tin nhắn | không | ID client của tin nhắn |
 | `owner_id` | Mã người gửi tin (bỏ trống = tin của chính tài khoản; xoá tin người khác trong nhóm thì điền) | không | Mã người gửi tin (bỏ trống = tin của chính tài khoản; xoá tin người khác trong nhóm thì điền) |
@@ -1380,7 +1392,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `user_id` | UserId của danh thiếp | có | ID người dùng của danh thiếp |
 
 **Các lựa chọn:**
@@ -1413,7 +1425,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `link` | Đường link | có | URL cần gửi |
 | `message` | Lời nhắn kèm theo | không | Nội dung tin nhắn đi kèm |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
@@ -1440,12 +1452,9 @@ action: zalo_call.send_video
 data:
   thread_id: "5841349563795164131"  # bắt buộc - Mã hội thoại (threadId)
   type: "user"                      # tuỳ chọn - Loại hội thoại
-  file: "/config/www/video.mp4"     # bắt buộc - Video: đường dẫn trong HA (thư mục www hoặc media) hoặc URL 
-  thumbnail: ""                     # tuỳ chọn - Ảnh bìa: đường dẫn hoặc URL. Bỏ trống = tự tìm «…_thumb.jpg»
-  message: ""                       # tuỳ chọn - Chú thích kèm video (bỏ trống = không)
-  width: 1280                       # tuỳ chọn - Độ rộng (px). Bỏ trống = tự đo bằng ffprobe
-  height: 720                       # tuỳ chọn - Độ cao (px). Bỏ trống = tự đo bằng ffprobe
-  duration: 0                       # tuỳ chọn - Thời lượng (giây). Bỏ trống = tự đo bằng ffprobe
+  file: "/config/www/video.mp4"     # bắt buộc - Video: đường dẫn trong HA (thư mục được phép, ví dụ /media/…
+  thumbnail: ""                     # tuỳ chọn - Ảnh bìa JPEG: đường dẫn hoặc URL. Bỏ trống = khung hình đầu 
+  message: ""                       # tuỳ chọn - Chú thích nằm TRONG video (bỏ trống = không). Không cần gửi 
   ttl: 0                            # tuỳ chọn - Thời gian tự hủy (mili giây)
   recall_after: 0                   # tuỳ chọn - Tự thu hồi sau N giây (0 hoặc bỏ trống = không). Tin biến mấ
 ```
@@ -1453,13 +1462,10 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
-| `file` | Video: đường dẫn trong HA (thư mục www hoặc media) hoặc URL công khai. Gửi dạng video phát được trong chat; tệp trong HA được cấp địa chỉ công khai từ địa chỉ ngoài của HA (media có chữ ký hạn 1 giờ). Không có địa chỉ công khai thì gửi dạng tệp đính kèm | có | Đường dẫn file video trên Home Assistant hoặc URL của video cần gửi |
-| `thumbnail` | Ảnh bìa: đường dẫn hoặc URL. Bỏ trống = tự tìm «…_thumb.jpg» cạnh video, không có thì dùng chính video | không | URL thumbnail tùy chỉnh |
-| `message` | Chú thích kèm video (bỏ trống = không) | không | Tin nhắn kèm theo |
-| `width` | Độ rộng (px). Bỏ trống = tự đo bằng ffprobe | không | Chiều rộng video (pixels) |
-| `height` | Độ cao (px). Bỏ trống = tự đo bằng ffprobe | không | Chiều cao video (pixels) |
-| `duration` | Thời lượng (giây). Bỏ trống = tự đo bằng ffprobe | không | Thời gian tắt thông báo |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
+| `file` | Video: đường dẫn trong HA (thư mục được phép, ví dụ /media/…) hoặc URL. HA đọc nội dung video rồi app TẢI LÊN Zalo như zalo_bot cũ: xem được lâu dài, không phụ thuộc địa chỉ ngoài của HA. Kích thước, thời lượng và ảnh bìa (khung hình đầu của chính video) do app tự lấy | có | Đường dẫn file video trên Home Assistant hoặc URL của video cần gửi |
+| `thumbnail` | Ảnh bìa JPEG: đường dẫn hoặc URL. Bỏ trống = khung hình đầu của video (không tự lấy ảnh nằm cạnh tệp) | không | URL thumbnail tùy chỉnh |
+| `message` | Chú thích nằm TRONG video (bỏ trống = không). Không cần gửi thêm tin chữ riêng | không | Tin nhắn kèm theo |
 | `ttl` | Thời gian tự hủy (mili giây) | không | Thời gian tự hủy (milliseconds) |
 | `recall_after` | Tự thu hồi sau N giây (0 hoặc bỏ trống = không). Tin biến mất ở cả hai bên đúng giờ, nhưng Zalo để lại dòng «tin nhắn đã được thu hồi». Hẹn giờ nằm trong app nên vẫn chạy khi HA khởi động lại; tối đa 86400 giây (1 ngày) | không | Tự thu hồi sau N giây (0 hoặc bỏ trống = không). Tin biến mất ở cả hai bên đúng giờ, nhưng Zalo để lại dòng «tin nhắn đã được thu hồi». Hẹn giờ nằm trong app nên vẫn chạy khi HA khởi động lại; tối đa 86400 giây (1 ngày) |
 
@@ -1496,7 +1502,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `msg_id` | ID tin nhắn | có | ID của tin nhắn cần thu hồi |
 | `text` | Nội dung trích dẫn | có | Nội dung trích dẫn |
 | `qmsg_owner` | UID người gửi tin gốc | có | UID người gửi tin gốc |
@@ -1532,7 +1538,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `msg_ids` | ID tin nhắn (cách nhau bằng dấu phẩy) | có | ID tin nhắn (cách nhau bằng dấu phẩy) |
 
 **Các lựa chọn:**
@@ -1560,7 +1566,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -2172,7 +2178,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -2200,7 +2206,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `member_id` | UserId (cách nhau bằng dấu phẩy) | có | Member ID (comma-separated for multiple) |
 
 **Các lựa chọn:**
@@ -2231,7 +2237,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `member_id` | UserId (cách nhau bằng dấu phẩy) | có | Member ID (comma-separated for multiple) |
 
 **Các lựa chọn:**
@@ -2260,7 +2266,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `name` | Tên mới | có | Tên mới của nhóm |
 
 **Các lựa chọn:**
@@ -2291,7 +2297,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `file` | Ảnh đại diện (upload file) | có | Đường dẫn đến ảnh mới |
 | `width` | Chiều rộng ảnh | không | Chiều rộng video (pixels) |
 | `height` | Chiều cao ảnh | không | Chiều cao video (pixels) |
@@ -2324,7 +2330,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `member_id` | UserId | có | ID thành viên cần thêm làm phó nhóm |
 
 **Các lựa chọn:**
@@ -2355,7 +2361,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `member_id` | UserId | có | ID thành viên cần xóa quyền phó nhóm |
 
 **Các lựa chọn:**
@@ -2386,7 +2392,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `member_id` | UserId chủ mới | có | ID thành viên được chuyển quyền sở hữu |
 
 **Các lựa chọn:**
@@ -2416,7 +2422,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -2445,7 +2451,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -2474,7 +2480,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -2525,7 +2531,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `silent` | Rời lặng lẽ (true/false) | không | Rời nhóm trong im lặng |
 
 **Các lựa chọn:**
@@ -2555,7 +2561,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `title` | Tiêu đề ghi chú | có | Tiêu đề ghi chú |
 | `pin_act` | Ghim (true/false) | không | Ghim ghi chú |
 
@@ -2587,7 +2593,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `topic_id` | ID ghi chú | có | ID của ghi chú |
 | `title` | Tiêu đề mới | có | Nội dung ghi chú mới |
 | `pin_act` | Ghim (true/false) | không | Ghim ghi chú |
@@ -2617,7 +2623,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -2651,7 +2657,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `question` | Câu hỏi | có | Câu hỏi bình chọn |
 | `options` | Lựa chọn (cách nhau bằng dấu phẩy) | có | Các lựa chọn (phân cách bởi dấu phẩy) |
 | `allow_multi_choices` | Cho chọn nhiều (true/false) | không | Cho phép chọn nhiều lựa chọn |
@@ -2678,22 +2684,12 @@ Lấy thông tin chi tiết của một cuộc bình chọn
 ```yaml
 action: zalo_call.get_poll_detail
 data:
-  thread_id: "5841349563795164131"  # bắt buộc - Mã hội thoại (threadId)
-  type: "user"                      # tuỳ chọn - Loại hội thoại
-  poll_id: 123456789                # bắt buộc - ID bình chọn
+  poll_id: 123456789  # bắt buộc - ID bình chọn
 ```
 
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
-| `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
 | `poll_id` | ID bình chọn | có | ID số của cuộc bình chọn (zca-js) |
-
-**Các lựa chọn:**
-
-- **Loại hội thoại** (`type`)
-  - `user`: trò chuyện 1-1 với một người
-  - `group`: nhóm
 
 ---
 
@@ -2707,22 +2703,12 @@ Khóa một cuộc bình chọn
 ```yaml
 action: zalo_call.lock_poll
 data:
-  thread_id: "5841349563795164131"  # bắt buộc - Mã hội thoại (threadId)
-  type: "user"                      # tuỳ chọn - Loại hội thoại
-  poll_id: "123456789"              # bắt buộc - ID bình chọn
+  poll_id: "123456789"  # bắt buộc - ID bình chọn
 ```
 
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
-| `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
 | `poll_id` | ID bình chọn | có | ID của cuộc bình chọn |
-
-**Các lựa chọn:**
-
-- **Loại hội thoại** (`type`)
-  - `user`: trò chuyện 1-1 với một người
-  - `group`: nhóm
 
 ---
 
@@ -2743,7 +2729,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -2774,7 +2760,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `poll_id` | ID bình chọn | có | ID số của cuộc bình chọn (zca-js) |
 | `option_ids` | ID lựa chọn (cách nhau bằng dấu phẩy) | có | ID lựa chọn (cách nhau bằng dấu phẩy) |
 
@@ -2810,7 +2796,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `sticker_id` | Sticker ID | không | ID số của sticker (zca-js) |
 | `cate_id` | Cate ID | không | Cate ID |
 | `sticker_type` | Type | không | Type |
@@ -2888,7 +2874,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `title` | Tiêu đề | có | Tiêu đề nhắc nhở |
 | `content` | Nội dung | không | Nội dung nhắc nhở |
 | `remind_time` | Thời gian nhắc (ISO-8601 hoặc epoch) | có | Thời gian nhắc nhở (timestamp) |
@@ -2919,7 +2905,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `reminder_id` | ID nhắc hẹn | có | ID của nhắc nhở cần xóa |
 
 **Các lựa chọn:**
@@ -2950,7 +2936,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `topic_id` | ID nhắc hẹn | có | ID của nhắc hẹn |
 | `title` | Tiêu đề mới | có | Tiêu đề mới |
 | `remind_time` | Thời gian nhắc mới | không | Thời gian nhắc nhở (timestamp) |
@@ -2999,7 +2985,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -3130,7 +3116,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `duration` | Thời lượng giây (3600/14400/-1=vĩnh viễn/0=bật lại) | có | Thời gian tắt thông báo |
 
 **Các lựa chọn:**
@@ -3164,7 +3150,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `pinned` | Ghim (true/false) | có | Ghim hay bỏ ghim |
 
 **Các lựa chọn:**
@@ -3205,7 +3191,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -3232,7 +3218,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -3263,7 +3249,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `cli_msg_id` | Client ID tin cuối | không | cliMsgId của chính tin nhắn đó (Zalo cần cả hai mã mới thu hồi được). Sự kiện tin nhắn gửi về automation có sẵn trường này. Bỏ trống thì dùng lại msg_id, có trường hợp Zalo từ chối. |
 | `conver` | Conver của tin cuối | không | Conver của tin cuối |
 
@@ -3319,7 +3305,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `ttl` | TTL (0=tắt, 86400000=1 ngày, 604800000=7 ngày) | có | Thời gian tự xóa |
 
 **Các lựa chọn:**
@@ -3365,7 +3351,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 | `hidden` | Ẩn (true/false) | có | Ẩn hoặc hiện cuộc trò chuyện |
 
 **Các lựa chọn:**
@@ -3470,7 +3456,7 @@ data:
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
 |---|---|---|---|
 | `thread_id` | Mã hội thoại (threadId) | có | UserId (1-1) hoặc GroupId (nhóm). |
-| `type` | Loại hội thoại | không | user = 1-1, group = nhóm. |
+| `type` | Loại hội thoại | không | user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ). |
 
 **Các lựa chọn:**
 
@@ -3506,7 +3492,7 @@ data:
 <a id="decrypt_gids"></a>
 #### decryptGids — `zalo_call.decrypt_gids`
 
-decryptGids — Giải mã danh sách Global ID (g_...) ẩn danh thành User ID thật (tương ứng hàm getUidFromGlobalNoiseId / command 12054 trên Zalo PC)
+decryptGids — Giải mã danh sách Global ID (g_...) ẩn danh thành User ID thật (tương ứng hàm getUidFromGlobalNoiseId / command 12054 trên Zalo PC) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3525,7 +3511,7 @@ data:
 <a id="encrypt_gids"></a>
 #### encryptGids — `zalo_call.encrypt_gids`
 
-encryptGids — Mã hóa danh sách UID thật sang định danh ẩn danh Global Noise ID (OTDAKO...) (command 12053)
+encryptGids — Mã hóa danh sách UID thật sang định danh ẩn danh Global Noise ID (OTDAKO...) (command 12053) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3544,7 +3530,7 @@ data:
 <a id="export_session"></a>
 #### exportSession — `zalo_call.export_session`
 
-exportSession — Xuất toàn bộ thông tin phiên đăng nhập hiện tại (uid, imei, userAgent, language, cookie) dưới định dạng chuẩn Credentials để lưu trữ (JSON/Database) và truyền trực tiếp vào zalo.login(session). (chưa tự động: khong dung dich
+exportSession — Xuất toàn bộ thông tin phiên đăng nhập hiện tại (uid, imei, userAgent, language, cookie) dưới định dạng chuẩn Credentials để lưu trữ (JSON/Database) và truyền trực tiếp vào zalo.login( (chưa tự động: khong dung dich vu Zalo
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3583,7 +3569,7 @@ action: zalo_call.get_cookie
 <a id="get_list_device"></a>
 #### getListDevice — `zalo_call.get_list_device`
 
-getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại.
+getListDevice — Lấy danh sách các thiết bị đang đăng nhập tài khoản Zalo hiện tại. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3596,7 +3582,7 @@ action: zalo_call.get_list_device
 <a id="get_noised_ids"></a>
 #### getNoisedIds — `zalo_call.get_noised_ids`
 
-getNoisedIds — Chuyển đổi danh sách UID cá nhân (fids) và GID nhóm (gids) dạng số thuần (từ SQLite ZDB4.0 mobile) sang định dạng Noised ID 19 chữ số dùng trên Zalo Web/PC (getNoisedUids, command 12390). Tự động fallback sang https://zwid.ap
+getNoisedIds — Chuyển đổi danh sách UID cá nhân (fids) và GID nhóm (gids) dạng số thuần (từ SQLite ZDB4.0 mobile) sang định dạng Noised ID 19 chữ số dùng trên Zalo Web/PC (getNoisedUids, command 12390 (chưa tự động: goi 2 request (nhieu buo
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3622,7 +3608,7 @@ action: zalo_call.get_own_id
 <a id="get_q_r"></a>
 #### getQR — `zalo_call.get_q_r`
 
-getQR — Lấy mã QR của danh sách người dùng theo UID.
+getQR — Lấy mã QR của danh sách người dùng theo UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3641,7 +3627,7 @@ data:
 <a id="lost_focus"></a>
 #### lostFocus — `zalo_call.lost_focus`
 
-lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background).
+lostFocus — Gửi tín hiệu thông báo ứng dụng chuyển sang chế độ chạy nền (Background). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3654,7 +3640,7 @@ action: zalo_call.lost_focus
 <a id="scan_u_r_l"></a>
 #### scanURL — `zalo_call.scan_u_r_l`
 
-scanURL — Quét và kiểm tra độ an toàn của đường dẫn URL thông qua bộ lọc bảo mật Zalo.
+scanURL — Quét và kiểm tra độ an toàn của đường dẫn URL thông qua bộ lọc bảo mật Zalo. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3686,7 +3672,7 @@ action: zalo_call.update_active_status
 <a id="update_lang"></a>
 #### updateLang — `zalo_call.update_lang`
 
-updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo.
+updateLang — Cập nhật ngôn ngữ hiển thị của phiên tài khoản Zalo. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3709,7 +3695,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-getBlockSharingConversations — Lấy danh sách hội thoại đang bật chế độ chặn chia sẻ / chuyển tiếp tin nhắn (command 12178) (không hoàn tác được)
+getBlockSharingConversations — Lấy danh sách hội thoại đang bật chế độ chặn chia sẻ / chuyển tiếp tin nhắn (command 12178) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3728,7 +3714,7 @@ data:
 <a id="get_conv_offline_messages"></a>
 #### getConvOfflineMessages — `zalo_call.get_conv_offline_messages`
 
-getConvOfflineMessages — Lấy danh sách hội thoại nhóm có tin nhắn ngoại tuyến mới (command 12300)
+getConvOfflineMessages — Lấy danh sách hội thoại nhóm có tin nhắn ngoại tuyến mới (command 12300) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3751,7 +3737,7 @@ data:
 <a id="get_direct_message_status"></a>
 #### getDirectMessageStatus — `zalo_call.get_direct_message_status`
 
-getDirectMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn trong các hội thoại cá nhân 1-1 (command 12016)
+getDirectMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn trong các hội thoại cá nhân 1-1 (command 12016) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3772,7 +3758,7 @@ data:
 <a id="get_last_seen"></a>
 #### getLastSeen — `zalo_call.get_last_seen`
 
-getLastSeen — Lấy thông tin trạng thái đã xem cuối cùng của danh sách nhóm và cá nhân (command 12009)
+getLastSeen — Lấy thông tin trạng thái đã xem cuối cùng của danh sách nhóm và cá nhân (command 12009) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3795,7 +3781,7 @@ data:
 <a id="get_last_seen_reaction"></a>
 #### getLastSeenReaction — `zalo_call.get_last_seen_reaction`
 
-getLastSeenReaction — Lấy trạng thái đã xem cảm xúc (Reaction) cuối cùng của danh sách nhóm và cá nhân (command 12450)
+getLastSeenReaction — Lấy trạng thái đã xem cảm xúc (Reaction) cuối cùng của danh sách nhóm và cá nhân (command 12450) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3818,7 +3804,7 @@ data:
 <a id="get_recent_search_list"></a>
 #### getRecentSearchList — `zalo_call.get_recent_search_list`
 
-getRecentSearchList — Lấy danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12125)
+getRecentSearchList — Lấy danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12125) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3837,7 +3823,7 @@ data:
 <a id="get_suggested_conversations"></a>
 #### getSuggestedConversations — `zalo_call.get_suggested_conversations`
 
-getSuggestedConversations — Lấy danh sách các cuộc hội thoại được gợi ý (command 11233)
+getSuggestedConversations — Lấy danh sách các cuộc hội thoại được gợi ý (command 11233) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3858,7 +3844,7 @@ data:
 <a id="get_translate_setting"></a>
 #### getTranslateSetting — `zalo_call.get_translate_setting`
 
-getTranslateSetting — Lấy cấu hình tính năng dịch tin nhắn tự động bằng Zalo AI (command 13395)
+getTranslateSetting — Lấy cấu hình tính năng dịch tin nhắn tự động bằng Zalo AI (command 13395) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3871,7 +3857,7 @@ action: zalo_call.get_translate_setting
 <a id="mark_sub_tab_seen"></a>
 #### markSubTabSeen — `zalo_call.mark_sub_tab_seen`
 
-markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214)
+markSubTabSeen — Đánh dấu đã xem các tab phụ của danh sách hội thoại (command 16214) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3892,7 +3878,7 @@ data:
 <a id="preload_conversations"></a>
 #### preloadConversations — `zalo_call.preload_conversations`
 
-preloadConversations — Tải trước tin nhắn cuối cùng và trạng thái đã đọc của các hội thoại đang hoạt động (command 10053).
+preloadConversations — Tải trước tin nhắn cuối cùng và trạng thái đã đọc của các hội thoại đang hoạt động (command 10053). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3913,7 +3899,7 @@ data:
 <a id="renew_message_link"></a>
 #### renewMessageLink — `zalo_call.renew_message_link`
 
-renewMessageLink — Gia hạn đường dẫn tải tệp đính kèm / đa phương tiện đã hết hạn trong tin nhắn (command 12094)
+renewMessageLink — Gia hạn đường dẫn tải tệp đính kèm / đa phương tiện đã hết hạn trong tin nhắn (command 12094) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -3944,7 +3930,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-sendBankCard — Gửi danh thiếp thông tin tài khoản ngân hàng (Bank Card) vào cuộc trò chuyện. (không hoàn tác được)
+sendBankCard — Gửi danh thiếp thông tin tài khoản ngân hàng (Bank Card) vào cuộc trò chuyện. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4016,7 +4002,7 @@ action: zalo_call.send_seen_event
 <a id="set_pinned_conversations"></a>
 #### setPinnedConversations — `zalo_call.set_pinned_conversations`
 
-setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách.
+setPinnedConversations — Ghim hoặc bỏ ghim cuộc trò chuyện lên đầu danh sách. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4047,7 +4033,7 @@ data:
 <a id="translate_message"></a>
 #### translateMessage — `zalo_call.translate_message`
 
-translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397)
+translateMessage — Dịch thủ công một tin nhắn văn bản bằng Zalo AI (command 13397) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4088,7 +4074,7 @@ data:
 <a id="translate_message_auto"></a>
 #### translateMessageAuto — `zalo_call.translate_message_auto`
 
-translateMessageAuto — Gửi yêu cầu dịch tự động hàng loạt tin nhắn đến bằng Zalo AI (command 13398). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener.on("translate_event", ...).
+translateMessageAuto — Gửi yêu cầu dịch tự động hàng loạt tin nhắn đến bằng Zalo AI (command 13398). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4125,7 +4111,7 @@ data:
 <a id="translate_message_suggest"></a>
 #### translateMessageSuggest — `zalo_call.translate_message_suggest`
 
-translateMessageSuggest — Gửi yêu cầu dịch gợi ý tin nhắn đang soạn thảo bằng Zalo AI (command 13399). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listener.on("translate_event", ...).
+translateMessageSuggest — Gửi yêu cầu dịch gợi ý tin nhắn đang soạn thảo bằng Zalo AI (command 13399). Kết quả dịch bất đồng bộ có thể được đẩy về qua sự kiện api.listene [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4206,7 +4192,7 @@ data:
 <a id="update_archived_chat_list"></a>
 #### updateArchivedChatList — `zalo_call.update_archived_chat_list`
 
-updateArchivedChatList — Đưa cuộc trò chuyện vào mục Lưu trữ (Archive) hoặc khôi phục ra ngoài.
+updateArchivedChatList — Đưa cuộc trò chuyện vào mục Lưu trữ (Archive) hoặc khôi phục ra ngoài. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4231,7 +4217,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-updateBlockSharingConversation — Bật hoặc tắt chế độ chặn chia sẻ / chuyển tiếp tin nhắn trong một hội thoại (command 12179) (không hoàn tác được)
+updateBlockSharingConversation — Bật hoặc tắt chế độ chặn chia sẻ / chuyển tiếp tin nhắn trong một hội thoại (command 12179) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4273,7 +4259,7 @@ action: zalo_call.update_pin_conversations
 <a id="update_recent_search"></a>
 #### updateRecentSearch — `zalo_call.update_recent_search`
 
-updateRecentSearch — Cập nhật danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12126)
+updateRecentSearch — Cập nhật danh sách lịch sử tìm kiếm gần đây trên Zalo (command 12126) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4341,7 +4327,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-addGroupBlockedMember — Chặn một hoặc nhiều thành viên khỏi nhóm (không cho tham gia lại). (không hoàn tác được)
+addGroupBlockedMember — Chặn một hoặc nhiều thành viên khỏi nhóm (không cho tham gia lại). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4364,7 +4350,7 @@ data:
 <a id="analyse_group"></a>
 #### analyseGroup — `zalo_call.analyse_group`
 
-analyseGroup — Lấy dữ liệu phân tích/thống kê của nhóm qua /api/group/analyse (command 12407)
+analyseGroup — Lấy dữ liệu phân tích/thống kê của nhóm qua /api/group/analyse (command 12407) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4385,7 +4371,7 @@ data:
 <a id="check_quota_community_member"></a>
 #### checkQuotaCommunityMember — `zalo_call.check_quota_community_member`
 
-checkQuotaCommunityMember — Kiểm tra điều kiện/hạn mức thành viên Cộng đồng đối với một thành viên cụ thể trong nhóm (command 12182)
+checkQuotaCommunityMember — Kiểm tra điều kiện/hạn mức thành viên Cộng đồng đối với một thành viên cụ thể trong nhóm (command 12182) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4410,7 +4396,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm. (không hoàn tác được)
+deleteGroupInviteBox — Xóa lời mời tham gia nhóm trong hộp thư lời mời nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4435,7 +4421,7 @@ data:
 <a id="get_e2ee_group_list"></a>
 #### getE2eeGroupList — `zalo_call.get_e2ee_group_list`
 
-getE2eeGroupList — Lấy danh sách các nhóm đang bật mã hóa đầu cuối E2EE (command 12146)
+getE2eeGroupList — Lấy danh sách các nhóm đang bật mã hóa đầu cuối E2EE (command 12146) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4448,7 +4434,7 @@ action: zalo_call.get_e2ee_group_list
 <a id="get_extra_group_info"></a>
 #### getExtraGroupInfo — `zalo_call.get_extra_group_info`
 
-getExtraGroupInfo — Lấy ngữ cảnh và vai trò mở rộng của người dùng đối với nhiều nhóm (command 12607)
+getExtraGroupInfo — Lấy ngữ cảnh và vai trò mở rộng của người dùng đối với nhiều nhóm (command 12607) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4471,7 +4457,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm. (không hoàn tác được)
+getGroupBlockedMember — Lấy danh sách các tài khoản đang bị chặn khỏi nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4496,7 +4482,7 @@ data:
 <a id="get_group_cloud_message_jump"></a>
 #### getGroupCloudMessageJump — `zalo_call.get_group_cloud_message_jump`
 
-getGroupCloudMessageJump — Nhảy tới vị trí một tin nhắn nhóm cụ thể trên Zalo Cloud Message và lấy ngữ cảnh xung quanh (command 12508)
+getGroupCloudMessageJump — Nhảy tới vị trí một tin nhắn nhóm cụ thể trên Zalo Cloud Message và lấy ngữ cảnh xung quanh (command 12508) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4525,7 +4511,7 @@ data:
 <a id="get_group_cloud_message_path"></a>
 #### getGroupCloudMessagePath — `zalo_call.get_group_cloud_message_path`
 
-getGroupCloudMessagePath — Lấy chuỗi tin nhắn nhóm theo đường dẫn nhảy tới một tin nhắn cụ thể (globalMsgId / rGlobalMsgId) qua /api/cm/getpath (command 12504)
+getGroupCloudMessagePath — Lấy chuỗi tin nhắn nhóm theo đường dẫn nhảy tới một tin nhắn cụ thể (globalMsgId / rGlobalMsgId) qua /api/cm/getpath (command 12504) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4571,7 +4557,7 @@ action: zalo_call.get_group_info_v2
 <a id="get_group_invite_box_info"></a>
 #### getGroupInviteBoxInfo — `zalo_call.get_group_invite_box_info`
 
-getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể.
+getGroupInviteBoxInfo — Lấy thông tin chi tiết của một lời mời vào nhóm cụ thể. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4594,7 +4580,7 @@ data:
 <a id="get_group_invite_box_list"></a>
 #### getGroupInviteBoxList — `zalo_call.get_group_invite_box_list`
 
-getGroupInviteBoxList — Lấy danh sách tất cả lời mời tham gia nhóm đang chờ trong hộp thư.
+getGroupInviteBoxList — Lấy danh sách tất cả lời mời tham gia nhóm đang chờ trong hộp thư. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4621,7 +4607,7 @@ data:
 <a id="get_group_link_info"></a>
 #### getGroupLinkInfo — `zalo_call.get_group_link_info`
 
-getGroupLinkInfo — Tra cứu thông tin nhóm và danh sách thành viên theo trang từ đường dẫn nhóm công khai (https://zalo.me/g/...).
+getGroupLinkInfo — Tra cứu thông tin nhóm và danh sách thành viên theo trang từ đường dẫn nhóm công khai (https://zalo.me/g/...). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4642,7 +4628,7 @@ data:
 <a id="get_group_list_v3"></a>
 #### getGroupListV3 — `zalo_call.get_group_list_v3`
 
-getGroupListV3 — Lấy danh sách nhóm theo trang kèm thông tin thành viên đại diện (currentMems) và gợi ý nhóm (suggestGroup) qua /api/group/getlg/v3 (command 11161)
+getGroupListV3 — Lấy danh sách nhóm theo trang kèm thông tin thành viên đại diện (currentMems) và gợi ý nhóm (suggestGroup) qua /api/group/getlg/v3 (command 11161) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4663,7 +4649,7 @@ data:
 <a id="get_group_members_info"></a>
 #### getGroupMembersInfo — `zalo_call.get_group_members_info`
 
-getGroupMembersInfo — Giải mã hàng loạt thông tin hồ sơ thành viên (displayName, zaloName, avatar, globalId) từ danh sách UID qua /api/social/group/members.
+getGroupMembersInfo — Giải mã hàng loạt thông tin hồ sơ thành viên (displayName, zaloName, avatar, globalId) từ danh sách UID qua /api/social/group/members. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4684,7 +4670,7 @@ data:
 <a id="get_group_message_status"></a>
 #### getGroupMessageStatus — `zalo_call.get_group_message_status`
 
-getGroupMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn của danh sách thành viên trong nhóm (command 12017)
+getGroupMessageStatus — Truy vấn trạng thái Đã nhận (deliver) và Đã xem (seen) tin nhắn của danh sách thành viên trong nhóm (command 12017) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4707,7 +4693,7 @@ data:
 <a id="get_multi_group_cloud_messages"></a>
 #### getMultiGroupCloudMessages — `zalo_call.get_multi_group_cloud_messages`
 
-getMultiGroupCloudMessages — Đồng bộ nhanh tin nhắn Cloud của nhiều nhóm cùng lúc theo danh sách groupIds (command 12503 - syncCloudMsgFirstLogin)
+getMultiGroupCloudMessages — Đồng bộ nhanh tin nhắn Cloud của nhiều nhóm cùng lúc theo danh sách groupIds (command 12503 - syncCloudMsgFirstLogin) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4730,7 +4716,7 @@ data:
 <a id="get_pending_group_members"></a>
 #### getPendingGroupMembers — `zalo_call.get_pending_group_members`
 
-getPendingGroupMembers — Lấy danh sách các yêu cầu xin vào nhóm đang chờ Quản trị viên phê duyệt.
+getPendingGroupMembers — Lấy danh sách các yêu cầu xin vào nhóm đang chờ Quản trị viên phê duyệt. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4749,7 +4735,7 @@ data:
 <a id="get_quota_community"></a>
 #### getQuotaCommunity — `zalo_call.get_quota_community`
 
-getQuotaCommunity — Kiểm tra hạn mức nâng cấp nhóm lên Cộng đồng của tài khoản (command 12181)
+getQuotaCommunity — Kiểm tra hạn mức nâng cấp nhóm lên Cộng đồng của tài khoản (command 12181) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4772,7 +4758,7 @@ data:
 <a id="get_related_friend_group"></a>
 #### getRelatedFriendGroup — `zalo_call.get_related_friend_group`
 
-getRelatedFriendGroup — Kiểm tra danh sách các nhóm chung giữa tài khoản hiện tại và danh sách UID truyền vào qua /api/friend/group/related.
+getRelatedFriendGroup — Kiểm tra danh sách các nhóm chung giữa tài khoản hiện tại và danh sách UID truyền vào qua /api/friend/group/related. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4793,7 +4779,7 @@ data:
 <a id="invite_user_to_groups"></a>
 #### inviteUserToGroups — `zalo_call.invite_user_to_groups`
 
-inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng.
+inviteUserToGroups — Gửi lời mời tham gia một hoặc nhiều nhóm tới người dùng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4816,7 +4802,7 @@ data:
 <a id="join_group_invite_box"></a>
 #### joinGroupInviteBox — `zalo_call.join_group_invite_box`
 
-joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời.
+joinGroupInviteBox — Chấp nhận lời mời tham gia nhóm từ hộp thư lời mời. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4837,7 +4823,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-removeGroupBlockedMember — Gỡ chặn (Unblock) cho người dùng khỏi danh sách chặn của nhóm. (không hoàn tác được)
+removeGroupBlockedMember — Gỡ chặn (Unblock) cho người dùng khỏi danh sách chặn của nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4862,7 +4848,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829) (không hoàn tác được)
+removeGroupTopic — Xóa chủ đề đang ghim trên đầu nhóm (command 11829) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4887,7 +4873,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606) (không hoàn tác được)
+removeUserFromGroups — Xóa một thành viên khỏi nhiều nhóm cùng lúc (command 12606) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4914,7 +4900,7 @@ data:
 <a id="review_pending_member_request"></a>
 #### reviewPendingMemberRequest — `zalo_call.review_pending_member_request`
 
-reviewPendingMemberRequest — Phê duyệt (Chấp nhận hoặc Từ chối) yêu cầu xin tham gia nhóm của thành viên mới.
+reviewPendingMemberRequest — Phê duyệt (Chấp nhận hoặc Từ chối) yêu cầu xin tham gia nhóm của thành viên mới. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4937,7 +4923,7 @@ data:
 <a id="update_group_settings"></a>
 #### updateGroupSettings — `zalo_call.update_group_settings`
 
-updateGroupSettings — Cập nhật các thiết lập quyền hạn của nhóm (ẩn thành viên lockViewMember, duyệt thành viên joinAppr, khóa nhắn tin lockSendMsg...).
+updateGroupSettings — Cập nhật các thiết lập quyền hạn của nhóm (ẩn thành viên lockViewMember, duyệt thành viên joinAppr, khóa nhắn tin lockSendMsg...). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4960,7 +4946,7 @@ data:
 <a id="upgrade_group_to_community"></a>
 #### upgradeGroupToCommunity — `zalo_call.upgrade_group_to_community`
 
-upgradeGroupToCommunity — Nâng cấp nhóm thường lên Cộng đồng (Community - tối đa 1000 thành viên).
+upgradeGroupToCommunity — Nâng cấp nhóm thường lên Cộng đồng (Community - tối đa 1000 thành viên). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -4983,7 +4969,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-clearUnreadFriendRequests — Đánh dấu đã xem danh sách lời mời kết bạn chưa đọc (command 12232) (không hoàn tác được)
+clearUnreadFriendRequests — Đánh dấu đã xem danh sách lời mời kết bạn chưa đọc (command 12232) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5004,7 +4990,7 @@ data:
 <a id="find_user_by_username"></a>
 #### findUserByUsername — `zalo_call.find_user_by_username`
 
-findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username.
+findUserByUsername — Tìm kiếm thông tin tài khoản Zalo thông qua Username. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5025,7 +5011,7 @@ data:
 <a id="get_alias_list"></a>
 #### getAliasList — `zalo_call.get_alias_list`
 
-getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè.
+getAliasList — Lấy danh sách toàn bộ tên gợi nhớ (Alias) đã đặt cho bạn bè. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5046,7 +5032,7 @@ data:
 <a id="get_alias_list_v2"></a>
 #### getAliasListV2 — `zalo_call.get_alias_list_v2`
 
-getAliasListV2 — Lấy danh sách tên gợi nhớ (Alias) của bạn bè chuẩn V2 có hỗ trợ phân trang (command 12205)
+getAliasListV2 — Lấy danh sách tên gợi nhớ (Alias) của bạn bè chuẩn V2 có hỗ trợ phân trang (command 12205) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5069,7 +5055,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429) (không hoàn tác được)
+getBlockFriends — Lấy danh sách người dùng đang bị chặn chuẩn V2 (command 11429) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5094,7 +5080,7 @@ data:
 <a id="get_close_friends"></a>
 #### getCloseFriends — `zalo_call.get_close_friends`
 
-getCloseFriends — Lấy danh sách bạn thân (Close Friends).
+getCloseFriends — Lấy danh sách bạn thân (Close Friends). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5107,7 +5093,7 @@ action: zalo_call.get_close_friends
 <a id="get_extra_friend_info"></a>
 #### getExtraFriendInfo — `zalo_call.get_extra_friend_info`
 
-getExtraFriendInfo — Lấy ngữ cảnh và vai trò mở rộng (ví dụ role: ["boss"]) của danh sách bạn bè (command 11442)
+getExtraFriendInfo — Lấy ngữ cảnh và vai trò mở rộng (ví dụ role: ["boss"]) của danh sách bạn bè (command 11442) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5126,7 +5112,7 @@ data:
 <a id="get_friend_board_list"></a>
 #### getFriendBoardList — `zalo_call.get_friend_board_list`
 
-getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn.
+getFriendBoardList — Lấy thông tin bảng tin chung với một người bạn. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5145,7 +5131,7 @@ data:
 <a id="get_friend_onlines"></a>
 #### getFriendOnlines — `zalo_call.get_friend_onlines`
 
-getFriendOnlines — Lấy danh sách bạn bè đang trực tuyến (Online) kèm trạng thái thiết bị.
+getFriendOnlines — Lấy danh sách bạn bè đang trực tuyến (Online) kèm trạng thái thiết bị. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5158,7 +5144,7 @@ action: zalo_call.get_friend_onlines
 <a id="get_friend_recommendations"></a>
 #### getFriendRecommendations — `zalo_call.get_friend_recommendations`
 
-getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận.
+getFriendRecommendations — Lấy danh sách gợi ý kết bạn và lời mời kết bạn đã nhận. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5171,7 +5157,7 @@ action: zalo_call.get_friend_recommendations
 <a id="get_friend_request_status"></a>
 #### getFriendRequestStatus — `zalo_call.get_friend_request_status`
 
-getFriendRequestStatus — Kiểm tra trạng thái quan hệ bạn bè và lời mời kết bạn với một UID.
+getFriendRequestStatus — Kiểm tra trạng thái quan hệ bạn bè và lời mời kết bạn với một UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5190,7 +5176,7 @@ data:
 <a id="get_friends_active_p_c_web"></a>
 #### getFriendsActivePCWeb — `zalo_call.get_friends_active_p_c_web`
 
-getFriendsActivePCWeb — Lấy danh sách bạn bè đang hoạt động trên Zalo PC / Web qua /api/social/friend/active-pcweb (command 12072)
+getFriendsActivePCWeb — Lấy danh sách bạn bè đang hoạt động trên Zalo PC / Web qua /api/social/friend/active-pcweb (command 12072) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5203,7 +5189,7 @@ action: zalo_call.get_friends_active_p_c_web
 <a id="get_friends_emoji_status"></a>
 #### getFriendsEmojiStatus — `zalo_call.get_friends_emoji_status`
 
-getFriendsEmojiStatus — Lấy danh sách trạng thái Emoji (Emoji Status) hiện tại của bạn bè (command 16301)
+getFriendsEmojiStatus — Lấy danh sách trạng thái Emoji (Emoji Status) hiện tại của bạn bè (command 16301) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5228,7 +5214,7 @@ data:
 <a id="get_last_read_contact_tab"></a>
 #### getLastReadContactTab — `zalo_call.get_last_read_contact_tab`
 
-getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230)
+getLastReadContactTab — Lấy dấu thời gian lần cuối đọc tab Danh bạ (command 12230) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5241,7 +5227,7 @@ action: zalo_call.get_last_read_contact_tab
 <a id="get_multi_user_q_r_codes"></a>
 #### getMultiUserQRCodes — `zalo_call.get_multi_user_q_r_codes`
 
-getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128)
+getMultiUserQRCodes — Lấy mã QR cá nhân của một hoặc nhiều người dùng (command 12128) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5262,7 +5248,7 @@ data:
 <a id="get_multi_users_by_phones"></a>
 #### getMultiUsersByPhones — `zalo_call.get_multi_users_by_phones`
 
-getMultiUsersByPhones — Tra cứu hàng loạt thông tin tài khoản Zalo từ danh sách nhiều số điện thoại cùng lúc.
+getMultiUsersByPhones — Tra cứu hàng loạt thông tin tài khoản Zalo từ danh sách nhiều số điện thoại cùng lúc. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5283,7 +5269,7 @@ data:
 <a id="get_phonebook_v2"></a>
 #### getPhonebookV2 — `zalo_call.get_phonebook_v2`
 
-getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428)
+getPhonebookV2 — Lấy danh bạ bạn bè đồng bộ từ số điện thoại chuẩn V2 (command 12428) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5302,7 +5288,7 @@ data:
 <a id="read_contact_tab"></a>
 #### readContactTab — `zalo_call.read_contact_tab`
 
-readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231)
+readContactTab — Đánh dấu đã đọc tab Danh bạ (command 12231) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5323,7 +5309,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-removeFriendRecommendation — Xóa một gợi ý kết bạn khỏi danh sách đề xuất (command 11432) (không hoàn tác được)
+removeFriendRecommendation — Xóa một gợi ý kết bạn khỏi danh sách đề xuất (command 11432) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5348,7 +5334,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-removeFriendRecommendationV2 — Xóa một gợi ý kết bạn khỏi danh sách đề xuất V2 (command 11438) (không hoàn tác được)
+removeFriendRecommendationV2 — Xóa một gợi ý kết bạn khỏi danh sách đề xuất V2 (command 11438) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5379,7 +5365,7 @@ data:
 <a id="update_close_friend"></a>
 #### updateCloseFriend — `zalo_call.update_close_friend`
 
-updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421)
+updateCloseFriend — Thêm hoặc xóa người dùng khỏi danh sách Bạn thân (command 11421) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5402,7 +5388,7 @@ data:
 <a id="verify_friend"></a>
 #### verifyFriend — `zalo_call.verify_friend`
 
-verifyFriend — Kiểm tra và xác thực danh sách bạn bè qua /api/social/friend/verify (command 11138)
+verifyFriend — Kiểm tra và xác thực danh sách bạn bè qua /api/social/friend/verify (command 11138) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5429,7 +5415,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện. (không hoàn tác được)
+deleteAvatar — Xóa một hoặc nhiều ảnh đại diện cũ trong kho ảnh đại diện. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5454,7 +5440,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-disableLimitSearchPhoneReminder — Tắt thông báo nhắc nhở giới hạn tìm kiếm số điện thoại (command 12131) (không hoàn tác được)
+disableLimitSearchPhoneReminder — Tắt thông báo nhắc nhở giới hạn tìm kiếm số điện thoại (command 12131) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5477,7 +5463,7 @@ data:
 <a id="fetch_account_info"></a>
 #### fetchAccountInfo — `zalo_call.fetch_account_info`
 
-fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile.
+fetchAccountInfo — API fetchAccountInfo thuộc phân hệ profile. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5490,7 +5476,7 @@ action: zalo_call.fetch_account_info
 <a id="get_avatar_url_profile"></a>
 #### getAvatarUrlProfile — `zalo_call.get_avatar_url_profile`
 
-getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng.
+getAvatarUrlProfile — Lấy đường dẫn ảnh đại diện của danh sách hồ sơ người dùng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5511,7 +5497,7 @@ data:
 <a id="get_emoji_status_config"></a>
 #### getEmojiStatusConfig — `zalo_call.get_emoji_status_config`
 
-getEmojiStatusConfig — Lấy cấu hình và danh sách bộ biểu tượng Trạng thái Emoji (Emoji Status - command 16300)
+getEmojiStatusConfig — Lấy cấu hình và danh sách bộ biểu tượng Trạng thái Emoji (Emoji Status - command 16300) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5530,7 +5516,7 @@ data:
 <a id="get_enterprise_profiles"></a>
 #### getEnterpriseProfiles — `zalo_call.get_enterprise_profiles`
 
-getEnterpriseProfiles — Lấy thông tin hồ sơ doanh nghiệp (Zalo Enterprise) của một hoặc nhiều tài khoản (command 12193)
+getEnterpriseProfiles — Lấy thông tin hồ sơ doanh nghiệp (Zalo Enterprise) của một hoặc nhiều tài khoản (command 12193) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5551,7 +5537,7 @@ data:
 <a id="get_full_avatar"></a>
 #### getFullAvatar — `zalo_call.get_full_avatar`
 
-getFullAvatar — Lấy ảnh đại diện kích thước gốc (Full HD) của một người dùng theo UID.
+getFullAvatar — Lấy ảnh đại diện kích thước gốc (Full HD) của một người dùng theo UID. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5570,7 +5556,7 @@ data:
 <a id="get_mini_profile"></a>
 #### getMiniProfile — `zalo_call.get_mini_profile`
 
-getMiniProfile — Lấy nhanh thông tin hồ sơ rút gọn (Avatar, Global ID, gói Biz) của danh sách người dùng (command 12134)
+getMiniProfile — Lấy nhanh thông tin hồ sơ rút gọn (Avatar, Global ID, gói Biz) của danh sách người dùng (command 12134) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5591,7 +5577,7 @@ data:
 <a id="get_profile_extra"></a>
 #### getProfileExtra — `zalo_call.get_profile_extra`
 
-getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864)
+getProfileExtra — Lấy thông tin mở rộng của hồ sơ cá nhân (command 11864) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5612,7 +5598,7 @@ data:
 <a id="get_profile_rank"></a>
 #### getProfileRank — `zalo_call.get_profile_rank`
 
-getProfileRank — Lấy hạng tài khoản Zalo của một người dùng (ví dụ "WHITE", "GOLD" - command 12012)
+getProfileRank — Lấy hạng tài khoản Zalo của một người dùng (ví dụ "WHITE", "GOLD" - command 12012) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5633,7 +5619,7 @@ data:
 <a id="get_profile_verification_status"></a>
 #### getProfileVerificationStatus — `zalo_call.get_profile_verification_status`
 
-getProfileVerificationStatus — Kiểm tra trạng thái xác thực định danh (eKYC) của tài khoản Zalo (command 12150)
+getProfileVerificationStatus — Kiểm tra trạng thái xác thực định danh (eKYC) của tài khoản Zalo (command 12150) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5646,7 +5632,7 @@ action: zalo_call.get_profile_verification_status
 <a id="push_profile_verification_message"></a>
 #### pushProfileVerificationMessage — `zalo_call.push_profile_verification_message`
 
-pushProfileVerificationMessage — Yêu cầu đẩy tin nhắn hướng dẫn xác thực tài khoản (eKYC) từ Official Account (command 12151)
+pushProfileVerificationMessage — Yêu cầu đẩy tin nhắn hướng dẫn xác thực tài khoản (eKYC) từ Official Account (command 12151) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5677,7 +5663,7 @@ data:
 <a id="register_trial_biz_account"></a>
 #### registerTrialBizAccount — `zalo_call.register_trial_biz_account`
 
-registerTrialBizAccount — Đăng ký dùng thử gói Zalo Business V2 cho tài khoản (command 12152)
+registerTrialBizAccount — Đăng ký dùng thử gói Zalo Business V2 cho tài khoản (command 12152) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5698,7 +5684,7 @@ data:
 <a id="reuse_avatar"></a>
 #### reuseAvatar — `zalo_call.reuse_avatar`
 
-reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện.
+reuseAvatar — Sử dụng lại một ảnh đại diện cũ từ kho lịch sử ảnh đại diện. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5717,7 +5703,7 @@ data:
 <a id="update_profile_bio"></a>
 #### updateProfileBio — `zalo_call.update_profile_bio`
 
-updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân.
+updateProfileBio — Cập nhật dòng tiểu sử (Status / Bio) trên trang cá nhân. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5742,7 +5728,7 @@ data:
 <a id="update_profile_mode"></a>
 #### updateProfileMode — `zalo_call.update_profile_mode`
 
-updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865)
+updateProfileMode — Cập nhật chế độ hồ sơ người dùng (command 11865) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5786,7 +5772,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteMobileMsgSnapshot — Xóa bản chụp nhanh (snapshot) dữ liệu đồng bộ tin nhắn từ thiết bị di động sau khi hoàn tất (command 12003) (không hoàn tác được)
+deleteMobileMsgSnapshot — Xóa bản chụp nhanh (snapshot) dữ liệu đồng bộ tin nhắn từ thiết bị di động sau khi hoàn tất (command 12003) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5820,7 +5806,7 @@ action: zalo_call.download_transfer_sync
 <a id="get_backup_msg_info"></a>
 #### getBackupMsgInfo — `zalo_call.get_backup_msg_info`
 
-getBackupMsgInfo — Lấy thông tin bản sao lưu tin nhắn hiện có trên máy chủ (command 12096)
+getBackupMsgInfo — Lấy thông tin bản sao lưu tin nhắn hiện có trên máy chủ (command 12096) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5839,7 +5825,7 @@ data:
 <a id="get_cross_db_info"></a>
 #### getCrossDbInfo — `zalo_call.get_cross_db_info`
 
-getCrossDbInfo — Lấy thông tin cơ sở dữ liệu chéo (Cross-DB) phục vụ đồng bộ dữ liệu sang máy tính (command 12412)
+getCrossDbInfo — Lấy thông tin cơ sở dữ liệu chéo (Cross-DB) phục vụ đồng bộ dữ liệu sang máy tính (command 12412) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5875,7 +5861,7 @@ action: zalo_call.get_sync_data
 <a id="pull_mobile"></a>
 #### pullMobile — `zalo_call.pull_mobile`
 
-pullMobile — Yêu cầu thiết bị di động Zalo đóng gói và tải lên bản sao lưu tin nhắn (pull_mobile_msg, command 12000). Sự kiện tiến trình (user_confirm, syncmsg_info, transfer_error) sẽ được đẩy về qua api.listener.on("sync_event"). (chưa tự
+pullMobile — Yêu cầu thiết bị di động Zalo đóng gói và tải lên bản sao lưu tin nhắn (pull_mobile_msg, command 12000). Sự kiện tiến trình (user_confirm, syncmsg_info, transfer_error) sẽ được đẩy về qua (chưa tự động: khong dung dich vu Zalo
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5888,7 +5874,7 @@ action: zalo_call.pull_mobile
 <a id="request_sync_from_phone"></a>
 #### requestSyncFromPhone — `zalo_call.request_sync_from_phone`
 
-requestSyncFromPhone — Phát tín hiệu yêu cầu đồng bộ tin nhắn từ ứng dụng Zalo trên điện thoại (pull_mobile_msg, command 12000). Tự động sinh cặp khoá RSA 2048-bit (nếu chưa truyền vào) và gọi api.pullMobile(...). Điện thoại của người dùng
+requestSyncFromPhone — Phát tín hiệu yêu cầu đồng bộ tin nhắn từ ứng dụng Zalo trên điện thoại (pull_mobile_msg, command 12000). Tự động sinh cặp khoá RSA 2048-bit (nếu chưa truyền vào) và gọi api.pul (chưa tự động: khong dung dich vu Zalo
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5901,7 +5887,7 @@ action: zalo_call.request_sync_from_phone
 <a id="submit_sync_media_actions"></a>
 #### submitSyncMediaActions — `zalo_call.submit_sync_media_actions`
 
-submitSyncMediaActions — Gửi danh sách hành động đồng bộ hóa tệp đa phương tiện lên máy chủ (command 16213)
+submitSyncMediaActions — Gửi danh sách hành động đồng bộ hóa tệp đa phương tiện lên máy chủ (command 16213) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -5920,7 +5906,7 @@ data:
 <a id="upload_backup_chunk"></a>
 #### uploadBackupChunk — `zalo_call.upload_backup_chunk`
 
-uploadBackupChunk — Tải lên gói dữ liệu phân mảnh (chunk) sao lưu tin nhắn từ máy tính sang điện thoại (command 13538)
+uploadBackupChunk — Tải lên gói dữ liệu phân mảnh (chunk) sao lưu tin nhắn từ máy tính sang điện thoại (command 13538) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6006,7 +5992,7 @@ action: zalo_call.get_cloud_upload_url
 <a id="get_cloud_viewer_key"></a>
 #### getCloudViewerKey — `zalo_call.get_cloud_viewer_key`
 
-getCloudViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho hệ thống ZCloud / MyCloud (command 12741). Tự động cache trong bộ nhớ ctx.zcloudViewerKeyCache (TTL 15 phút) để tối ưu hiệu năng khi gọi liên tiếp. (chưa tự
+getCloudViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho hệ thống ZCloud / MyCloud (command 12741). Tự động cache trong bộ nhớ ctx.zcloudViewerKeyCache (TTL 15 phút) để tối (chưa tự động: khong dung dich vu Zalo
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6045,7 +6031,7 @@ action: zalo_call.get_family_usage
 <a id="get_family_viewer_key"></a>
 #### getFamilyViewerKey — `zalo_call.get_family_viewer_key`
 
-getFamilyViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho gói gia đình ZFamily (command 12759). Tự động cache trong bộ nhớ ctx.zfamilyViewerKeyCache (TTL 15 phút) để tối ưu hiệu năng khi gọi liên tiếp. (chưa tự độ
+getFamilyViewerKey — Lấy cặp khóa phiên (viewer_key và khóa giải mã AES-256 enk) cho gói gia đình ZFamily (command 12759). Tự động cache trong bộ nhớ ctx.zfamilyViewerKeyCache (TTL 15 phút) để tối ưu (chưa tự động: khong dung dich vu Zalo
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6567,7 +6553,7 @@ action: zalo_call.update_call_media_state
 <a id="get_conversation_media"></a>
 #### getConversationMedia — `zalo_call.get_conversation_media`
 
-getConversationMedia — Lấy danh sách Kho Lưu Trữ (Ảnh/Video "media", File "file", hoặc Link "link") trong hội thoại nhóm (command 11841)
+getConversationMedia — Lấy danh sách Kho Lưu Trữ (Ảnh/Video "media", File "file", hoặc Link "link") trong hội thoại nhóm (command 11841) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6596,7 +6582,7 @@ data:
 <a id="get_media_store_preview"></a>
 #### getMediaStorePreview — `zalo_call.get_media_store_preview`
 
-getMediaStorePreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ (Ảnh/Video, File, Link) của nhóm (command 11843)
+getMediaStorePreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ (Ảnh/Video, File, Link) của nhóm (command 11843) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6619,7 +6605,7 @@ data:
 <a id="get_personal_media"></a>
 #### getPersonalMedia — `zalo_call.get_personal_media`
 
-getPersonalMedia — Lấy danh sách Kho Lưu Trữ Ảnh/Video ("media"), File ("file"), hoặc Link ("link") trong Cloud của tôi (Send2Me) (command 12220)
+getPersonalMedia — Lấy danh sách Kho Lưu Trữ Ảnh/Video ("media"), File ("file"), hoặc Link ("link") trong Cloud của tôi (Send2Me) (command 12220) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6644,7 +6630,7 @@ data:
 <a id="get_personal_media_preview"></a>
 #### getPersonalMediaPreview — `zalo_call.get_personal_media_preview`
 
-getPersonalMediaPreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ trong Cloud của tôi (Send2Me) (command 12221)
+getPersonalMediaPreview — Lấy danh sách xem trước nhanh Kho Lưu Trữ trong Cloud của tôi (Send2Me) (command 12221) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6665,7 +6651,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-removeConversationMedia — Xóa mục Ảnh/Video, File hoặc Link khỏi Kho Lưu Trữ của nhóm (command 11842) (không hoàn tác được)
+removeConversationMedia — Xóa mục Ảnh/Video, File hoặc Link khỏi Kho Lưu Trữ của nhóm (command 11842) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6694,7 +6680,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-removePersonalMedia — Xóa mục lưu trữ trong Kho Lưu Trữ Cloud của tôi (Send2Me) (command 12222) (không hoàn tác được)
+removePersonalMedia — Xóa mục lưu trữ trong Kho Lưu Trữ Cloud của tôi (Send2Me) (command 12222) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6732,7 +6718,7 @@ action: zalo_call.upload_attachment
 <a id="get_a_i_sticker_list"></a>
 #### getAIStickerList — `zalo_call.get_a_i_sticker_list`
 
-getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190)
+getAIStickerList — Lấy danh sách Sticker AI của người dùng (command 12190) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6745,7 +6731,7 @@ action: zalo_call.get_a_i_sticker_list
 <a id="get_default_guggy_gifs"></a>
 #### getDefaultGuggyGifs — `zalo_call.get_default_guggy_gifs`
 
-getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749)
+getDefaultGuggyGifs — Lấy danh sách ảnh động Guggy GIF mặc định (command 11749) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6764,7 +6750,7 @@ data:
 <a id="get_gif_categories"></a>
 #### getGifCategories — `zalo_call.get_gif_categories`
 
-getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294)
+getGifCategories — Lấy danh sách danh mục ảnh động Giphy GIF (command 11294) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6785,7 +6771,7 @@ data:
 <a id="get_gif_dictionaries"></a>
 #### getGifDictionaries — `zalo_call.get_gif_dictionaries`
 
-getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298)
+getGifDictionaries — Lấy danh sách từ điển ảnh động Giphy GIF (command 11298) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6806,7 +6792,7 @@ data:
 <a id="get_gifs_by_category"></a>
 #### getGifsByCategory — `zalo_call.get_gifs_by_category`
 
-getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295)
+getGifsByCategory — Lấy danh sách ảnh động Giphy GIF theo ID danh mục (command 11295) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6829,7 +6815,7 @@ data:
 <a id="get_gifs_by_dictionary"></a>
 #### getGifsByDictionary — `zalo_call.get_gifs_by_dictionary`
 
-getGifsByDictionary — Lấy danh sách ảnh động Giphy GIF theo ID từ điển (command 11299)
+getGifsByDictionary — Lấy danh sách ảnh động Giphy GIF theo ID từ điển (command 11299) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6852,7 +6838,7 @@ data:
 <a id="get_message_effect_by_id"></a>
 #### getMessageEffectById — `zalo_call.get_message_effect_by_id`
 
-getMessageEffectById — Lấy chi tiết một hiệu ứng tin nhắn theo ID và kích thước (command 11743)
+getMessageEffectById — Lấy chi tiết một hiệu ứng tin nhắn theo ID và kích thước (command 11743) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6873,7 +6859,7 @@ data:
 <a id="get_message_effects"></a>
 #### getMessageEffects — `zalo_call.get_message_effects`
 
-getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742)
+getMessageEffects — Lấy thông tin hiệu ứng tin nhắn theo danh sách ID (command 11742) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6894,7 +6880,7 @@ data:
 <a id="get_personalized_sticker_list"></a>
 #### getPersonalizedStickerList — `zalo_call.get_personalized_sticker_list`
 
-getPersonalizedStickerList — Lấy danh sách Sticker cá nhân hóa của tài khoản (command 11745)
+getPersonalizedStickerList — Lấy danh sách Sticker cá nhân hóa của tài khoản (command 11745) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6907,7 +6893,7 @@ action: zalo_call.get_personalized_sticker_list
 <a id="get_recommended_stickers"></a>
 #### getRecommendedStickers — `zalo_call.get_recommended_stickers`
 
-getRecommendedStickers — Lấy danh sách các bộ Sticker được Zalo đề xuất (command 11748)
+getRecommendedStickers — Lấy danh sách các bộ Sticker được Zalo đề xuất (command 11748) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6933,7 +6919,7 @@ action: zalo_call.get_sticker_categories_v2
 <a id="get_sticker_category_detail"></a>
 #### getStickerCategoryDetail — `zalo_call.get_sticker_category_detail`
 
-getStickerCategoryDetail — Lấy danh sách toàn bộ nhãn dán nằm trong một bộ nhãn dán (Category/Pack ID).
+getStickerCategoryDetail — Lấy danh sách toàn bộ nhãn dán nằm trong một bộ nhãn dán (Category/Pack ID). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6952,7 +6938,7 @@ data:
 <a id="get_sticker_hello"></a>
 #### getStickerHello — `zalo_call.get_sticker_hello`
 
-getStickerHello — Lấy danh sách Sticker chào hỏi gợi ý khi bắt đầu trò chuyện mới (command 11751)
+getStickerHello — Lấy danh sách Sticker chào hỏi gợi ý khi bắt đầu trò chuyện mới (command 11751) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6965,7 +6951,7 @@ action: zalo_call.get_sticker_hello
 <a id="get_sticker_suggest_keywords"></a>
 #### getStickerSuggestKeywords — `zalo_call.get_sticker_suggest_keywords`
 
-getStickerSuggestKeywords — Lấy bộ từ khóa gợi ý Sticker tự động khi gõ tin nhắn (command 11740)
+getStickerSuggestKeywords — Lấy bộ từ khóa gợi ý Sticker tự động khi gõ tin nhắn (command 11740) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6978,7 +6964,7 @@ action: zalo_call.get_sticker_suggest_keywords
 <a id="get_sticker_suggestion"></a>
 #### getStickerSuggestion — `zalo_call.get_sticker_suggestion`
 
-getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741)
+getStickerSuggestion — Gợi ý Sticker/GIF theo từ khóa đang nhập (command 11741) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -6999,7 +6985,7 @@ data:
 <a id="get_tenor_sticker_mapping"></a>
 #### getTenorStickerMapping — `zalo_call.get_tenor_sticker_mapping`
 
-getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015)
+getTenorStickerMapping — Lấy bảng ánh xạ Tenor sang Sticker Zalo (command 12015) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7012,7 +6998,7 @@ action: zalo_call.get_tenor_sticker_mapping
 <a id="get_trending_gifs"></a>
 #### getTrendingGifs — `zalo_call.get_trending_gifs`
 
-getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296)
+getTrendingGifs — Lấy danh sách ảnh động Giphy GIF thịnh hành (command 11296) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7033,7 +7019,7 @@ data:
 <a id="search_gifs"></a>
 #### searchGifs — `zalo_call.search_gifs`
 
-searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297)
+searchGifs — Tìm kiếm ảnh động Giphy GIF theo từ khóa (command 11297) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7056,7 +7042,7 @@ data:
 <a id="search_guggy_gifs"></a>
 #### searchGuggyGifs — `zalo_call.search_guggy_gifs`
 
-searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750)
+searchGuggyGifs — Tìm kiếm ảnh động Guggy GIF theo từ khóa (command 11750) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7077,7 +7063,7 @@ data:
 <a id="search_sticker"></a>
 #### searchSticker — `zalo_call.search_sticker`
 
-searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa.
+searchSticker — Tìm kiếm nhãn dán nâng cao theo từ khóa. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7098,7 +7084,7 @@ data:
 <a id="update_personalized_sticker_list"></a>
 #### updatePersonalizedStickerList — `zalo_call.update_personalized_sticker_list`
 
-updatePersonalizedStickerList — Cập nhật danh sách các bộ Sticker cá nhân hóa của người dùng (command 11746)
+updatePersonalizedStickerList — Cập nhật danh sách các bộ Sticker cá nhân hóa của người dùng (command 11746) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7121,7 +7107,7 @@ data:
 <a id="ack_ding_todo"></a>
 #### ackDingTodo — `zalo_call.ack_ding_todo`
 
-ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427)
+ackDingTodo — Xác nhận đã nhận nhắc nhở (Ding ACK) trong Zalo To-Do (command 12427) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7142,7 +7128,7 @@ data:
 <a id="add_poll_options"></a>
 #### addPollOptions — `zalo_call.add_poll_options`
 
-addPollOptions — Thêm phương án lựa chọn mới vào một cuộc Bình chọn (Poll) đang mở trong nhóm.
+addPollOptions — Thêm phương án lựa chọn mới vào một cuộc Bình chọn (Poll) đang mở trong nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7165,7 +7151,7 @@ data:
 <a id="create_note"></a>
 #### createNote — `zalo_call.create_note`
 
-createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu.
+createNote — Tạo một Ghi chú (Note) mới trên Bảng tin nhóm và tùy chọn ghim lên đầu. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7188,7 +7174,7 @@ data:
 <a id="create_todo"></a>
 #### createTodo — `zalo_call.create_todo`
 
-createTodo — Tạo công việc mới trong Zalo To-Do (command 12413)
+createTodo — Tạo công việc mới trong Zalo To-Do (command 12413) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7235,7 +7221,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteTodo — Xóa công việc trong Zalo To-Do (command 12415) (không hoàn tác được)
+deleteTodo — Xóa công việc trong Zalo To-Do (command 12415) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7256,7 +7242,7 @@ data:
 <a id="ding_todo"></a>
 #### dingTodo — `zalo_call.ding_todo`
 
-dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426)
+dingTodo — Gửi nhắc nhở (Ding) cho các công việc trong Zalo To-Do (command 12426) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7277,7 +7263,7 @@ data:
 <a id="edit_note"></a>
 #### editNote — `zalo_call.edit_note`
 
-editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm.
+editNote — Chỉnh sửa nội dung ghi chú đã tạo trên Bảng tin nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7300,7 +7286,7 @@ data:
 <a id="get_list_pin_topics"></a>
 #### getListPinTopics — `zalo_call.get_list_pin_topics`
 
-getListPinTopics — Lấy danh sách chủ đề / tin nhắn đã ghim trong bảng tin nhóm (command 12001)
+getListPinTopics — Lấy danh sách chủ đề / tin nhắn đã ghim trong bảng tin nhóm (command 12001) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7321,7 +7307,7 @@ data:
 <a id="get_todo_detail"></a>
 #### getTodoDetail — `zalo_call.get_todo_detail`
 
-getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417)
+getTodoDetail — Lấy chi tiết công việc trong Zalo To-Do (command 12417) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7340,7 +7326,7 @@ data:
 <a id="get_todo_list"></a>
 #### getTodoList — `zalo_call.get_todo_list`
 
-getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416)
+getTodoList — Lấy danh sách công việc trong Zalo To-Do (command 12416) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7375,7 +7361,7 @@ data:
 <a id="multi_unpin_board_topics"></a>
 #### multiUnpinBoardTopics — `zalo_call.multi_unpin_board_topics`
 
-multiUnpinBoardTopics — Bỏ ghim đồng thời nhiều chủ đề khỏi bảng tin nhóm (command 12010)
+multiUnpinBoardTopics — Bỏ ghim đồng thời nhiều chủ đề khỏi bảng tin nhóm (command 12010) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7400,7 +7386,7 @@ data:
 <a id="pin_board_topic"></a>
 #### pinBoardTopic — `zalo_call.pin_board_topic`
 
-pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004)
+pinBoardTopic — Ghim một chủ đề / bài đăng lên bảng tin nhóm (command 12004) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7431,7 +7417,7 @@ data:
 <a id="pin_friend_message"></a>
 #### pinFriendMessage — `zalo_call.pin_friend_message`
 
-pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067)
+pinFriendMessage — Ghim tin nhắn / chủ đề trong hội thoại cá nhân 1-1 (command 12067) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7456,7 +7442,7 @@ data:
 <a id="reorder_friend_board"></a>
 #### reorderFriendBoard — `zalo_call.reorder_friend_board`
 
-reorderFriendBoard — Sắp xếp lại thứ tự các tin nhắn đã ghim trong hội thoại 1-1 (command 12068)
+reorderFriendBoard — Sắp xếp lại thứ tự các tin nhắn đã ghim trong hội thoại 1-1 (command 12068) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7481,7 +7467,7 @@ data:
 <a id="reorder_pin_topics"></a>
 #### reorderPinTopics — `zalo_call.reorder_pin_topics`
 
-reorderPinTopics — Sắp xếp lại thứ tự các chủ đề đã ghim trên bảng tin nhóm (command 12002)
+reorderPinTopics — Sắp xếp lại thứ tự các chủ đề đã ghim trên bảng tin nhóm (command 12002) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7506,7 +7492,7 @@ data:
 <a id="share_poll"></a>
 #### sharePoll — `zalo_call.share_poll`
 
-sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm.
+sharePoll — Chia sẻ lại cuộc Bình chọn vào luồng tin nhắn nhóm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7525,7 +7511,7 @@ data:
 <a id="unpin_board_topic"></a>
 #### unpinBoardTopic — `zalo_call.unpin_board_topic`
 
-unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005)
+unpinBoardTopic — Bỏ ghim một chủ đề khỏi bảng tin nhóm (command 12005) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7550,7 +7536,7 @@ data:
 <a id="unpin_friend_messages"></a>
 #### unpinFriendMessages — `zalo_call.unpin_friend_messages`
 
-unpinFriendMessages — Bỏ ghim một hoặc nhiều tin nhắn trong hội thoại 1-1 (command 12069)
+unpinFriendMessages — Bỏ ghim một hoặc nhiều tin nhắn trong hội thoại 1-1 (command 12069) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7575,7 +7561,7 @@ data:
 <a id="update_todo"></a>
 #### updateTodo — `zalo_call.update_todo`
 
-updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414)
+updateTodo — Cập nhật nội dung công việc trong Zalo To-Do (command 12414) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7620,7 +7606,7 @@ data:
 <a id="update_todo_status"></a>
 #### updateTodoStatus — `zalo_call.update_todo_status`
 
-updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418)
+updateTodoStatus — Cập nhật trạng thái công việc trong Zalo To-Do (command 12418) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7647,7 +7633,7 @@ data:
 <a id="verify_todo"></a>
 #### verifyTodo — `zalo_call.verify_todo`
 
-verifyTodo — Kiểm tra tính đồng bộ của danh sách công việc trong Zalo To-Do (command 12603)
+verifyTodo — Kiểm tra tính đồng bộ của danh sách công việc trong Zalo To-Do (command 12603) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7670,7 +7656,7 @@ data:
 <a id="add_conversation_label"></a>
 #### addConversationLabel — `zalo_call.add_conversation_label`
 
-addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163)
+addConversationLabel — Tạo nhãn phân loại hội thoại mới (command 12163) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7699,7 +7685,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-blockOA — Chặn nhận tin nhắn / thông báo từ một Zalo Official Account (OA) qua /api/social/oa/block (cmd 12681). (không hoàn tác được)
+blockOA — Chặn nhận tin nhắn / thông báo từ một Zalo Official Account (OA) qua /api/social/oa/block (cmd 12681). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7720,7 +7706,7 @@ data:
 <a id="convert_o_a_ids"></a>
 #### convertOAIds — `zalo_call.convert_o_a_ids`
 
-convertOAIds — Chuyển đổi danh sách OA ID sang Zalo UID nội bộ (hoặc ngược lại) qua /api/social/oa/convertid (cmd 11863).
+convertOAIds — Chuyển đổi danh sách OA ID sang Zalo UID nội bộ (hoặc ngược lại) qua /api/social/oa/convertid (cmd 11863). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7741,7 +7727,7 @@ data:
 <a id="create_auto_reply"></a>
 #### createAutoReply — `zalo_call.create_auto_reply`
 
-createAutoReply — Tạo kịch bản Trả lời tự động (Auto Reply) theo khung giờ cho Zalo Business.
+createAutoReply — Tạo kịch bản Trả lời tự động (Auto Reply) theo khung giờ cho Zalo Business. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7774,7 +7760,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng. (không hoàn tác được)
+createBankAccount — Thêm thông tin tài khoản ngân hàng mới vào danh bạ ngân hàng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7801,7 +7787,7 @@ data:
 <a id="create_catalog"></a>
 #### createCatalog — `zalo_call.create_catalog`
 
-createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business.
+createCatalog — Tạo Danh mục sản phẩm (Catalog) mới cho Zalo Business. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7820,7 +7806,7 @@ data:
 <a id="create_product_catalog"></a>
 #### createProductCatalog — `zalo_call.create_product_catalog`
 
-createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog).
+createProductCatalog — Thêm sản phẩm mới vào Danh mục sản phẩm (Product Catalog). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7853,7 +7839,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteAutoReply — Xóa một kịch bản Trả lời tự động. (không hoàn tác được)
+deleteAutoReply — Xóa một kịch bản Trả lời tự động. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7876,7 +7862,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu. (không hoàn tác được)
+deleteBankAccount — Xóa một tài khoản ngân hàng đã lưu. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7901,7 +7887,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteCatalog — Xóa một Danh mục sản phẩm (Catalog). (không hoàn tác được)
+deleteCatalog — Xóa một Danh mục sản phẩm (Catalog). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7924,7 +7910,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165) (không hoàn tác được)
+deleteConversationLabel — Xóa một hoặc nhiều nhãn phân loại hội thoại (command 12165) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7949,7 +7935,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm. (không hoàn tác được)
+deleteProductCatalog — Xóa một hoặc nhiều sản phẩm khỏi Danh mục sản phẩm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7974,7 +7960,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-deleteSingleProduct — Xóa một sản phẩm đơn lẻ khỏi danh mục Zalo Business (command 12042) (không hoàn tác được)
+deleteSingleProduct — Xóa một sản phẩm đơn lẻ khỏi danh mục Zalo Business (command 12042) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -7997,7 +7983,7 @@ data:
 <a id="get_auto_reply_list"></a>
 #### getAutoReplyList — `zalo_call.get_auto_reply_list`
 
-getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản.
+getAutoReplyList — Lấy danh sách các kịch bản Trả lời tự động của tài khoản. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8010,7 +7996,7 @@ action: zalo_call.get_auto_reply_list
 <a id="get_biz_account"></a>
 #### getBizAccount — `zalo_call.get_biz_account`
 
-getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness).
+getBizAccount — Lấy thông tin cấu hình tài khoản Zalo Business (ZBusiness). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8029,7 +8015,7 @@ data:
 <a id="get_catalog_list"></a>
 #### getCatalogList — `zalo_call.get_catalog_list`
 
-getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản.
+getCatalogList — Lấy danh sách các Danh mục sản phẩm (Catalogs) của tài khoản. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8056,7 +8042,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ. (không hoàn tác được)
+getListBank — Lấy danh sách mã ngân hàng (BIN / NAPAS) được Zalo hỗ trợ. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8077,7 +8063,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng. (không hoàn tác được)
+getListBankAccount — Lấy danh sách các tài khoản ngân hàng đã lưu của người dùng. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8113,7 +8099,7 @@ action: zalo_call.get_o_a_profile
 <a id="get_product_catalog_list"></a>
 #### getProductCatalogList — `zalo_call.get_product_catalog_list`
 
-getProductCatalogList — Lấy danh sách các sản phẩm nằm trong một Danh mục sản phẩm (Catalog).
+getProductCatalogList — Lấy danh sách các sản phẩm nằm trong một Danh mục sản phẩm (Catalog). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8140,7 +8126,7 @@ data:
 <a id="get_product_detail"></a>
 #### getProductDetail — `zalo_call.get_product_detail`
 
-getProductDetail — Lấy thông tin chi tiết một sản phẩm trong danh mục Zalo Business (command 12057)
+getProductDetail — Lấy thông tin chi tiết một sản phẩm trong danh mục Zalo Business (command 12057) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8159,7 +8145,7 @@ data:
 <a id="register_catalog"></a>
 #### registerCatalog — `zalo_call.register_catalog`
 
-registerCatalog — Đăng ký kích hoạt tính năng Danh mục sản phẩm (Catalog) cho tài khoản.
+registerCatalog — Đăng ký kích hoạt tính năng Danh mục sản phẩm (Catalog) cho tài khoản. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8178,7 +8164,7 @@ data:
 <a id="reorder_conversation_labels"></a>
 #### reorderConversationLabels — `zalo_call.reorder_conversation_labels`
 
-reorderConversationLabels — Sắp xếp lại vị trí hiển thị của các nhãn phân loại hội thoại (command 12166)
+reorderConversationLabels — Sắp xếp lại vị trí hiển thị của các nhãn phân loại hội thoại (command 12166) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8201,7 +8187,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-unblockOA — Bỏ chặn một Zalo Official Account (OA) để tiếp tục nhận tin nhắn qua /api/social/oa/unblock (cmd 12682). (không hoàn tác được)
+unblockOA — Bỏ chặn một Zalo Official Account (OA) để tiếp tục nhận tin nhắn qua /api/social/oa/unblock (cmd 12682). [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8222,7 +8208,7 @@ data:
 <a id="update_auto_reply"></a>
 #### updateAutoReply — `zalo_call.update_auto_reply`
 
-updateAutoReply — Cập nhật nội dung và thời gian hoạt động của kịch bản Trả lời tự động.
+updateAutoReply — Cập nhật nội dung và thời gian hoạt động của kịch bản Trả lời tự động. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8257,7 +8243,7 @@ data:
 
 > ⚠️ **Dịch vụ nguy hiểm**: xoá hoặc đổi dữ liệu thật trên tài khoản Zalo. Kiểm kỹ trước khi cho automation chạy.
 
-updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu. (không hoàn tác được)
+updateBankAccount — Cập nhật thông tin tài khoản ngân hàng đã lưu. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC] (không hoàn tác được)
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8286,7 +8272,7 @@ data:
 <a id="update_catalog"></a>
 #### updateCatalog — `zalo_call.update_catalog`
 
-updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm.
+updateCatalog — Cập nhật tên hoặc ảnh của Danh mục sản phẩm. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8307,7 +8293,7 @@ data:
 <a id="update_conversation_label_item"></a>
 #### updateConversationLabelItem — `zalo_call.update_conversation_label_item`
 
-updateConversationLabelItem — Cập nhật thông tin một nhãn phân loại hội thoại và danh sách hội thoại gắn nhãn (command 12164)
+updateConversationLabelItem — Cập nhật thông tin một nhãn phân loại hội thoại và danh sách hội thoại gắn nhãn (command 12164) [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 
@@ -8338,7 +8324,7 @@ data:
 <a id="update_product_catalog"></a>
 #### updateProductCatalog — `zalo_call.update_product_catalog`
 
-updateProductCatalog — Cập nhật thông tin chi tiết, giá bán và hình ảnh của sản phẩm trong Danh mục.
+updateProductCatalog — Cập nhật thông tin chi tiết, giá bán và hình ảnh của sản phẩm trong Danh mục. [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]
 
 **Mã dịch vụ** (đủ mọi ô; ô «tuỳ chọn» bỏ đi được):
 

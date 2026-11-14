@@ -116,12 +116,22 @@ def test_routes_send_video_with_caption_fallback_to_file_and_forward_with_ttl():
 
         def fake_video(self, tt, tid, name, data, caption="", width=0, height=0, duration_ms=0, ttl=0, thumb_jpeg=None):
             rec["video"] = dict(tt=tt, tid=tid, name=name, caption=caption, w=width, h=height, dur=duration_ms, ttl=ttl, thumb=bool(thumb_jpeg))
+            rec["thumb_bytes"] = bytes(thumb_jpeg or b"")
             return {"data": {"msgId": "9"}, "client_id": 111}
         chat_mod.Chat.send_video_file = fake_video
         mb, ct = chat_mod.build_multipart({"type": "group", "kind": "file", "desc": "🔔 Phát hiện chuyển động!"}, [("file", "cam.mp4", "video/mp4", MP4)])
         st, body = api("POST", "/api/thread/30001/sendfile", mb, {"Content-Type": ct})
         assert st == 200 and body["message"]["kind"] == "video", (st, body)
         assert rec["video"] == dict(tt="group", tid="30001", name="cam.mp4", caption="🔔 Phát hiện chuyển động!", w=640, h=480, dur=6338, ttl=86400000, thumb=True), rec
+        assert rec["thumb_bytes"] == JPEG, "không có ảnh bìa riêng: dùng khung hình đầu do ffmpeg tách"
+        # ảnh bìa riêng (HA `thumbnail`) thay khung hình đầu; không phải JPEG thật thì bỏ qua
+        own = b"\xff\xd8\xff\xe0" + b"ANH-BIA-RIENG" * 4
+        mb2, ct2 = chat_mod.build_multipart({"type": "group", "kind": "file"}, [("file", "cam.mp4", "video/mp4", MP4), ("thumb", "t.jpg", "image/jpeg", own)])
+        st, body = api("POST", "/api/thread/30001/sendfile", mb2, {"Content-Type": ct2})
+        assert st == 200 and rec["thumb_bytes"] == own, (st, rec["thumb_bytes"][:12])
+        mb3, ct3 = chat_mod.build_multipart({"type": "group", "kind": "file"}, [("file", "cam.mp4", "video/mp4", MP4), ("thumb", "t.txt", "text/plain", b"khong phai anh")])
+        st, body = api("POST", "/api/thread/30001/sendfile", mb3, {"Content-Type": ct3})
+        assert st == 200 and rec["thumb_bytes"] == JPEG, "bìa không phải JPEG: quay về khung hình đầu"
         # lỗi tải lên -> quay về gửi tệp thường
         def bad_video(self, *a, **k):
             raise chat_mod.ZaloChatError("het gio cho file_done")

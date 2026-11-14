@@ -28,10 +28,9 @@ from .call_voice import DEFAULT_GREETING, HELD_DEVICES, Plan, async_accept_video
 from .rules import MAX_NOTE_LEN, parse_tags, CALL_TYPES, CONNECT, CONNECT_PARTS, MAX_ANNOUNCE_REPEAT, VIDEO_REQUEST, ECHO as RULE_ECHO, parse_connect, RULES_KEY, RuleError, SCOPES, get_rules, normalize as normalize_rule, resolve as resolve_rule, validate_scope
 from .const import CONF_TEXT_AI_SMART, CONF_TEXT_AUTO_EMOJI, DOMAIN, ECHO_MODES, TEXT_STYLE_KEYS
 from .styler import async_markup_for
-from .video_urls import local_to_public, sibling_thumb_candidates
 from .album import album_plan, is_album_photo
 from .call_voice import async_tts_audio
-from .compat import rename_aliases, unknown_keys
+from .compat import normalize_thread_type, rename_aliases, unknown_keys
 from . import app_settings, qr_login
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,6 +43,10 @@ def _load_catalog() -> list[dict]:
     path = os.path.join(os.path.dirname(__file__), "catalog.json")
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+# Cài đặt âm thanh nằm ở APP (devices.json), không phải kho của HA: WebUI, set_default_devices và thực thể số cùng đọc/ghi một nơi
+_APP_AUDIO_KEYS = ("mic_gain", "speaker_gain", "echo_delay_min_ms", "echo_delay_max_ms", "echo_ratio")
 
 
 def _api(hass: HomeAssistant, call: ServiceCall) -> tuple[Any, ZaloCallApi]:
@@ -114,44 +117,29 @@ def _split(value: Any) -> list[str]:
     return [p.strip() for p in str(value or "").split(",") if p.strip()]
 
 
-async def _public_url(hass: HomeAssistant, src: str) -> str | None:
-    """Địa chỉ công khai để Zalo tải: URL http(s) giữ nguyên; tệp trong HA (www / thư mục media) đổi thành địa chỉ ngoài của HA
-    (media có chữ ký hạn 1 giờ); không đổi được (ngoài thư mục cho phép, không có tệp, HA chưa có địa chỉ ngoài) thì None."""
-    src = str(src).strip()
-    if src.startswith(("http://", "https://")):
-        return src
-    if not hass.config.is_allowed_path(src) or not await hass.async_add_executor_job(os.path.isfile, src):
-        return None
-    from datetime import timedelta
-    from homeassistant.components.http.auth import async_sign_path
-    from homeassistant.helpers.network import NoURLAvailableError, get_url
-    try:
-        base = get_url(hass, allow_internal=False, allow_ip=False, prefer_external=True)
-    except NoURLAvailableError:
-        return None
-    return local_to_public(src, www_dir=hass.config.path("www"), media_dirs=hass.config.media_dirs, base_url=base,
-                           sign=lambda p: async_sign_path(hass, p, timedelta(hours=1)))
+_VIDEO_EXTS = (".mp4", ".mov", ".m4v", ".webm", ".mkv", ".3gp")
 
 
 async def _send_video(hass: HomeAssistant, api: ZaloCallApi, ttype: str, tid: str, d: dict) -> Any:
-    """Video THẬT (khung phát được trong chat) như zalo_bot cũ; không có địa chỉ công khai thì gửi dạng tệp đính kèm như trước."""
-    src = str(d["file"]).strip()
-    video_url = await _public_url(hass, src)
-    if not video_url:
-        _LOGGER.warning("send_video: %s không có địa chỉ công khai (cần URL http(s), hoặc tệp trong www / thư mục media và HA có địa chỉ ngoài): "
-                        "gửi dạng tệp đính kèm", src)
-        fn, data, mime = await _read_source(hass, src)
-        return await api.thread_sendfile(ttype, tid, fn, data, mime, "file", d.get("recall_after"),
-                                         {"ttl": int(float(d["ttl"]))} if d.get("ttl") else None)
+    """Video THẬT (khung phát được, có chú thích) — làm như zalo_bot cũ (sendVideoByAccount): đọc nội dung video rồi để app TẢI LÊN Zalo.
+    Không đưa địa chỉ HA cho Zalo: địa chỉ đó hết hạn (media ký 1 giờ), tên tệp camera bị ghi đè mỗi lần, và máy người nhận phải với tới HA mỗi lần
+    mở. App tự tách khung hình đầu của CHÍNH video làm ảnh bìa và đo kích thước, thời lượng; `thumbnail` (đường dẫn hoặc URL) chỉ để ghi đè ảnh bìa."""
+    fn, data, mime = await _read_source(hass, str(d["file"]).strip())
+    if not fn.lower().endswith(_VIDEO_EXTS):                  # URL không có đuôi: app nhận video theo đuôi tên tệp
+        ext = mimetypes.guess_extension(mime) if mime.startswith("video/") else None
+        fn = (fn or "video") + (ext if ext in _VIDEO_EXTS else ".mp4")
+    extra = None
     thumb = str(d.get("thumbnail") or "").strip()
-    if not thumb and not src.startswith(("http://", "https://")):
-        for cand in sibling_thumb_candidates(src):                  # ảnh bìa cạnh video: <tên>_thumb.jpg do bản thiết kế camera tạo sẵn
-            if await hass.async_add_executor_job(os.path.isfile, cand):
-                thumb = cand
-                break
-    thumb_url = (await _public_url(hass, thumb)) if thumb else None
-    return await api.thread_sendvideo(ttype, tid, video_url, thumb_url or "", str(d.get("message") or ""),
-                                      d.get("width"), d.get("height"), d.get("duration"), d.get("recall_after"), d.get("ttl"))
+    if thumb:
+        tfn, tdata, tmime = await _read_source(hass, thumb)
+        extra = {"thumb": (tfn, tdata, tmime)}
+    fields: dict[str, Any] = {}
+    if d.get("ttl"):
+        fields["ttl"] = int(float(d["ttl"]))
+    caption = str(d.get("message") or "").strip()
+    if caption:
+        fields["desc"] = caption
+    return await api.thread_sendfile(ttype, tid, fn, data, mime, "file", d.get("recall_after"), fields or None, extra)
 
 
 async def _send_images(hass: HomeAssistant, api: ZaloCallApi, ttype: str, tid: str, d: dict) -> Any:
@@ -353,11 +341,18 @@ def _make_handler(hass: HomeAssistant, e: dict) -> Callable:
     return handler
 
 
+def _thread_type(value: Any) -> str:
+    try:
+        return normalize_thread_type(value)
+    except ValueError as err:
+        raise vol.Invalid(str(err)) from err
+
+
 def _schema(e: dict) -> vol.Schema:
     fields: dict = {vol.Optional("entry_id"): cv.string}
     if e["thread"] != "none" and e["kind"] in ("svc", "chat"):
         fields[vol.Required("thread_id")] = cv.string
-        fields[vol.Optional("type", default="user")] = vol.In(["user", "group"])
+        fields[vol.Optional("type", default="user")] = _thread_type
     for f in e["fields"]:
         key = vol.Required(f["key"]) if f["required"] else vol.Optional(f["key"])
         fields[key] = _ANY
@@ -552,9 +547,15 @@ async def async_register_services(hass: HomeAssistant) -> None:
         return {"friends": pick("friends"), "groups": pick("groups")}
 
     async def get_default_devices(call: ServiceCall) -> dict:
-        rt, _ = _api(hass, call)
-        return {k: rt.defaults.get(k) for k in ("auto_mic", "auto_video", "video_consent", "auto_video_delay",
-                                                  "call_volume", "echo_guard", "ha_url")}
+        rt, api = _api(hass, call)
+        out = {k: rt.defaults.get(k) for k in ("auto_mic", "auto_video", "video_consent", "auto_video_delay",
+                                                 "call_volume", "echo_guard", "ha_url")}
+        try:                                                 # độ to mic/loa và chống vọng nằm ở APP (cùng nơi WebUI ghi): đọc thẳng từ đó
+            app = await api.devices_get()
+        except ZaloCallError:
+            app = {}
+        out.update({k: app.get(k) for k in _APP_AUDIO_KEYS if k in app})
+        return out
 
     async def take_over_call(call: ServiceCall) -> dict:
         """Tiếp quản cuộc gọi đang do AI/thông báo giữ: dừng AI, trả mic nhà về."""
@@ -867,13 +868,26 @@ async def async_register_services(hass: HomeAssistant) -> None:
         return {"result": res}
 
     async def set_default_devices(call: ServiceCall) -> None:
-        rt, _ = _api(hass, call)
+        rt, api = _api(hass, call)
         patch = {k: call.data[k] for k in
                  ("auto_mic", "auto_video", "video_consent",
                   "auto_video_delay",
                   "echo_guard", "call_volume")
                  if k in call.data}
         await rt.defaults.async_set(**patch)
+        app_patch = {k: call.data[k] for k in _APP_AUDIO_KEYS if k in call.data}
+        if call.data.get("echo_use_default"):                # bỏ trống cả ba = app theo mặc định / biến môi trường của máy chủ
+            app_patch.update(echo_delay_min_ms="", echo_delay_max_ms="", echo_ratio="")
+        if app_patch:                                         # ghi thẳng vào app (devices.json): WebUI và HA dùng chung một nguồn, không lệch nhau
+            try:
+                lo, hi = "echo_delay_min_ms", "echo_delay_max_ms"
+                if (lo in app_patch) != (hi in app_patch) and "" not in (app_patch.get(lo), app_patch.get(hi)):      # app kiểm cặp (thấp < cao): đưa một ô thì lấy ô kia từ app
+                    cur = await api.devices_get()
+                    other = hi if lo in app_patch else lo
+                    app_patch[other] = cur.get(other) if isinstance(cur.get(other), (int, float)) else (750 if other == hi else 300)
+                await api.devices_set(app_patch)
+            except ZaloCallError as err:
+                raise HomeAssistantError(str(err)) from err
         await rt.bridge.async_push_defaults()
 
     call_id_only = {vol.Optional("entry_id"): cv.string,
@@ -901,6 +915,12 @@ async def async_register_services(hass: HomeAssistant) -> None:
                                vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
                            vol.Optional("auto_video_delay"):
                                vol.All(vol.Coerce(int), vol.Range(min=0, max=120)),
+                           vol.Optional("mic_gain"): vol.All(vol.Coerce(int), vol.Range(min=0, max=300)),
+                           vol.Optional("speaker_gain"): vol.All(vol.Coerce(int), vol.Range(min=0, max=300)),
+                           vol.Optional("echo_delay_min_ms"): vol.All(vol.Coerce(int), vol.Range(min=0, max=3000)),
+                           vol.Optional("echo_delay_max_ms"): vol.All(vol.Coerce(int), vol.Range(min=0, max=3000)),
+                           vol.Optional("echo_ratio"): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=10)),
+                           vol.Optional("echo_use_default"): cv.boolean,
                            }))
 
     devices = {vol.Optional("connect"): vol.All(cv.ensure_list, [vol.In(list(CONNECT))]),

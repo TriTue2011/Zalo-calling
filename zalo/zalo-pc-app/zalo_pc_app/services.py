@@ -517,11 +517,15 @@ def _b_group_name(p, tid, tt):
             "imei": p["_imei"]}
 
 
+AVATAR_UPLOAD_SIZE = 160          # avatarSize cua client PC khi doi anh dai dien (nhom va ca nhan)
+
+
 def _b_group_avatar(p, tid, tt):
     # POST files-wpa /api/group/upavatar 11195: UPLOAD FILE
     # (multipart fileContent), khong phai URL. params: {grid,
-    # clientId, originWidth, originHeight, imei} (avatarSize chua
-    # biet gia tri — khong gui). File lay tu params["_file"].
+    # avatarSize:160, clientId, originWidth, originHeight, imei}
+    # — avatarSize 160 theo bundle Zalo PC 26.11.10 (updateAvatar(
+    # groupId, 160, ...)). File lay tu params["_file"].
     if not p.get("_file"):
         raise ValueError("change_group_avatar: thiếu file ảnh "
                          "(multipart field 'file')")
@@ -530,7 +534,7 @@ def _b_group_avatar(p, tid, tt):
         height = int(p.get("height") or 0)
     except ValueError:
         width, height = 0, 0
-    return {"grid": tid, "clientId": _client_id(),
+    return {"grid": tid, "avatarSize": AVATAR_UPLOAD_SIZE, "clientId": _client_id(),
             "originWidth": width, "originHeight": height,
             "imei": p["_imei"]}
 
@@ -834,12 +838,13 @@ def _b_update_settings(p, tid, tt):
 
 def _b_change_avatar(p, tid, tt):
     # POST files-wpa /api/profile/upavatar 11819: UPLOAD FILE
-    # (multipart fileContent). params: {clientId, language}
-    # (avatarSize/metaData chua biet gia tri — khong gui).
+    # (multipart fileContent). params: {avatarSize:160, clientId,
+    # language} — avatarSize 160 theo bundle (updateMyAvatar(160,
+    # Date.now(), ...)); metaData la tuy chon trong bundle, khong gui.
     if not p.get("_file"):
         raise ValueError("change_account_avatar: thiếu file ảnh "
                          "(multipart field 'file')")
-    return {"clientId": _client_id(), "language": LANGUAGE}
+    return {"avatarSize": AVATAR_UPLOAD_SIZE, "clientId": _client_id(), "language": LANGUAGE}
 
 
 def _b_avatar_list(p, tid, tt):
@@ -1226,7 +1231,7 @@ OPS = {
          {"key": "r_icon", "label": "rIcon (khi icon chưa map)"},
          {"key": "r_type", "label": "rType (khi icon chưa map)"},
          {"key": "msg_type", "label": "Loại tin (mặc định 1=text)"}],
-        _b_reaction),
+        _b_reaction, body_unverified=False),     # bundle: sendReactionMessage + bảng rType/rIcon (53/54 icon khớp; `beer` rType 99 không có trong bảng của PC)
     # --- Bạn bè (nhóm B, SERVICE-MAP §2.1) ---
     "send_friend_request": _op(
         8, "send_friend_request", "ho_so", "Gửi lời mời kết bạn",
@@ -1359,7 +1364,7 @@ OPS = {
           "required": True},
          {"key": "width", "label": "Chiều rộng ảnh"},
          {"key": "height", "label": "Chiều cao ảnh"}],
-        _b_group_avatar),
+        _b_group_avatar, body_unverified=False),
     "add_group_deputy": _op(
         42, "add_group_deputy", "nhom", "Thêm phó nhóm",
         "GET /api/group/admins/add (11814) {grid, members:[], "
@@ -1649,7 +1654,7 @@ OPS = {
         "none",
         [{"key": "file", "label": "Ảnh đại diện (upload file)",
           "required": True}],
-        _b_change_avatar),
+        _b_change_avatar, body_unverified=False),
     "get_avatar_list": _op(
         93, "get_avatar_list", "ho_so", "Xem ảnh đại diện đã dùng",
         "GET profile-wpa /api/social/avatar-list (12451) {page, "
@@ -1772,14 +1777,14 @@ OPS = {
     "get_poll_detail": _op(
         80, "get_poll_detail", "nhom", "Xem chi tiết bình chọn",
         "GET group-wpa /api/poll/detail (12081) {poll_id, imei}.",
-        "group", "/api/poll/detail", 12081, "GET", "group",
+        "group", "/api/poll/detail", 12081, "GET", "none",
         [{"key": "poll_id", "label": "ID bình chọn",
           "required": True}],
         _b_poll_detail, body_unverified=False),
     "lock_poll": _op(
         81, "lock_poll", "nhom", "Khóa bình chọn",
         "POST group-wpa /api/poll/end (12089) {poll_id, imei}.",
-        "group", "/api/poll/end", 12089, "POST", "group",
+        "group", "/api/poll/end", 12089, "POST", "none",
         [{"key": "poll_id", "label": "ID bình chọn",
           "required": True}],
         _b_poll_lock, body_unverified=False),

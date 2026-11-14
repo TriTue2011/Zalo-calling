@@ -58,14 +58,10 @@ CHAT_FIELDS = {
     "send_card": [("user_id", "UserId của danh thiếp", True)],
     "send_link": [("link", "Đường link", True),
                   ("message", "Lời nhắn kèm theo", False)],
-    "send_video": [("file", "Video: đường dẫn trong HA (thư mục www hoặc media) hoặc URL công khai. Gửi dạng video phát được trong chat; "
-                            "tệp trong HA được cấp địa chỉ công khai từ địa chỉ ngoài của HA (media có chữ ký hạn 1 giờ). "
-                            "Không có địa chỉ công khai thì gửi dạng tệp đính kèm", True),
-                   ("thumbnail", "Ảnh bìa: đường dẫn hoặc URL. Bỏ trống = tự tìm «…_thumb.jpg» cạnh video, không có thì dùng chính video", False),
-                   ("message", "Chú thích kèm video (bỏ trống = không)", False),
-                   ("width", "Độ rộng (px). Bỏ trống = tự đo bằng ffprobe", False),
-                   ("height", "Độ cao (px). Bỏ trống = tự đo bằng ffprobe", False),
-                   ("duration", "Thời lượng (giây). Bỏ trống = tự đo bằng ffprobe", False)],
+    "send_video": [("file", "Video: đường dẫn trong HA (thư mục được phép, ví dụ /media/…) hoặc URL. HA đọc nội dung video rồi app TẢI LÊN Zalo như zalo_bot cũ: "
+                            "xem được lâu dài, không phụ thuộc địa chỉ ngoài của HA. Kích thước, thời lượng và ảnh bìa (khung hình đầu của chính video) do app tự lấy", True),
+                   ("thumbnail", "Ảnh bìa JPEG: đường dẫn hoặc URL. Bỏ trống = khung hình đầu của video (không tự lấy ảnh nằm cạnh tệp)", False),
+                   ("message", "Chú thích nằm TRONG video (bỏ trống = không). Không cần gửi thêm tin chữ riêng", False)],
 }
 # Truong cua zalo_bot cu ma luc dau chua co (13/11): trich dan, tu huy, chu thich, anh xem truoc, doc chu bang TTS. Mo ta + kieu nhap lay tu meta cua zalo_bot.
 CHAT_FIELDS["send_message"] += [("quote", "Trích dẫn trả lời một tin: {content, uidFrom, msgId, cliMsgId, msgType, ts}", False),
@@ -134,8 +130,6 @@ SELECTOR_OVERRIDES = {
     ("send_message", "format"): {"select": {"options": ["plain", "markdown"], "mode": "dropdown"}},
     ("send_message", "auto_emphasis"): {"select": {"options": ["red", "orange", "yellow", "green"], "custom_value": True,
                                                   "mode": "dropdown"}},
-    **{("send_video", k): {"number": {"min": 0, "max": 100000, "step": 1, "mode": "box"}} for k in ("width", "height")},
-    ("send_video", "duration"): {"number": {"min": 0, "max": 36000, "step": 1, "unit_of_measurement": "s", "mode": "box"}},
     ("send_sticker", "pick"): {"select": {"options": ["first", "random"], "mode": "dropdown"}},
     ("add_reaction", "icon"): {"select": {"options": _reaction_options(), "custom_value": True, "mode": "dropdown"}},
 }
@@ -233,7 +227,9 @@ def _zca_extras(core):
                            "selector": {"boolean": None}})
         label = a["name"] + (" — " + a["summary"] if a.get("summary") else "")
         if a["mode"] == "manual":
-            label += " (chưa tự động: %s)" % a.get("reason", "")
+            label = label[:200] + " (chưa tự động: %s)" % a.get("reason", "")
+        else:                          # đường API có trong Zalo PC thật nhưng tham số lấy từ thư viện web zca-js: chưa đối chiếu với PC (đo 14/11/2026)
+            label = label[:170] + " [Tham số theo zca-js (web), chưa đối chiếu với Zalo PC]"
         extras.append({"name": name, "no": None, "kind": "zca", "action": name,
                        "group": "zca_" + a["domain"], "label": label[:240],
                        "thread": "none", "danger": a["danger"], "fields": fields})
@@ -315,9 +311,9 @@ def main():
                 "selector": {"text": None}}
             fields["type"] = {
                 "name": "Loại hội thoại",
-                "description": "user = 1-1, group = nhóm.",
+                "description": "user = 1-1, group = nhóm (nhận cả 0 / 1 như zalo_bot cũ).",
                 "default": "user",
-                "selector": {"select": {"options": ["user", "group"]}}}
+                "selector": {"select": {"options": ["user", "group"], "custom_value": True}}}
         for f in e["fields"]:
             fields[f["key"]] = _field_entry(e["name"], f, meta)
             sel = SELECTOR_OVERRIDES.get((e["name"], f["key"]))
@@ -731,7 +727,7 @@ stop_call_mic:
         text: null
 set_default_devices:
   name: Đặt thiết bị mặc định
-  description: 'Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng). Loa, mic, camera KHÔNG còn mặc định - do quy tắc/automation chọn cho từng cuộc gọi. Trường nào bỏ trống thì giữ nguyên.'
+  description: 'Đặt các chế độ tự động mặc định (tự phát mic, tự đồng ý video, chống vọng, âm lượng) và độ to phần mềm của mic/loa, tham số chống vọng trễ. Loa, mic, camera KHÔNG còn mặc định - do quy tắc/automation chọn cho từng cuộc gọi. Trường nào bỏ trống thì giữ nguyên.'
   fields:
     auto_mic:
       name: Tự phát mic khi nghe máy
@@ -778,6 +774,60 @@ set_default_devices:
           max: 100
           mode: slider
           unit_of_measurement: '%'
+    mic_gain:
+      name: Độ to mic gửi sang bên kia (phần mềm, %)
+      description: 'Độ to PHẦN MỀM của tiếng mic gửi đi, độc lập với cài đặt của loa R1. 100 % = 0 dB (giữ nguyên), 200 % = +6 dB, 50 % = −6 dB; 0 = giữ nguyên. Là mặc định cho mọi cuộc gọi; quy tắc (set_rule), make_call/answer_call và nút −/+ trên WebUI ghi đè. Ghi thẳng vào app nên WebUI hiện đúng giá trị này.'
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 5
+          mode: slider
+          unit_of_measurement: '%'
+    speaker_gain:
+      name: Độ to tiếng bên kia ra loa (phần mềm, %)
+      description: 'Độ to PHẦN MỀM của tiếng bên kia phát ra loa. 100 % = 0 dB, 0 = giữ nguyên. Mặc định cho mọi cuộc gọi; quy tắc và nút −/+ ghi đè.'
+      selector:
+        number:
+          min: 0
+          max: 300
+          step: 5
+          mode: slider
+          unit_of_measurement: '%'
+    echo_delay_min_ms:
+      name: Chống vọng — trễ loa→mic thấp nhất (ms)
+      description: 'Cửa sổ trễ để nhận ra VỌNG TRỄ của loa song công (loa R1 đo được 450–550 ms). Phải đi cùng «trễ cao nhất» và nhỏ hơn nó; cùng 0 = tắt bù trễ. Mặc định máy chủ 300–750.'
+      selector:
+        number:
+          min: 0
+          max: 3000
+          step: 10
+          mode: box
+          unit_of_measurement: ms
+    echo_delay_max_ms:
+      name: Chống vọng — trễ loa→mic cao nhất (ms)
+      description: 'Xem «trễ thấp nhất». Mic nhỏ hơn «ngưỡng × tiếng loa» trong cửa sổ trễ này bị coi là vọng và không gửi; to hơn (người nhà nói chen) thì cho qua.'
+      selector:
+        number:
+          min: 0
+          max: 3000
+          step: 10
+          mode: box
+          unit_of_measurement: ms
+    echo_ratio:
+      name: Chống vọng — ngưỡng (×)
+      description: 'Mic bị coi là vọng khi to < ngưỡng × đỉnh tiếng loa trong cửa sổ trễ. Mặc định 2,0; tăng nếu vẫn lọt vọng, giảm nếu người nhà nói chen bị cắt.'
+      selector:
+        number:
+          min: 0.5
+          max: 10
+          step: 0.1
+          mode: box
+    echo_use_default:
+      name: Chống vọng — trở về mặc định của máy chủ
+      description: Bật để xóa cả ba giá trị chống vọng trễ ở trên và theo mặc định / biến môi trường ZALO_PC_ECHO_* của máy chủ.
+      selector:
+        boolean: null
 say_in_call:
   name: Đọc lên cuộc gọi (TTS)
   description: Đọc một câu bằng TTS của HA lên cuộc gọi đang nói.
@@ -1126,7 +1176,7 @@ list_contacts:
   description: Trả về bạn bè và nhóm (id, tên) của tài khoản trong app, để lấy threadID cho set_rule.
 get_default_devices:
   name: Xem mic/loa/camera mặc định
-  description: Trả về cài đặt thiết bị mặc định hiện tại (đặt bằng set_default_devices).
+  description: Trả về cài đặt thiết bị mặc định hiện tại, gồm độ to mic/loa và chống vọng đọc từ app (đặt bằng set_default_devices, WebUI hoặc thực thể số).
 get_app_settings:
   name: Đọc cài đặt của app
   description: 'Đọc mọi cài đặt của app Zalo Call (tài khoản app, webhook, thiết bị, lưu trữ, proxy, bảo mật, đồng bộ lịch sử) cùng cài đặt phía HA. Dùng để cấu hình/sao lưu từ HA, nhất là khi app chạy không có giao diện web. Bí mật (địa chỉ webhook, mật khẩu) bị che trừ khi bật «Hiện bí mật». Mật khẩu app được app lưu dạng băm nên không đọc ngược được: «Hiện bí mật» chỉ cho thấy mật khẩu HA đang dùng.'

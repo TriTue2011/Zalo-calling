@@ -176,11 +176,9 @@ def test_catalog_body_unverified_flagged():
     The rest carry fully bundle-verified bodies (SERVICE-MAP.md
     §4 + bundle greps 2026-11-05)."""
     unverified = {
-        "add_reaction",                       # chi icon 'like' thu that tren phien PC
-        "change_account_avatar", "change_group_avatar",   # multipart: can kich thuoc anh + metaData (zca-js changeAccountAvatar)
-        "delete_chat",                        # bundle luon gui cliMsgId + conver cua tin cuoi; app chi gui khi caller truyen
+        "delete_chat",                        # bundle luon gui cliMsgId + conver cua tin cuoi; app chi gui khi caller truyen (dinh dang `conver` chua ro)
     }
-    assert len(unverified) == 4, unverified
+    assert len(unverified) == 1, unverified
     for action, spec in svc_mod.OPS.items():
         if action in unverified:
             assert spec["body_unverified"] is True, action
@@ -418,6 +416,7 @@ def test_dispatch_group_ops():
             files={"file": ("avt.png", "image/png", b"FAKEPNG")})
         assert d["path"] == "/api/group/upavatar", d
         assert d["body"]["grid"] == "30001", d
+        assert d["body"]["avatarSize"] == 160, "bundle PC: updateAvatar(groupId, 160, …)"
         assert isinstance(d["body"]["clientId"], int), d
         assert d["body"]["originWidth"] == 800, d
         assert d["body"]["originHeight"] == 600, d

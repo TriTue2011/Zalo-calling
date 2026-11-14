@@ -67,7 +67,7 @@ def test_connect_parts_carry_their_own_gain_only():
 
 def test_services_and_bridge_know_the_new_fields():
     svc = open(os.path.join(CC, "services.py"), encoding="utf-8").read()
-    assert svc.count('vol.Optional("mic_gain")') == 2 and svc.count('vol.Optional("speaker_gain")') == 2     # lược đồ dịch vụ thiết bị + lược đồ quy tắc
+    assert svc.count('vol.Optional("mic_gain")') == 3 and svc.count('vol.Optional("speaker_gain")') == 3     # lược đồ dịch vụ thiết bị + lược đồ quy tắc + set_default_devices (ghi thẳng vào app)
     assert '"mic_gain", "speaker_gain")' in svc                                         # khoá cho phép trong _RULE_FIELDS và _explicit_devices
     br = open(os.path.join(CC, "bridge.py"), encoding="utf-8").read()
     assert 'for key, field in (("mic_gain", "mic_url"), ("speaker_gain", "speaker_url"))' in br
