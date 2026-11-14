@@ -45,6 +45,8 @@ class FakeZaloApp:
         self.fail_next: tuple[int, dict] | None = None
         self.devices: dict = {}                    # cài đặt thiết bị của app (devices.json giả)
         self.device_posts: list[dict] = []
+        self.device_queries: list[str] = []          # chuỗi truy vấn của GET /api/settings/devices (client=web|pc)
+        self.login_client = "pc"                      # kiểu đăng nhập app đang dùng
 
     def last(self, part: str) -> dict:
         return [r for r in self.requests if part in r["path"]][-1]
@@ -65,14 +67,17 @@ class FakeZaloApp:
         if p == "/api/app/login":
             return web.json_response({"ok": True})
         if p == "/api/status":
-            return web.json_response({"version": "test", "login": True, "sync": "running", "uid": "1"})
+            return web.json_response({"version": "test", "login": True, "sync": "running", "uid": "1", "client": self.login_client})
         if p == "/api/calls":
             return web.json_response({"calls": []})
         if p == "/api/settings/devices":
             if request.method == "POST" and isinstance(body, dict):
                 self.device_posts.append(body)
-                self.devices.update({k: (None if v == "" else v) for k, v in body.items()})
-            return web.json_response({"ok": True, "devices": self.devices})
+                self.devices.update({k: (None if v == "" else v) for k, v in body.items() if k != "client"})
+            else:
+                self.device_queries.append(request.query_string)
+            return web.json_response({"ok": True, "devices": self.devices, "client": request.query.get("client") or (body or {}).get("client") or self.login_client,
+                                      "active": self.login_client})
         if p.startswith("/api/thread/"):
             return web.json_response({"ok": True, "data": {"msgId": "8474"}, "message": {"id": "1", "client_id": "1", "text": (body or {}).get("message", "")}})
         if p == "/api/svc/search_sticker":
@@ -691,3 +696,25 @@ async def test_audio_number_entities_follow_the_app_and_write_through(hass, setu
     assert app.device_posts[-1] == {"echo_delay_min_ms": 500, "echo_delay_max_ms": 700}, "app kiểm cặp (thấp < cao) nên luôn gửi đủ hai"
     await hass.services.async_call("number", "set_value", {"entity_id": ent["echo_ratio"], "value": 3.25}, blocking=True)
     assert app.device_posts[-1] == {"echo_ratio": 3.25}
+
+
+# ---- đồng bộ theo từng kiểu đăng nhập (web | pc): HA thấy kiểu đang dùng và sửa/đọc được bộ cài đặt của từng kiểu (14/11) ---------------------
+async def test_status_sensor_shows_the_active_login_client(hass, setup, app):
+    sid = er.async_get(hass).async_get_entity_id("sensor", DOMAIN, "%s_login_state" % setup.entry_id)
+    assert sid, "không thấy cảm biến trạng thái"
+    from homeassistant.helpers.entity_component import async_update_entity
+    await async_update_entity(hass, sid)
+    a = hass.states.get(sid).attributes
+    assert a.get("kieu_dang_nhap") == "pc" and a.get("kieu_dang_nhap_ten") == "PC (Zalo PC)", a
+
+
+async def test_default_devices_services_target_the_login_client(hass, setup, app):
+    await hass.services.async_call(DOMAIN, "set_default_devices", {"mic_gain": 130, "client": "web"}, blocking=True)
+    assert {"mic_gain": 130, "client": "web"} in app.device_posts, "ghi vào bộ của kiểu web dù app đang đăng nhập kiểu pc"
+    got = await call(hass, "get_default_devices", {"client": "web"})
+    assert "client=web" in app.device_queries and got["kieu_dang_nhap"] == "web" and got["kieu_dang_nhap_dang_dung"] == "pc", got
+    got = await call(hass, "get_default_devices", {})
+    assert got["kieu_dang_nhap"] == "pc", "bỏ trống: kiểu đang dùng"
+    import voluptuous as vol
+    with pytest.raises(vol.Invalid):
+        await hass.services.async_call(DOMAIN, "set_default_devices", {"mic_gain": 1, "client": "android"}, blocking=True)

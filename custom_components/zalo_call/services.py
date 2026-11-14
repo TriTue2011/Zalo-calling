@@ -550,11 +550,14 @@ async def async_register_services(hass: HomeAssistant) -> None:
         rt, api = _api(hass, call)
         out = {k: rt.defaults.get(k) for k in ("auto_mic", "auto_video", "video_consent", "auto_video_delay",
                                                  "call_volume", "echo_guard", "ha_url")}
+        client = call.data.get("client")                       # bộ của kiểu đăng nhập nào (bỏ trống = kiểu đang dùng)
         try:                                                 # độ to mic/loa và chống vọng nằm ở APP (cùng nơi WebUI ghi): đọc thẳng từ đó
-            app = await api.devices_get()
+            state = await api.devices_state(client)
         except ZaloCallError:
-            app = {}
+            state = {}
+        app = state.get("devices") or {}
         out.update({k: app.get(k) for k in _APP_AUDIO_KEYS if k in app})
+        out.update(kieu_dang_nhap=state.get("client"), kieu_dang_nhap_dang_dung=state.get("active"))
         return out
 
     async def take_over_call(call: ServiceCall) -> dict:
@@ -878,11 +881,14 @@ async def async_register_services(hass: HomeAssistant) -> None:
         app_patch = {k: call.data[k] for k in _APP_AUDIO_KEYS if k in call.data}
         if call.data.get("echo_use_default"):                # bỏ trống cả ba = app theo mặc định / biến môi trường của máy chủ
             app_patch.update(echo_delay_min_ms="", echo_delay_max_ms="", echo_ratio="")
+        client = call.data.get("client")                      # sửa bộ cài đặt của kiểu đăng nhập nào (web | pc); bỏ trống = kiểu đang dùng
+        if client and app_patch:
+            app_patch["client"] = client
         if app_patch:                                         # ghi thẳng vào app (devices.json): WebUI và HA dùng chung một nguồn, không lệch nhau
             try:
                 lo, hi = "echo_delay_min_ms", "echo_delay_max_ms"
                 if (lo in app_patch) != (hi in app_patch) and "" not in (app_patch.get(lo), app_patch.get(hi)):      # app kiểm cặp (thấp < cao): đưa một ô thì lấy ô kia từ app
-                    cur = await api.devices_get()
+                    cur = await api.devices_get(client)
                     other = hi if lo in app_patch else lo
                     app_patch[other] = cur.get(other) if isinstance(cur.get(other), (int, float)) else (750 if other == hi else 300)
                 await api.devices_set(app_patch)
@@ -921,6 +927,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
                            vol.Optional("echo_delay_max_ms"): vol.All(vol.Coerce(int), vol.Range(min=0, max=3000)),
                            vol.Optional("echo_ratio"): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=10)),
                            vol.Optional("echo_use_default"): cv.boolean,
+                           vol.Optional("client"): vol.In(["web", "pc"]),
                            }))
 
     devices = {vol.Optional("connect"): vol.All(cv.ensure_list, [vol.In(list(CONNECT))]),
@@ -991,7 +998,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
                            vol.Optional("tags"): vol.Any(cv.string, [cv.string]), vol.Optional("note"): cv.string}),
         supports_response=SupportsResponse.OPTIONAL)
     for _name, _fn in (("list_rules", list_rules), ("list_contacts", list_contacts), ("get_default_devices", get_default_devices)):
-        hass.services.async_register(DOMAIN, _name, _fn, schema=vol.Schema({vol.Optional("entry_id"): cv.string}),
+        hass.services.async_register(DOMAIN, _name, _fn, schema=vol.Schema({vol.Optional("entry_id"): cv.string, **({vol.Optional("client"): vol.In(["web", "pc"])} if _name == "get_default_devices" else {})}),
                                      supports_response=SupportsResponse.ONLY)
     hass.services.async_register(
         DOMAIN, "accept_video", accept_video,

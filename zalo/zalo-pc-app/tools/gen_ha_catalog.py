@@ -828,6 +828,14 @@ set_default_devices:
       description: Bật để xóa cả ba giá trị chống vọng trễ ở trên và theo mặc định / biến môi trường ZALO_PC_ECHO_* của máy chủ.
       selector:
         boolean: null
+    client:
+      name: Kiểu đăng nhập
+      description: 'Web và PC là hai phiên Zalo riêng nên app lưu bộ cài đặt thiết bị RIÊNG cho từng kiểu (độ to, chống vọng, nguồn mic/camera…). Chọn bộ của kiểu nào sẽ được sửa; bỏ trống = kiểu đang đăng nhập. Kiểu đang dùng xem ở thuộc tính «kieu_dang_nhap» của cảm biến trạng thái Zalo.'
+      selector:
+        select:
+          options:
+          - web
+          - pc
 say_in_call:
   name: Đọc lên cuộc gọi (TTS)
   description: Đọc một câu bằng TTS của HA lên cuộc gọi đang nói.
@@ -1177,6 +1185,15 @@ list_contacts:
 get_default_devices:
   name: Xem mic/loa/camera mặc định
   description: Trả về cài đặt thiết bị mặc định hiện tại, gồm độ to mic/loa và chống vọng đọc từ app (đặt bằng set_default_devices, WebUI hoặc thực thể số).
+  fields:
+    client:
+      name: Kiểu đăng nhập
+      description: Xem bộ cài đặt của kiểu đăng nhập nào (web hoặc pc); bỏ trống = kiểu đang dùng. Kết quả kèm «kieu_dang_nhap» (bộ đang xem) và «kieu_dang_nhap_dang_dung».
+      selector:
+        select:
+          options:
+          - web
+          - pc
 get_app_settings:
   name: Đọc cài đặt của app
   description: 'Đọc mọi cài đặt của app Zalo Call (tài khoản app, webhook, thiết bị, lưu trữ, proxy, bảo mật, đồng bộ lịch sử) cùng cài đặt phía HA. Dùng để cấu hình/sao lưu từ HA, nhất là khi app chạy không có giao diện web. Bí mật (địa chỉ webhook, mật khẩu) bị che trừ khi bật «Hiện bí mật». Mật khẩu app được app lưu dạng băm nên không đọc ngược được: «Hiện bí mật» chỉ cho thấy mật khẩu HA đang dùng.'

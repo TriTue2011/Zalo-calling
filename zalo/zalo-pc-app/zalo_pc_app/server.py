@@ -1202,7 +1202,7 @@ class AppState(events_calls.CallEvents, video_calls.VideoCalls, incoming_calls.I
             os.path.join(data_dir, "srtp_mode.json"))
         self.audio_tokens = call_audio_mod.CallAudioTokens()
         self.devices = devices_mod.DeviceStore(
-            os.path.join(data_dir, "devices.json"))
+            os.path.join(data_dir, "devices.json"), client_fn=protocol.client_name)
         # App login (cong ngoai): load from env unless the caller
         # injects one (tests). Missing credentials -> auth is None and
         # auth_error names the missing env vars; main() refuses to
@@ -3437,6 +3437,7 @@ class Handler(media_ctl_calls.MediaControl, voice_calls.VoiceHandler, video_call
             status = STATE.public_status(app_user)
             status["sync_lag_ms"] = STATE.lag_summary()
             status["ui"] = UI_ENABLED                      # bản KHÔNG giao diện báo false
+            status["client"] = protocol.client_name()      # kiểu đăng nhập ĐANG DÙNG (web | pc): HA/WebUI hiện đúng và dùng đúng bộ cài đặt thiết bị của kiểu đó
             status["keepalive"] = {"opened": _KEEPALIVE_POOL.opened}     # so ket noi poller da mo (it = giu song tot)
             status["receipts"] = {"sent": RECEIPTS.sent, "failed": RECEIPTS.failed, "last_error": RECEIPTS.last_error}
             return self._send_json(status)
@@ -3503,8 +3504,13 @@ class Handler(media_ctl_calls.MediaControl, voice_calls.VoiceHandler, video_call
             if self._require_login() is None:
                 return self._send_json({"error": "chua_dang_nhap"},
                                        status=401)
-            return self._send_json({"ok": True,
-                                    "devices": STATE.devices.public()})
+            qs = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(self.path).query))
+            try:
+                dev = STATE.devices.public(qs.get("client"))
+            except ValueError as exc:
+                return self._send_json({"ok": False, "error": str(exc)}, status=400)
+            return self._send_json({"ok": True, "devices": dev, "client": qs.get("client") or STATE.devices.active_client(),
+                                    "active": STATE.devices.active_client(), "all": STATE.devices.public_all()})
         if path == "/api/retention":
             if self._require_login() is None:
                 return self._send_json({"error": "chua_dang_nhap"}, status=401)
@@ -4618,12 +4624,14 @@ class Handler(media_ctl_calls.MediaControl, voice_calls.VoiceHandler, video_call
                 return self._send_json({"error": "chua_dang_nhap"},
                                        status=401)
             try:
-                STATE.devices.update(body)
+                which = body.pop("client", None) if isinstance(body, dict) else None      # sua bo cua kieu dang nhap khac (khong bat buoc)
+                STATE.devices.update(body, which)
             except ValueError as exc:
                 return self._send_json({"ok": False, "error": str(exc)[:80]},
                                        status=400)
             return self._send_json({"ok": True,
-                                    "devices": STATE.devices.public()})
+                                    "devices": STATE.devices.public(which), "client": which or STATE.devices.active_client(),
+                                    "active": STATE.devices.active_client()})
         if path in ("/api/call/video", "/api/call/media",
                     "/api/call/upgrade_video"):
             if self._require_login() is None:

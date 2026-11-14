@@ -1390,7 +1390,8 @@ async function setData() {
     ...rows, h("div", { style: "margin-top:.75rem" }, clean), note);
 }
 async function setCalls() {
-  const r = await api("/api/settings/devices"), d = (r && r.devices) || {}, v = d.video || {}, note = h("p", { class: "inote", role: "status" });
+  const r = await api("/api/settings/devices" + (S.devClient ? "?client=" + S.devClient : "")), d = (r && r.devices) || {}, v = d.video || {}, note = h("p", { class: "inote", role: "status" });
+  const KIND = { web: "Web (Qua Web)", pc: "PC (Zalo PC)" }, cur = (r && r.client) || "pc", act = (r && r.active) || cur;
   const txt = (id, label, val, ph) => h("div", { class: "field" }, h("label", { for: id }, label), h("input", { type: "text", id, value: val || "", placeholder: ph || "", spellcheck: "false", autocomplete: "off" }));
   const num = (id, label, val, min, max, step) => h("div", { class: "field" }, h("label", { for: id }, label), h("input", { type: "number", id, value: String(val), min, max, step }));
   const chk = (id, label, val) => h("label", { class: "chk" }, h("input", { type: "checkbox", id, checked: !!val }), label);
@@ -1400,7 +1401,7 @@ async function setCalls() {
     return h("div", { class: "field" }, h("label", { for: id }, label + " (%, 0 = giữ nguyên · tối đa 300)"), h("div", { style: "display:flex;gap:.5rem;align-items:center" }, inp, out)); };
   const fmt = h("select", { id: "dev-mic-format" }, h("option", { value: "auto", selected: (d.mic_format || "auto") === "auto" }, "Tự nhận (rtsp, http, tệp)"), h("option", { value: "s16le16k", selected: d.mic_format === "s16le16k" }, "PCM16 mono 16 kHz thô (mic loa R1)"));
   const save = async () => {
-    const g = (id) => $(id), body = { mic_url: g("dev-mic-url").value.trim(), mic_format: g("dev-mic-format").value, auto_mic: g("dev-auto-mic").checked, speaker_url: g("dev-speaker-url").value.trim(), echo_guard: g("dev-echo-guard").checked,
+    const g = (id) => $(id), body = { mic_url: g("dev-mic-url").value.trim(), mic_format: g("dev-mic-format").value, auto_mic: g("dev-auto-mic").checked, client: cur, speaker_url: g("dev-speaker-url").value.trim(), echo_guard: g("dev-echo-guard").checked,
       mic_gain: +g("dev-mic-gain").value || 0, speaker_gain: +g("dev-speaker-gain").value || 0,
       echo_delay_min_ms: g("dev-echo-min").value.trim(), echo_delay_max_ms: g("dev-echo-max").value.trim(), echo_ratio: g("dev-echo-ratio").value.trim(),
       camera_url: g("dev-camera-url").value.trim(), auto_video_on_request: g("dev-auto-video").checked, auto_video_delay: +g("dev-auto-delay").value || 0,
@@ -1409,6 +1410,10 @@ async function setCalls() {
     note.textContent = res.ok ? "Đã lưu." : "Không lưu được: " + (res.error || "không rõ");
   };
   return h("div", {},
+    section("set-login-kind", "Kiểu đăng nhập",
+      h("p", { class: "inote" }, "Web và PC là hai phiên Zalo riêng nên mỗi kiểu có bộ cài đặt thiết bị riêng. Đổi kiểu đăng nhập thì app tự dùng bộ của kiểu đó. Chọn kiểu ở dưới để xem hoặc sửa bộ của kiểu ấy (kể cả kiểu chưa đang dùng)."),
+      h("div", { class: "seg", role: "group" }, ["web", "pc"].map((id) => h("button", { type: "button", "aria-pressed": String(cur === id), onclick: () => { S.devClient = id; renderSettings("set-calls"); } }, KIND[id] + (act === id ? " · đang dùng" : "")))),
+      cur !== act ? h("p", { class: "inote", role: "status" }, "Đang xem bộ của kiểu " + KIND[cur] + " — chưa áp dụng vì app đang đăng nhập kiểu " + KIND[act] + ".") : null),
     section("set-calls", "Mic (tiếng gửi sang bên kia)",
       txt("dev-mic-url", "Nguồn mic (URL)", d.mic_url, "rtsp://… (camera/go2rtc) · http://HA:8123/api/r1_speaker/mic/…?k=… (loa R1) · test"),
       h("div", { class: "field" }, h("label", { for: "dev-mic-format" }, "Định dạng"), fmt),

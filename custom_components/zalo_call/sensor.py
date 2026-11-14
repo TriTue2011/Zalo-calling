@@ -109,6 +109,8 @@ class ZaloLoginStateSensor(CoordinatorEntity, SensorEntity):
             out["co_webui"] = bool(st["ui"])
         if st.get("login"):
             out.update({"uid": st.get("uid"), "so_dien_thoai": st.get("phonenum")})
+            if st.get("client") in qr_login.CLIENTS:         # kiểu đăng nhập ĐANG DÙNG: mỗi kiểu có bộ cài đặt thiết bị riêng trong app
+                out.update({"kieu_dang_nhap": st["client"], "kieu_dang_nhap_ten": qr_login.CLIENT_LABEL[st["client"]]})
         else:
             out.update({k: v for k, v in qr_login.attributes(data.get("qr")).items() if k in ("kieu_dang_nhap", "kieu_dang_nhap_ten", "het_han_sau_giay", "loi", "canh_bao")})
         return out

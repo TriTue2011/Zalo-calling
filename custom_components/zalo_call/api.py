@@ -199,8 +199,13 @@ class ZaloCallApi:
                 return c.get("media")
         return None
 
-    async def devices_get(self) -> dict:
-        return (await self._request("GET", "/api/settings/devices")).get("devices", {})
+    async def devices_get(self, client: str | None = None) -> dict:
+        """Cai dat thiet bi cua kieu dang nhap `client` (web | pc); bo trong = kieu DANG DUNG."""
+        return (await self.devices_state(client)).get("devices", {})
+
+    async def devices_state(self, client: str | None = None) -> dict:
+        """Phan hoi day du: devices (bo cua `client`), client, active (kieu dang dung) va all (ca hai bo)."""
+        return await self._request("GET", "/api/settings/devices" + ("?client=%s" % client if client else ""))
 
     async def devices_set(self, patch: dict) -> dict:
         """Dat thiet bi mac dinh cua app (mic_url, mic_format, camera_url, video, auto_*)."""

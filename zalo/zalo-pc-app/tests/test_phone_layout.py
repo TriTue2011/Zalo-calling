@@ -226,7 +226,7 @@ def test_settings_menu_opens_exactly_the_chosen_section():
         return
     m = measure()
     want = {"account": "Tài khoản và kết nối", "security": "Bảo mật", "privacy": "Quyền riêng tư", "history": "Đồng bộ lịch sử chat từ điện thoại",
-            "data": "Dữ liệu và tự xóa", "calls": "Mic (tiếng gửi sang bên kia)", "ui": "Giao diện", "webhook": "Webhook (Home Assistant, n8n…)", "proxy": "Proxy ra Zalo"}
+            "data": "Dữ liệu và tự xóa", "calls": "Kiểu đăng nhập", "ui": "Giao diện", "webhook": "Webhook (Home Assistant, n8n…)", "proxy": "Proxy ra Zalo"}
     for w in (390, 320, 1280):
         r = json.loads(m["settings_all@%d" % w]["steps"][0])
         assert len(r["items"]) == 9, r

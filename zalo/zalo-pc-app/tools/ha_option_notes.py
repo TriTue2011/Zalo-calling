@@ -15,6 +15,7 @@ _COLORS = {"red": "đỏ", "orange": "cam", "yellow": "vàng", "green": "xanh l�
 
 # (tên ô, bộ lựa chọn) -> {giá trị: giải thích}; bộ lựa chọn = tuple theo đúng thứ tự trong services.yaml
 GENERIC = {
+    ("client", ("web", "pc")): {"web": "bộ cài đặt của kiểu đăng nhập «Qua Web» (phiên Zalo Web)", "pc": "bộ cài đặt của kiểu đăng nhập «Zalo PC» (phiên Zalo PC)"},
     ("type", ("user", "group")): _THREAD,
     ("type", ("user", "video", "group")): {"user": "gọi thoại 1-1", "video": "gọi video 1-1", "group": "gọi nhóm"},
     ("type", ("user", "video")): {"user": "gọi thoại", "video": "gọi video"},

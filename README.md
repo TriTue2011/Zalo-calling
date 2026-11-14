@@ -607,6 +607,7 @@ data:
   echo_delay_max_ms: 0     # tuỳ chọn - Chống vọng — trễ loa→mic cao nhất (ms)
   echo_ratio: 0.5          # tuỳ chọn - Chống vọng — ngưỡng (×)
   echo_use_default: false  # tuỳ chọn - Chống vọng — trở về mặc định của máy chủ
+  client: "web"            # tuỳ chọn - Kiểu đăng nhập
 ```
 
 | Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
@@ -623,6 +624,7 @@ data:
 | `echo_delay_max_ms` | Chống vọng — trễ loa→mic cao nhất (ms) | không | Xem «trễ thấp nhất». Mic nhỏ hơn «ngưỡng × tiếng loa» trong cửa sổ trễ này bị coi là vọng và không gửi; to hơn (người nhà nói chen) thì cho qua. |
 | `echo_ratio` | Chống vọng — ngưỡng (×) | không | Mic bị coi là vọng khi to < ngưỡng × đỉnh tiếng loa trong cửa sổ trễ. Mặc định 2,0; tăng nếu vẫn lọt vọng, giảm nếu người nhà nói chen bị cắt. |
 | `echo_use_default` | Chống vọng — trở về mặc định của máy chủ | không | Bật để xóa cả ba giá trị chống vọng trễ ở trên và theo mặc định / biến môi trường ZALO_PC_ECHO_* của máy chủ. |
+| `client` | Kiểu đăng nhập | không | Web và PC là hai phiên Zalo riêng nên app lưu bộ cài đặt thiết bị RIÊNG cho từng kiểu (độ to, chống vọng, nguồn mic/camera…). Chọn bộ của kiểu nào sẽ được sửa; bỏ trống = kiểu đang đăng nhập. Kiểu đang dùng xem ở thuộc tính «kieu_dang_nhap» của cảm biến trạng thái Zalo. |
 
 **Các lựa chọn:**
 
@@ -631,6 +633,9 @@ data:
   - `on`: luôn chặn mic khi loa đang phát tiếng bên kia
   - `duplex`: song công: nói chen được (loa R1 dùng bộ khử vọng riêng)
   - `off`: tắt chống vọng
+- **Kiểu đăng nhập** (`client`)
+  - `web`: bộ cài đặt của kiểu đăng nhập «Qua Web» (phiên Zalo Web)
+  - `pc`: bộ cài đặt của kiểu đăng nhập «Zalo PC» (phiên Zalo PC)
 
 
 <a id="get_default_devices"></a>
@@ -642,7 +647,19 @@ Trả về cài đặt thiết bị mặc định hiện tại, gồm độ to m
 
 ```yaml
 action: zalo_call.get_default_devices
+data:
+  client: "web"  # tuỳ chọn - Kiểu đăng nhập
 ```
+
+| Ô | Tên hiển thị | Bắt buộc | Ý nghĩa |
+|---|---|---|---|
+| `client` | Kiểu đăng nhập | không | Xem bộ cài đặt của kiểu đăng nhập nào (web hoặc pc); bỏ trống = kiểu đang dùng. Kết quả kèm «kieu_dang_nhap» (bộ đang xem) và «kieu_dang_nhap_dang_dung». |
+
+**Các lựa chọn:**
+
+- **Kiểu đăng nhập** (`client`)
+  - `web`: bộ cài đặt của kiểu đăng nhập «Qua Web» (phiên Zalo Web)
+  - `pc`: bộ cài đặt của kiểu đăng nhập «Zalo PC» (phiên Zalo PC)
 
 
 ### Dịch vụ quy tắc cho cuộc gọi đến và tin nhắn
@@ -1018,6 +1035,8 @@ Sticker: `zalo_call.send_sticker` với `keyword: "cảm ơn"` (và `pick: rando
 | Dịch vụ | `zalo_call.set_default_devices` (đọc lại bằng `get_default_devices`) hoặc `zalo_call.set_app_settings` mục `devices` |
 | Thực thể | Năm thực thể `number` trên thiết bị Zalo Call (đổi trong giao diện HA hoặc bằng automation) |
 | Blueprint | `zalo_call_cai_dat_am_thanh`: đặt các giá trị này lúc HA khởi động hoặc khi nhấn nút |
+
+**Theo từng kiểu đăng nhập (Web / PC):** hai kiểu là hai phiên Zalo riêng nên app lưu **bộ cài đặt thiết bị riêng cho từng kiểu** (nguồn mic/camera, độ to, chống vọng…). Đổi kiểu đăng nhập thì app tự dùng bộ của kiểu đó; lần đầu, bộ cũ được kế thừa cho cả hai rồi hai bên độc lập. Kiểu đang dùng hiện ở thuộc tính `kieu_dang_nhap` của cảm biến trạng thái Zalo. Muốn xem/sửa bộ của kiểu khác (kể cả kiểu chưa đang dùng): ô «Kiểu đăng nhập» ở trang **Cài đặt → Cuộc gọi** của WebUI, hoặc trường `client` (`web` | `pc`) của `set_default_devices` / `get_default_devices` và ô «Áp dụng cho kiểu đăng nhập» của blueprint `zalo_call_cai_dat_am_thanh`; bỏ trống = kiểu đang dùng.
 
 Thứ tự ưu tiên của độ to: nút −/+ trong cuộc gọi > quy tắc (`set_rule`) hoặc ô của `make_call` / `answer_call` / `alert_call` > mặc định ở trên > 100 %. Chống vọng trễ để trống thì theo biến môi trường `ZALO_PC_ECHO_DELAY_MS` / `ZALO_PC_ECHO_RATIO` (mặc định 300–750 ms, ngưỡng 2,0).
 

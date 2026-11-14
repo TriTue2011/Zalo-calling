@@ -54,22 +54,48 @@ def valid_source(url):
             or (url.startswith("/") and "\n" not in url and ".." not in url))
 
 
+CLIENTS = ("web", "pc")             # hai kieu dang nhap Zalo: moi kieu la mot phien rieng nen co BO cai dat thiet bi rieng
+
+
 class DeviceStore:
-    def __init__(self, path):
+    """Cai dat thiet bi, luu RIENG cho tung kieu dang nhap (web | pc): doi kieu dang nhap thi bo cua kieu do tu duoc ap dung.
+    `client_fn()` tra kieu DANG DUNG (server truyen protocol.client_name). Tep cu (mot bo phang) duoc nap cho CA HAI kieu lan dau
+    (ke thua), sau do hai ben doc lap. Moi ham doc/ghi nhan `client` tuy chon de xem/sua bo cua kieu khong dang dung."""
+
+    def __init__(self, path, client_fn=None):
         self._path = path
+        self._client_fn = client_fn or (lambda: "pc")
         self._lock = threading.Lock()
-        self._data = self._load()
+        self._sets = self._load()
+
+    def active_client(self):
+        c = str(self._client_fn() or "").lower()
+        return c if c in CLIENTS else "pc"
+
+    def _which(self, client):
+        c = str(client or "").lower()
+        if c and c not in CLIENTS:
+            raise ValueError("client phai la web hoac pc")
+        return c or self.active_client()
 
     def _load(self):
-        data = json.loads(json.dumps(DEFAULTS))
+        fresh = lambda: json.loads(json.dumps(DEFAULTS))          # noqa: E731
+        sets = {c: fresh() for c in CLIENTS}
         try:
             with open(self._path, encoding="utf-8") as fh:
                 raw = json.load(fh)
         except (OSError, ValueError):
-            return data
-        if isinstance(raw, dict):
-            self._merge(data, raw, strict=False)
-        return data
+            return sets
+        if not isinstance(raw, dict):
+            return sets
+        if raw.get("version") == 2 and any(isinstance(raw.get(c), dict) for c in CLIENTS):
+            for c in CLIENTS:
+                if isinstance(raw.get(c), dict):
+                    self._merge(sets[c], raw[c], strict=False)
+        else:                                                      # tep cu: mot bo phang -> ke thua cho ca hai kieu
+            for c in CLIENTS:
+                self._merge(sets[c], raw, strict=False)
+        return sets
 
     @staticmethod
     def _merge(data, patch, strict):
@@ -152,25 +178,33 @@ class DeviceStore:
                     except (TypeError, ValueError):
                         bad("video.%s khong hop le" % key)
 
-    def get(self):
-        """Ban day du (co mat khau) — chi dung trong tien trinh."""
+    def get(self, client=None):
+        """Ban day du (co mat khau) cua kieu `client` (mac dinh: kieu dang dung) — chi dung trong tien trinh."""
         with self._lock:
-            return json.loads(json.dumps(self._data))
+            return json.loads(json.dumps(self._sets[self._which(client)]))
 
-    def public(self):
-        d = self.get()
+    @staticmethod
+    def _mask(d):
         d["mic_url"] = mask_url(d["mic_url"])
         d["camera_url"] = mask_url(d["camera_url"])
         d["speaker_url"] = mask_url(d["speaker_url"])
         return d
 
-    def update(self, patch):
+    def public(self, client=None):
+        return self._mask(self.get(client))
+
+    def public_all(self):
+        """Hai bo (da che mat khau) + kieu dang dung, de WebUI/HA hien thong nhat."""
+        return {"active": self.active_client(), **{c: self.public(c) for c in CLIENTS}}
+
+    def update(self, patch, client=None):
         if not isinstance(patch, dict):
             raise ValueError("thieu noi dung")
         with self._lock:
-            new = json.loads(json.dumps(self._data))
+            which = self._which(client)
+            new = json.loads(json.dumps(self._sets[which]))
             self._merge(new, patch, strict=True)
-            self._data = new
+            self._sets[which] = new
             self._save()
             return json.loads(json.dumps(new))
 
@@ -179,7 +213,7 @@ class DeviceStore:
         try:
             fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with os.fdopen(fd, "w", encoding="utf-8") as fh:
-                json.dump(self._data, fh, ensure_ascii=False)
+                json.dump({"version": 2, **self._sets}, fh, ensure_ascii=False)
             os.replace(tmp, self._path)
         except OSError:
             pass            # khong luu duoc thi van dung ban trong bo nho
